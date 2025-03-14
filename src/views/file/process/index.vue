@@ -1,14 +1,14 @@
 <template>
-  <div class="json-page">
+  <div class="process-page">
     <div class="page-header">
       <div class="header-title">
-        <h2>JSON 格式化</h2>
-        <p class="header-desc">支持 JSON 格式化、压缩、校验和转换</p>
+        <h2>文件处理</h2>
+        <p class="header-desc">支持文件编码转换、文本替换等操作</p>
       </div>
       <div class="header-controls">
         <el-radio-group v-model="mode" size="small">
-          <el-radio-button label="format">格式化</el-radio-button>
-          <el-radio-button label="compress">压缩</el-radio-button>
+          <el-radio-button label="encode">编码转换</el-radio-button>
+          <el-radio-button label="replace">文本替换</el-radio-button>
         </el-radio-group>
         <el-tooltip content="上传文件">
           <el-upload
@@ -29,7 +29,7 @@
       <div class="editor-container">
         <div class="editor-section">
           <div class="editor-header">
-            <span>输入 JSON</span>
+            <span>输入文本</span>
             <div class="editor-controls">
               <el-button-group>
                 <el-button size="small" @click="handleClearInput">
@@ -50,7 +50,7 @@
               v-model="input"
               type="textarea"
               :rows="12"
-              :placeholder="'请输入要处理的 JSON 文本，或拖放文件到此处'"
+              :placeholder="'请输入要处理的文本，或拖放文件到此处'"
               @input="handleInput"
             />
           </div>
@@ -90,21 +90,49 @@
 
       <div class="options-panel">
         <el-form :model="options" label-width="120px" size="small">
-          <el-form-item label="缩进空格数">
-            <el-input-number
-              v-model="options.indentSize"
-              :min="0"
-              :max="8"
-              :step="2"
-              :disabled="mode === 'compress'"
-            />
-          </el-form-item>
-          <el-form-item label="排序键">
-            <el-switch v-model="options.sortKeys" />
-          </el-form-item>
+          <template v-if="mode === 'encode'">
+            <el-form-item label="输入编码">
+              <el-select v-model="options.inputEncoding" placeholder="选择输入编码">
+                <el-option label="UTF-8" value="utf-8" />
+                <el-option label="GBK" value="gbk" />
+                <el-option label="GB2312" value="gb2312" />
+                <el-option label="Big5" value="big5" />
+                <el-option label="Shift-JIS" value="shift-jis" />
+                <el-option label="EUC-JP" value="euc-jp" />
+                <el-option label="EUC-KR" value="euc-kr" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="输出编码">
+              <el-select v-model="options.outputEncoding" placeholder="选择输出编码">
+                <el-option label="UTF-8" value="utf-8" />
+                <el-option label="GBK" value="gbk" />
+                <el-option label="GB2312" value="gb2312" />
+                <el-option label="Big5" value="big5" />
+                <el-option label="Shift-JIS" value="shift-jis" />
+                <el-option label="EUC-JP" value="euc-jp" />
+                <el-option label="EUC-KR" value="euc-kr" />
+              </el-select>
+            </el-form-item>
+          </template>
+
+          <template v-else>
+            <el-form-item label="查找文本">
+              <el-input v-model="options.searchText" placeholder="请输入要查找的文本" />
+            </el-form-item>
+            <el-form-item label="替换文本">
+              <el-input v-model="options.replaceText" placeholder="请输入要替换的文本" />
+            </el-form-item>
+            <el-form-item label="使用正则表达式">
+              <el-switch v-model="options.useRegex" />
+            </el-form-item>
+            <el-form-item label="区分大小写">
+              <el-switch v-model="options.caseSensitive" />
+            </el-form-item>
+          </template>
+
           <el-form-item>
             <el-button type="primary" @click="handleProcess">
-              {{ mode === 'format' ? '格式化' : '压缩' }}
+              {{ mode === 'encode' ? '转换编码' : '替换文本' }}
             </el-button>
           </el-form-item>
         </el-form>
@@ -120,14 +148,20 @@ import { Upload, Download, DocumentCopy, Delete } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
 import type { UploadFile, UploadRawFile } from 'element-plus'
 
-const { copy, paste } = useClipboard()
-const mode = ref<'format' | 'compress'>('format')
+const { copy } = useClipboard()
+const mode = ref<'encode' | 'replace'>('encode')
 const input = ref('')
 const output = ref('')
 
 const options = reactive({
-  indentSize: 2,
-  sortKeys: false
+  // 编码转换选项
+  inputEncoding: 'utf-8',
+  outputEncoding: 'utf-8',
+  // 文本替换选项
+  searchText: '',
+  replaceText: '',
+  useRegex: false,
+  caseSensitive: false
 })
 
 // 处理文件上传
@@ -146,7 +180,7 @@ const handleFileChange = async (uploadFile: UploadFile) => {
         handleProcess()
       }
     }
-    reader.readAsText(file)
+    reader.readAsText(file, options.inputEncoding)
   } catch (error) {
     ElMessage.error('文件处理失败')
   }
@@ -172,26 +206,46 @@ const handleInput = () => {
   }
 }
 
-// 处理格式化/压缩
+// 处理文本
 const handleProcess = () => {
   if (!input.value) {
-    ElMessage.warning('请输入要处理的 JSON 文本')
+    ElMessage.warning('请输入要处理的文本')
     return
   }
 
   try {
-    // 先尝试解析 JSON
-    const parsed = JSON.parse(input.value)
-    
-    if (mode.value === 'format') {
-      // 格式化
-      output.value = JSON.stringify(parsed, options.sortKeys ? Object.keys(parsed).sort() : null, options.indentSize)
+    if (mode.value === 'encode') {
+      // 编码转换
+      const decoder = new TextDecoder(options.inputEncoding)
+      const encoder = new TextEncoder()
+      const bytes = encoder.encode(input.value)
+      output.value = decoder.decode(bytes)
     } else {
-      // 压缩
-      output.value = JSON.stringify(parsed, options.sortKeys ? Object.keys(parsed).sort() : null)
+      // 文本替换
+      if (!options.searchText) {
+        ElMessage.warning('请输入要查找的文本')
+        return
+      }
+
+      if (options.useRegex) {
+        // 使用正则表达式
+        try {
+          const flags = options.caseSensitive ? 'g' : 'gi'
+          const regex = new RegExp(options.searchText, flags)
+          output.value = input.value.replace(regex, options.replaceText)
+        } catch (error) {
+          ElMessage.error('正则表达式格式错误')
+          return
+        }
+      } else {
+        // 普通文本替换
+        const flags = options.caseSensitive ? 'g' : 'gi'
+        const regex = new RegExp(options.searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags)
+        output.value = input.value.replace(regex, options.replaceText)
+      }
     }
   } catch (error) {
-    ElMessage.error('JSON 格式错误，请检查输入')
+    ElMessage.error('处理失败')
     output.value = ''
   }
 }
@@ -205,7 +259,7 @@ const handleClearInput = () => {
 // 粘贴输入
 const handlePasteInput = async () => {
   try {
-    const text = await paste()
+    const text = await navigator.clipboard.readText()
     input.value = text
     handleProcess()
   } catch (error) {
@@ -236,11 +290,11 @@ const handleDownload = () => {
   }
 
   try {
-    const blob = new Blob([output.value], { type: 'application/json' })
+    const blob = new Blob([output.value], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `json_${mode.value === 'format' ? 'formatted' : 'compressed'}_${Date.now()}.json`
+    a.download = `processed_${Date.now()}.txt`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -252,7 +306,7 @@ const handleDownload = () => {
 </script>
 
 <style lang="scss" scoped>
-.json-page {
+.process-page {
   height: 100%;
   display: flex;
   flex-direction: column;

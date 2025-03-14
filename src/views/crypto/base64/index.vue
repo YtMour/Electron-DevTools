@@ -83,11 +83,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Upload, Download, DocumentCopy } from '@element-plus/icons-vue'
+import { Upload, Download, DocumentCopy, Delete } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
 import type { UploadFile, UploadRawFile } from 'element-plus'
+import * as DiffLib from 'diff'
 
 const { copy } = useClipboard()
 const mode = ref<'encode' | 'decode'>('encode')
@@ -194,15 +195,45 @@ const handleDownload = () => {
     ElMessage.error('下载失败')
   }
 }
+
+// 计算差异结果
+const diffResult = computed(() => {
+  if (!leftText.value && !rightText.value) {
+    return ''
+  }
+
+  try {
+    const diff = DiffLib.diffLines(leftText.value, rightText.value)
+    let html = ''
+
+    for (const part of diff) {
+      const color = part.added ? 'var(--el-color-success-light-9)' :
+                   part.removed ? 'var(--el-color-danger-light-9)' :
+                   'transparent'
+      const borderColor = part.added ? 'var(--el-color-success)' :
+                         part.removed ? 'var(--el-color-danger)' :
+                         'transparent'
+      html += `<div style="background-color: ${color}; border-left: 2px solid ${borderColor}; padding: 0 8px;">${
+        part.value.replace(/\n$/, '')
+          .split('\n')
+          .map((line: string) => line || '&nbsp;')
+          .join('\n')
+      }</div>`
+    }
+
+    return html
+  } catch (error) {
+    ElMessage.error('差异对比失败')
+    return ''
+  }
+})
 </script>
 
 <style lang="scss" scoped>
 .base64-page {
-  padding: 24px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: var(--el-bg-color-page);
 
   .page-header {
     margin-bottom: 24px;

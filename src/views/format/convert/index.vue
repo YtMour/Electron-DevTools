@@ -1,14 +1,14 @@
 <template>
-  <div class="json-page">
+  <div class="convert-page">
     <div class="page-header">
       <div class="header-title">
-        <h2>JSON 格式化</h2>
-        <p class="header-desc">支持 JSON 格式化、压缩、校验和转换</p>
+        <h2>格式转换</h2>
+        <p class="header-desc">支持 XML 和 JSON 格式互相转换</p>
       </div>
       <div class="header-controls">
         <el-radio-group v-model="mode" size="small">
-          <el-radio-button label="format">格式化</el-radio-button>
-          <el-radio-button label="compress">压缩</el-radio-button>
+          <el-radio-button label="xml2json">XML 转 JSON</el-radio-button>
+          <el-radio-button label="json2xml">JSON 转 XML</el-radio-button>
         </el-radio-group>
         <el-tooltip content="上传文件">
           <el-upload
@@ -29,7 +29,7 @@
       <div class="editor-container">
         <div class="editor-section">
           <div class="editor-header">
-            <span>输入 JSON</span>
+            <span>{{ mode === 'xml2json' ? '输入 XML' : '输入 JSON' }}</span>
             <div class="editor-controls">
               <el-button-group>
                 <el-button size="small" @click="handleClearInput">
@@ -50,7 +50,7 @@
               v-model="input"
               type="textarea"
               :rows="12"
-              :placeholder="'请输入要处理的 JSON 文本，或拖放文件到此处'"
+              :placeholder="mode === 'xml2json' ? '请输入要转换的 XML 文本，或拖放文件到此处' : '请输入要转换的 JSON 文本，或拖放文件到此处'"
               @input="handleInput"
             />
           </div>
@@ -61,7 +61,7 @@
 
         <div class="editor-section">
           <div class="editor-header">
-            <span>输出结果</span>
+            <span>{{ mode === 'xml2json' ? '输出 JSON' : '输出 XML' }}</span>
             <div class="editor-controls">
               <el-button-group>
                 <el-button size="small" @click="handleCopy">
@@ -79,7 +79,7 @@
               type="textarea"
               :rows="12"
               readonly
-              :placeholder="'处理结果将显示在这里'"
+              :placeholder="'转换结果将显示在这里'"
             />
           </div>
           <div class="editor-footer">
@@ -96,16 +96,13 @@
               :min="0"
               :max="8"
               :step="2"
-              :disabled="mode === 'compress'"
             />
           </el-form-item>
           <el-form-item label="排序键">
             <el-switch v-model="options.sortKeys" />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="handleProcess">
-              {{ mode === 'format' ? '格式化' : '压缩' }}
-            </el-button>
+            <el-button type="primary" @click="handleProcess">转换</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -119,9 +116,11 @@ import { ElMessage } from 'element-plus'
 import { Upload, Download, DocumentCopy, Delete } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
 import type { UploadFile, UploadRawFile } from 'element-plus'
+import { parseXml, serializeXml } from '@/utils/xml'
+import { xml2json, json2xml } from '@/utils/convert'
 
-const { copy, paste } = useClipboard()
-const mode = ref<'format' | 'compress'>('format')
+const { copy } = useClipboard()
+const mode = ref<'xml2json' | 'json2xml'>('xml2json')
 const input = ref('')
 const output = ref('')
 
@@ -172,26 +171,28 @@ const handleInput = () => {
   }
 }
 
-// 处理格式化/压缩
+// 处理格式转换
 const handleProcess = () => {
   if (!input.value) {
-    ElMessage.warning('请输入要处理的 JSON 文本')
+    ElMessage.warning('请输入要转换的文本')
     return
   }
 
   try {
-    // 先尝试解析 JSON
-    const parsed = JSON.parse(input.value)
-    
-    if (mode.value === 'format') {
-      // 格式化
-      output.value = JSON.stringify(parsed, options.sortKeys ? Object.keys(parsed).sort() : null, options.indentSize)
+    if (mode.value === 'xml2json') {
+      // XML 转 JSON
+      const result = xml2json(input.value)
+      output.value = JSON.stringify(result, options.sortKeys ? Object.keys(result).sort() : null, options.indentSize)
     } else {
-      // 压缩
-      output.value = JSON.stringify(parsed, options.sortKeys ? Object.keys(parsed).sort() : null)
+      // JSON 转 XML
+      const json = JSON.parse(input.value)
+      output.value = json2xml(json, {
+        indent: options.indentSize > 0 ? ' '.repeat(options.indentSize) : '',
+        newline: options.indentSize > 0 ? '\n' : ''
+      })
     }
   } catch (error) {
-    ElMessage.error('JSON 格式错误，请检查输入')
+    ElMessage.error('转换失败，请检查输入格式是否正确')
     output.value = ''
   }
 }
@@ -205,7 +206,7 @@ const handleClearInput = () => {
 // 粘贴输入
 const handlePasteInput = async () => {
   try {
-    const text = await paste()
+    const text = await navigator.clipboard.readText()
     input.value = text
     handleProcess()
   } catch (error) {
@@ -236,11 +237,11 @@ const handleDownload = () => {
   }
 
   try {
-    const blob = new Blob([output.value], { type: 'application/json' })
+    const blob = new Blob([output.value], { type: mode.value === 'xml2json' ? 'application/json' : 'application/xml' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `json_${mode.value === 'format' ? 'formatted' : 'compressed'}_${Date.now()}.json`
+    a.download = mode.value === 'xml2json' ? `xml2json_${Date.now()}.json` : `json2xml_${Date.now()}.xml`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -252,7 +253,7 @@ const handleDownload = () => {
 </script>
 
 <style lang="scss" scoped>
-.json-page {
+.convert-page {
   height: 100%;
   display: flex;
   flex-direction: column;
