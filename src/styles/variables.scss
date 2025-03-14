@@ -56,30 +56,4 @@ $transition-base: 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
 // 布局
 $header-height: 60px;
 $sidebar-width: 200px;
-$content-padding: 20px;
-
-// Light theme variables
-:root {
-  --el-bg-color: #ffffff;
-  --el-bg-color-page: #f2f3f5;
-  --el-text-color-primary: #303133;
-  --el-text-color-regular: #606266;
-  --el-border-color-light: #e4e7ed;
-  --el-color-primary: #409eff;
-  --el-color-primary-light-9: #ecf5ff;
-  --el-fill-color-light: #f5f7fa;
-  --el-menu-bg-color: #ffffff;
-}
-
-// Dark theme variables
-[data-theme='dark'] {
-  --el-bg-color: #141414;
-  --el-bg-color-page: #1e1e1e;
-  --el-text-color-primary: #ffffff;
-  --el-text-color-regular: #d1d1d1;
-  --el-border-color-light: #363636;
-  --el-color-primary: #409eff;
-  --el-color-primary-light-9: #1a1a1a;
-  --el-fill-color-light: #262626;
-  --el-menu-bg-color: #141414;
-} 
+$content-padding: 20px; 
