@@ -90,9 +90,9 @@
             type="text"
             class="window-control-btn"
             @click="handleMaximize"
-            title="最大化">
+            :title="isMaximized ? '还原' : '最大化'">
             <el-icon>
-              <FullScreen />
+              <component :is="isMaximized ? 'Scale' : 'FullScreen'" />
             </el-icon>
           </el-button>
           <el-button
@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   HomeFilled,
@@ -128,7 +128,9 @@ import {
   Sunny,
   Minus,
   FullScreen,
-  Close
+  Close,
+  Expand,
+  Scale
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -136,8 +138,36 @@ const isCollapse = ref(false)
 const isDark = ref(false)
 const isMaximized = ref(false)
 
+// 初始化主题
+const initTheme = () => {
+  const darkMode = localStorage.getItem('darkMode')
+  isDark.value = darkMode === 'true'
+  applyTheme(isDark.value)
+}
+
+// 应用主题
+const applyTheme = (dark: boolean) => {
+  const html = document.documentElement
+  if (dark) {
+    html.classList.add('dark')
+    html.setAttribute('data-theme', 'dark')
+  } else {
+    html.classList.remove('dark')
+    html.setAttribute('data-theme', 'light')
+  }
+}
+
+// 监听主题变化
+watch(isDark, (newValue) => {
+  localStorage.setItem('darkMode', String(newValue))
+  applyTheme(newValue)
+})
+
+// 初始化主题
+initTheme()
+
 // 监听窗口最大化状态
-window.ipcRenderer.on('window-maximized-state-changed', (maximized: boolean) => {
+window.ipcRenderer?.on('window-maximized-state-changed', (maximized: boolean) => {
   isMaximized.value = maximized
 })
 
@@ -149,21 +179,20 @@ const toggleCollapse = () => {
 }
 
 const toggleTheme = (val: string | number | boolean) => {
-  // TODO: 实现主题切换逻辑
-  console.log('Theme changed:', val)
+  isDark.value = val === true
 }
 
 // 窗口控制
 const handleMinimize = () => {
-  window.ipcRenderer.send('window-minimize')
+  window.ipcRenderer?.send('window-minimize')
 }
 
 const handleMaximize = () => {
-  window.ipcRenderer.send('window-maximize')
+  window.ipcRenderer?.send('window-maximize')
 }
 
 const handleClose = () => {
-  window.ipcRenderer.send('window-close')
+  window.ipcRenderer?.send('window-close')
 }
 </script>
 

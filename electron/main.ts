@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, globalShortcut } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { join, dirname } from 'node:path'
@@ -55,6 +55,27 @@ function createWindow() {
 
   // 确保菜单栏不可见
   win.setMenuBarVisibility(false)
+
+  // 注册开发者工具快捷键
+  globalShortcut.register('CommandOrControl+Shift+I', () => {
+    if (win?.webContents) {
+      win.webContents.toggleDevTools()
+    }
+  })
+
+  // 注册刷新快捷键
+  globalShortcut.register('CommandOrControl+R', () => {
+    if (win?.webContents) {
+      win.webContents.reload()
+    }
+  })
+
+  // 注册强制刷新快捷键
+  globalShortcut.register('CommandOrControl+Shift+R', () => {
+    if (win?.webContents) {
+      win.webContents.reloadIgnoringCache()
+    }
+  })
 
   // 监听窗口最大化状态变化
   win.on('maximize', () => {
@@ -127,4 +148,9 @@ app.on('activate', () => {
 })
 
 app.whenReady().then(createWindow)
+
+// 清除所有快捷键
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll()
+})
 

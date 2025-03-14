@@ -1,4 +1,4 @@
-import { app, Menu, BrowserWindow, ipcMain } from "electron";
+import { app, Menu, BrowserWindow, globalShortcut, ipcMain } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -31,6 +31,21 @@ function createWindow() {
     }
   });
   win.setMenuBarVisibility(false);
+  globalShortcut.register("CommandOrControl+Shift+I", () => {
+    if (win == null ? void 0 : win.webContents) {
+      win.webContents.toggleDevTools();
+    }
+  });
+  globalShortcut.register("CommandOrControl+R", () => {
+    if (win == null ? void 0 : win.webContents) {
+      win.webContents.reload();
+    }
+  });
+  globalShortcut.register("CommandOrControl+Shift+R", () => {
+    if (win == null ? void 0 : win.webContents) {
+      win.webContents.reloadIgnoringCache();
+    }
+  });
   win.on("maximize", () => {
     win == null ? void 0 : win.webContents.send("window-maximized-state-changed", true);
   });
@@ -80,6 +95,9 @@ app.on("activate", () => {
   }
 });
 app.whenReady().then(createWindow);
+app.on("will-quit", () => {
+  globalShortcut.unregisterAll();
+});
 export {
   MAIN_DIST,
   RENDERER_DIST,
