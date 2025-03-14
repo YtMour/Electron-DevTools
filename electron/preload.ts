@@ -1,24 +1,17 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 
-// --------- Expose some API to the Renderer process ---------
+// 暴露 IPC 通信接口到渲染进程
 contextBridge.exposeInMainWorld('ipcRenderer', {
-  on(...args: Parameters<typeof ipcRenderer.on>) {
-    const [channel, listener] = args
-    return ipcRenderer.on(channel, (event, ...args) => listener(event, ...args))
+  send: (channel: string, ...args: any[]) => {
+    ipcRenderer.send(channel, ...args)
   },
-  off(...args: Parameters<typeof ipcRenderer.off>) {
-    const [channel, ...omit] = args
-    return ipcRenderer.off(channel, ...omit)
+  on: (channel: string, func: (...args: any[]) => void) => {
+    ipcRenderer.on(channel, (event, ...args) => func(...args))
   },
-  send(...args: Parameters<typeof ipcRenderer.send>) {
-    const [channel, ...omit] = args
-    return ipcRenderer.send(channel, ...omit)
+  once: (channel: string, func: (...args: any[]) => void) => {
+    ipcRenderer.once(channel, (event, ...args) => func(...args))
   },
-  invoke(...args: Parameters<typeof ipcRenderer.invoke>) {
-    const [channel, ...omit] = args
-    return ipcRenderer.invoke(channel, ...omit)
-  },
-
-  // You can expose other APTs you need here.
-  // ...
+  removeListener: (channel: string, func: (...args: any[]) => void) => {
+    ipcRenderer.removeListener(channel, func)
+  }
 })

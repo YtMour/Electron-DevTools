@@ -136,6 +136,11 @@ const isCollapse = ref(false)
 const isDark = ref(false)
 const isMaximized = ref(false)
 
+// 监听窗口最大化状态
+window.ipcRenderer.on('window-maximized-state-changed', (maximized: boolean) => {
+  isMaximized.value = maximized
+})
+
 const activeMenu = computed(() => route.path)
 const currentRoute = computed(() => route)
 
@@ -154,7 +159,6 @@ const handleMinimize = () => {
 }
 
 const handleMaximize = () => {
-  isMaximized.value = !isMaximized.value
   window.ipcRenderer.send('window-maximize')
 }
 

@@ -49,12 +49,21 @@ function createWindow() {
     webPreferences: {
       preload: join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: true
     },
   })
 
   // 确保菜单栏不可见
   win.setMenuBarVisibility(false)
+
+  // 监听窗口最大化状态变化
+  win.on('maximize', () => {
+    win?.webContents.send('window-maximized-state-changed', true)
+  })
+
+  win.on('unmaximize', () => {
+    win?.webContents.send('window-maximized-state-changed', false)
+  })
 
   // 注册窗口控制事件
   ipcMain.on('window-minimize', () => {

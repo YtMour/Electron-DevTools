@@ -27,10 +27,16 @@ function createWindow() {
     webPreferences: {
       preload: join(__dirname, "preload.mjs"),
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: true
     }
   });
   win.setMenuBarVisibility(false);
+  win.on("maximize", () => {
+    win == null ? void 0 : win.webContents.send("window-maximized-state-changed", true);
+  });
+  win.on("unmaximize", () => {
+    win == null ? void 0 : win.webContents.send("window-maximized-state-changed", false);
+  });
   ipcMain.on("window-minimize", () => {
     win == null ? void 0 : win.minimize();
   });
