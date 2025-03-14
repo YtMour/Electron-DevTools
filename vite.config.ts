@@ -33,7 +33,12 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@use "@/styles/variables" as *;`,
+        charset: false,
+        additionalData: `
+          @use "sass:math";
+          @use "sass:color";
+          @use "@/styles/variables" as *;
+        `
       },
     },
   },
