@@ -1,0 +1,59 @@
+// 颜色变量
+$primary-color: var(--el-color-primary);
+$success-color: var(--el-color-success);
+$warning-color: var(--el-color-warning);
+$danger-color: var(--el-color-danger);
+$info-color: var(--el-color-info);
+
+// 文字颜色
+$text-primary: var(--el-text-color-primary);
+$text-regular: var(--el-text-color-regular);
+$text-secondary: var(--el-text-color-secondary);
+$text-placeholder: var(--el-text-color-placeholder);
+
+// 边框颜色
+$border-color: var(--el-border-color);
+$border-color-light: var(--el-border-color-light);
+$border-color-lighter: var(--el-border-color-lighter);
+$border-color-extra-light: var(--el-border-color-extra-light);
+
+// 背景颜色
+$background-color: var(--el-bg-color);
+$background-color-overlay: var(--el-bg-color-overlay);
+
+// 字体大小
+$font-size-extra-large: 20px;
+$font-size-large: 18px;
+$font-size-medium: 16px;
+$font-size-base: 14px;
+$font-size-small: 13px;
+$font-size-extra-small: 12px;
+
+// 间距
+$spacing-extra-large: 32px;
+$spacing-large: 24px;
+$spacing-medium: 16px;
+$spacing-base: 12px;
+$spacing-small: 8px;
+$spacing-extra-small: 4px;
+
+// 圆角
+$border-radius-base: 4px;
+$border-radius-small: 2px;
+$border-radius-large: 8px;
+$border-radius-round: 20px;
+$border-radius-circle: 50%;
+
+// 阴影
+$box-shadow-light: var(--el-box-shadow-light);
+$box-shadow: var(--el-box-shadow);
+$box-shadow-dark: var(--el-box-shadow-dark);
+
+// 过渡
+$transition-all: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+$transition-base: 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+
+// 布局
+$header-height: 60px;
+$sidebar-width: 200px;
+$content-padding: 20px; 
