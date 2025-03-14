@@ -1,25 +1,56 @@
 {
-  "name": "electron-vite-project",
+  "name": "devtools-plus",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build && electron-builder",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "format": "prettier --write .",
+    "prepare": "husky install"
   },
   "dependencies": {
-    "vue": "^3.4.21"
+    "vue": "^3.4.21",
+    "vue-router": "^4.2.0",
+    "pinia": "^2.1.0",
+    "element-plus": "^2.5.0",
+    "@element-plus/icons-vue": "^2.3.0",
+    "@vueuse/core": "^10.0.0",
+    "tailwindcss": "^3.4.0",
+    "crypto-js": "^4.2.0",
+    "dayjs": "^1.11.0",
+    "lodash-es": "^4.17.0",
+    "axios": "^1.6.0"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/crypto-js": "^4.2.0",
+    "@types/lodash-es": "^4.17.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-vue": "^5.0.4",
-    "typescript": "^5.2.2",
-    "vite": "^5.1.6",
-    "vue-tsc": "^2.0.26",
+    "autoprefixer": "^10.4.0",
     "electron": "^30.0.1",
     "electron-builder": "^24.13.3",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-vue": "^9.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
+    "postcss": "^8.4.0",
+    "prettier": "^3.0.0",
+    "sass": "^1.70.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.6",
     "vite-plugin-electron": "^0.28.6",
-    "vite-plugin-electron-renderer": "^0.14.5"
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "vue-tsc": "^2.0.26"
+  },
+  "lint-staged": {
+    "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": "eslint --fix",
+    "*.{js,css,md,vue,ts,json}": "prettier --write"
   },
   "main": "dist-electron/main.js"
 }
