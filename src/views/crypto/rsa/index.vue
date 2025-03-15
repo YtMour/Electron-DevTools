@@ -41,7 +41,7 @@
           <el-input
             v-model="form.key"
             type="textarea"
-            :rows="4"
+            :rows="3"
             :placeholder="mode === 'encrypt' ? '请输入 RSA 公钥' : '请输入 RSA 私钥'"
             show-password
           />
@@ -56,7 +56,7 @@
             <el-input
               v-model="form.input"
               type="textarea"
-              :rows="8"
+              :rows="3"
               :placeholder="mode === 'encrypt' ? '请输入要加密的文本，或拖放文件到此处' : '请输入要解密的文本，或拖放文件到此处'"
               @input="handleInput"
             />
@@ -70,7 +70,7 @@
           <el-input
             v-model="form.output"
             type="textarea"
-            :rows="8"
+            :rows="3"
             readonly
             :placeholder="mode === 'encrypt' ? '加密结果' : '解密结果'"
           />
@@ -357,11 +357,31 @@ const handleDownloadPrivate = () => {
     border-radius: 8px;
     padding: 24px;
     box-shadow: var(--el-box-shadow-light);
+    overflow-y: auto;
+
+    :deep(.el-form-item__content) {
+      width: 100%;
+    }
+
+    :deep(.el-textarea__inner) {
+      font-family: var(--el-font-family);
+      font-size: 14px;
+      line-height: 1.6;
+    }
 
     .input-area {
+      width: 100%;
       border: 2px dashed var(--el-border-color);
       border-radius: 4px;
       transition: all 0.3s;
+
+      :deep(.el-textarea__inner) {
+        border: none;
+        
+        &:focus {
+          box-shadow: none;
+        }
+      }
 
       &:hover {
         border-color: var(--el-color-primary);

@@ -14,11 +14,11 @@
 
     <div class="options">
       <div class="option-row">
-        <el-radio-group v-model="selectedAlgorithm">
-          <el-radio-button label="MD5">MD5</el-radio-button>
-          <el-radio-button label="SHA1">SHA-1</el-radio-button>
-          <el-radio-button label="SHA256">SHA-256</el-radio-button>
-          <el-radio-button label="SHA512">SHA-512</el-radio-button>
+        <el-radio-group v-model="algorithm">
+          <el-radio-button label="md5">MD5</el-radio-button>
+          <el-radio-button label="sha1">SHA-1</el-radio-button>
+          <el-radio-button label="sha256">SHA-256</el-radio-button>
+          <el-radio-button label="sha512">SHA-512</el-radio-button>
         </el-radio-group>
       </div>
       
@@ -55,7 +55,7 @@
             <el-input
               v-model="form.input"
               type="textarea"
-              :rows="8"
+              :rows="3"
               :placeholder="mode === 'calculate' ? '请输入要计算哈希值的文本，或拖放文件到此处' : '请输入要验证的原文本，或拖放文件到此处'"
               @input="handleInput"
             />
@@ -79,7 +79,7 @@
           <el-input
             v-model="form.output"
             type="textarea"
-            :rows="mode === 'verify' ? 3 : 3"
+            :rows="3"
             readonly
             :placeholder="mode === 'calculate' ? '哈希计算结果' : '验证结果'"
           />
@@ -301,15 +301,35 @@ const handleCopy = async () => {
     border-radius: 8px;
     padding: 24px;
     box-shadow: var(--el-box-shadow-light);
-  }
+    overflow-y: auto;
 
-  .input-area {
-    border: 2px dashed var(--el-border-color);
-    border-radius: 4px;
-    transition: all 0.3s;
+    :deep(.el-form-item__content) {
+      width: 100%;
+    }
 
-    &:hover {
-      border-color: var(--el-color-primary);
+    :deep(.el-textarea__inner) {
+      font-family: var(--el-font-family);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .input-area {
+      width: 100%;
+      border: 2px dashed var(--el-border-color);
+      border-radius: 4px;
+      transition: all 0.3s;
+
+      :deep(.el-textarea__inner) {
+        border: none;
+        
+        &:focus {
+          box-shadow: none;
+        }
+      }
+
+      &:hover {
+        border-color: var(--el-color-primary);
+      }
     }
   }
 
