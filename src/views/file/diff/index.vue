@@ -77,7 +77,7 @@
 import { ref, reactive, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
-import type { UploadFile } from 'element-plus'
+import type { UploadFile, UploadRawFile } from 'element-plus'
 import { diffWords } from 'diff'
 
 const mode = ref<'text' | 'file'>('text')
@@ -97,19 +97,24 @@ const canCompare = computed(() => {
   }
 })
 
-const handleFileChange = (file: File) => {
-  if (!file) return
+const handleFileChange = (uploadFile: UploadFile) => {
+  if (!uploadFile) return
 
   if (fileList.value.length >= 2) {
     ElMessage.warning('最多只能上传 2 个文件')
     return
   }
 
+  const timestamp = Date.now()
+  const file = uploadFile.raw as File
+  const rawFile = Object.assign(file, { uid: timestamp }) as UploadRawFile
+
   fileList.value.push({
     name: file.name,
+    uid: timestamp,
     size: file.size,
-    type: file.type,
-    raw: file
+    status: 'success',
+    raw: rawFile
   })
 }
 
@@ -155,10 +160,40 @@ const handleClear = () => {
 
 <style lang="scss" scoped>
 .diff-page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  :deep(.el-button) {
+    &.el-button--primary {
+      background-color: var(--el-color-primary);
+      border-color: var(--el-color-primary);
+      color: var(--el-color-white);
+
+      &:not(.is-disabled):hover {
+        background-color: var(--el-color-primary-light-3);
+        border-color: var(--el-color-primary-light-3);
+      }
+
+      &.is-disabled {
+        background-color: var(--el-color-primary-light-5);
+        border-color: var(--el-color-primary-light-5);
+      }
+    }
+
+    &:not(.el-button--primary) {
+      &:not(.is-disabled):hover {
+        color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+        background-color: var(--el-button-hover-bg-color);
+      }
+    }
+  }
+
   .card-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
 
     h3 {
       margin: 0;

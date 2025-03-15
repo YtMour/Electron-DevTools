@@ -1,9 +1,9 @@
 // @see - https://www.electron.build/configuration/configuration
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "YourAppID",
+  "appId": "com.yttools.app",
   "asar": true,
-  "productName": "YourAppName",
+  "productName": "Yt Tools",
   "directories": {
     "output": "release/${version}"
   },
@@ -26,18 +26,38 @@
         ]
       }
     ],
+    "icon": "public/favicon.ico",
     "artifactName": "${productName}-Windows-${version}-Setup.${ext}"
   },
   "nsis": {
     "oneClick": false,
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
-    "deleteAppDataOnUninstall": false
+    "deleteAppDataOnUninstall": false,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Yt Tools",
+    "installerIcon": "public/favicon.ico",
+    "uninstallerIcon": "public/favicon.ico",
+    "installerHeaderIcon": "public/favicon.ico",
+    "warningsAsErrors": false,
+    "allowElevation": true,
+    "runAfterFinish": true,
+    "displayLanguageSelector": true,
+    "installerLanguages": [
+      "zh_CN",
+      "en_US"
+    ],
+    "differentialPackage": true
   },
   "linux": {
     "target": [
       "AppImage"
     ],
     "artifactName": "${productName}-Linux-${version}.${ext}"
+  },
+  "publish": {
+    "provider": "generic",
+    "url": "http://your-update-server.com"
   }
 }

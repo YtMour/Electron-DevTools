@@ -265,6 +265,32 @@ const handleDownload = () => {
   display: flex;
   flex-direction: column;
 
+  :deep(.el-button) {
+    &.el-button--primary {
+      background-color: var(--el-color-primary);
+      border-color: var(--el-color-primary);
+      color: var(--el-color-white);
+
+      &:not(.is-disabled):hover {
+        background-color: var(--el-color-primary-light-3);
+        border-color: var(--el-color-primary-light-3);
+      }
+
+      &.is-disabled {
+        background-color: var(--el-color-primary-light-5);
+        border-color: var(--el-color-primary-light-5);
+      }
+    }
+
+    &:not(.el-button--primary) {
+      &:not(.is-disabled):hover {
+        color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+        background-color: var(--el-button-hover-bg-color);
+      }
+    }
+  }
+
   .header {
     margin-bottom: 20px;
 
@@ -380,32 +406,6 @@ const handleDownload = () => {
 
       &:hover {
         border-color: var(--el-color-primary);
-      }
-    }
-  }
-
-  :deep(.el-button) {
-    &.el-button--primary {
-      background-color: var(--el-color-primary);
-      border-color: var(--el-color-primary);
-      color: var(--el-color-white);
-
-      &:not(.is-disabled):hover {
-        background-color: var(--el-color-primary-light-3);
-        border-color: var(--el-color-primary-light-3);
-      }
-
-      &.is-disabled {
-        background-color: var(--el-color-primary-light-5);
-        border-color: var(--el-color-primary-light-5);
-      }
-    }
-
-    &:not(.el-button--primary) {
-      &:not(.is-disabled):hover {
-        color: var(--el-color-primary);
-        border-color: var(--el-color-primary);
-        background-color: var(--el-button-hover-bg-color);
       }
     }
   }

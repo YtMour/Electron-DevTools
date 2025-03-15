@@ -13,7 +13,7 @@
               action=""
               :auto-upload="false"
               :show-file-list="false"
-              :on-change="(file) => handleFileChange(file, 'left')">
+              :on-change="handleLeftFileChange">
               <el-button type="primary" plain>
                 <el-icon><Upload /></el-icon> 左侧
               </el-button>
@@ -25,7 +25,7 @@
               action=""
               :auto-upload="false"
               :show-file-list="false"
-              :on-change="(file) => handleFileChange(file, 'right')">
+              :on-change="handleRightFileChange">
               <el-button type="primary" plain>
                 <el-icon><Upload /></el-icon> 右侧
               </el-button>
@@ -132,17 +132,30 @@ import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Upload, Download, DocumentCopy, Delete } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
-import type { UploadFile, UploadRawFile } from 'element-plus'
+import type { UploadFile, UploadFiles, UploadRawFile } from 'element-plus'
+import type { CustomFile } from '@/types/upload'
 import { diffLines } from 'diff'
 
 const { copy } = useClipboard()
+const leftFile = ref<UploadFile | null>(null)
+const rightFile = ref<UploadFile | null>(null)
 const leftText = ref('')
 const rightText = ref('')
+
+// 处理左侧文件上传
+const handleLeftFileChange = (uploadFile: UploadFile) => {
+  handleFileChange(uploadFile, 'left')
+}
+
+// 处理右侧文件上传
+const handleRightFileChange = (uploadFile: UploadFile) => {
+  handleFileChange(uploadFile, 'right')
+}
 
 // 处理文件上传
 const handleFileChange = async (uploadFile: UploadFile, side: 'left' | 'right') => {
   try {
-    const file = uploadFile.raw
+    const file = uploadFile.raw as File
     if (!file) {
       ElMessage.error('文件处理失败')
       return
@@ -151,10 +164,13 @@ const handleFileChange = async (uploadFile: UploadFile, side: 'left' | 'right') 
     const reader = new FileReader()
     reader.onload = (e) => {
       if (e.target?.result) {
+        const content = e.target.result as string
         if (side === 'left') {
-          leftText.value = e.target.result as string
+          leftText.value = content
+          leftFile.value = uploadFile
         } else {
-          rightText.value = e.target.result as string
+          rightText.value = content
+          rightFile.value = uploadFile
         }
       }
     }
@@ -169,9 +185,18 @@ const handleDrop = async (e: DragEvent, side: 'left' | 'right') => {
   e.preventDefault()
   const files = e.dataTransfer?.files
   if (files?.length) {
-    const rawFile = files[0] as UploadRawFile
-    rawFile.uid = Date.now()
-    handleFileChange({ raw: rawFile } as UploadFile, side)
+    const file = files[0]
+    const timestamp = Date.now()
+    const rawFile = Object.assign(file, { uid: timestamp }) as UploadRawFile
+    
+    const uploadFile: UploadFile = {
+      name: file.name,
+      uid: timestamp,
+      status: 'success',
+      raw: rawFile
+    }
+    
+    handleFileChange(uploadFile, side)
   }
 }
 
@@ -294,6 +319,32 @@ const handleDownloadDiff = () => {
   height: 100%;
   display: flex;
   flex-direction: column;
+
+  :deep(.el-button) {
+    &.el-button--primary {
+      background-color: var(--el-color-primary);
+      border-color: var(--el-color-primary);
+      color: var(--el-color-white);
+
+      &:not(.is-disabled):hover {
+        background-color: var(--el-color-primary-light-3);
+        border-color: var(--el-color-primary-light-3);
+      }
+
+      &.is-disabled {
+        background-color: var(--el-color-primary-light-5);
+        border-color: var(--el-color-primary-light-5);
+      }
+    }
+
+    &:not(.el-button--primary) {
+      &:not(.is-disabled):hover {
+        color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+        background-color: var(--el-button-hover-bg-color);
+      }
+    }
+  }
 
   .page-header {
     margin-bottom: 24px;

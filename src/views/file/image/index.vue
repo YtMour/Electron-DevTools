@@ -60,7 +60,8 @@
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
-import sharp from 'sharp'
+import imageCompression from 'browser-image-compression'
+import type { UploadFile } from 'element-plus'
 
 const format = ref('png')
 const selectedFile = ref<File | null>(null)
@@ -69,7 +70,8 @@ const preview = reactive({
   converted: ''
 })
 
-const handleFileChange = (file: File) => {
+const handleFileChange = (uploadFile: UploadFile) => {
+  const file = uploadFile.raw as File
   if (!file) return
 
   selectedFile.value = file
@@ -81,27 +83,15 @@ const handleConvert = async () => {
   if (!selectedFile.value) return
 
   try {
-    const buffer = await selectedFile.value.arrayBuffer()
-    const image = sharp(Buffer.from(buffer))
-
-    switch (format.value) {
-      case 'png':
-        await image.png().toFile('output.png')
-        break
-      case 'jpeg':
-        await image.jpeg().toFile('output.jpg')
-        break
-      case 'webp':
-        await image.webp().toFile('output.webp')
-        break
-      case 'bmp':
-        await image.bmp().toFile('output.bmp')
-        break
-      case 'tiff':
-        await image.tiff().toFile('output.tiff')
-        break
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true
     }
 
+    const compressedFile = await imageCompression(selectedFile.value, options)
+    const blob = await imageCompression.getDataUrlFromFile(compressedFile)
+    preview.converted = blob
     ElMessage.success('转换成功')
   } catch (error) {
     ElMessage.error('转换失败，请检查文件格式是否正确')

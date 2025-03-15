@@ -33,7 +33,6 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        charset: false,
         additionalData: `
           @use "sass:math";
           @use "sass:color";
@@ -44,5 +43,36 @@ export default defineConfig({
   },
   build: {
     assetsInlineLimit: 0, // 禁用资源内联，确保 SVG 文件被正确处理
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // element-plus 相关依赖
+          if (id.includes('node_modules/element-plus') || 
+              id.includes('node_modules/@element-plus') ||
+              id.includes('node_modules/@floating-ui')) {
+            return 'element-plus'
+          }
+          // 核心依赖
+          if (id.includes('node_modules/vue') || 
+              id.includes('node_modules/vue-router') ||
+              id.includes('node_modules/pinia') ||
+              id.includes('node_modules/@vue') ||
+              id.includes('node_modules/@vueuse')) {
+            return 'vendor'
+          }
+          // 加密相关
+          if (id.includes('node_modules/crypto-js') ||
+              id.includes('node_modules/jsencrypt')) {
+            return 'crypto'
+          }
+          // 格式化相关
+          if (id.includes('node_modules/fast-xml-parser') ||
+              id.includes('node_modules/diff')) {
+            return 'format'
+          }
+        }
+      }
+    }
   },
 })

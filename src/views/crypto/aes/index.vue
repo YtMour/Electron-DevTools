@@ -392,12 +392,12 @@ const handleDownload = () => {
     border: 1px solid var(--el-border-color-light);
     overflow-y: auto;
 
-    :deep(.el-form-item__label) {
-      color: var(--el-text-color-regular);
-    }
-
     :deep(.el-form-item__content) {
       width: 100%;
+    }
+
+    :deep(.el-form-item__label) {
+      color: var(--el-text-color-regular);
     }
 
     :deep(.el-textarea__inner) {
@@ -422,44 +422,6 @@ const handleDownload = () => {
       }
     }
 
-    :deep(.el-input__inner) {
-      background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
-      color: var(--el-text-color-primary);
-      border-color: var(--el-border-color);
-
-      &::placeholder {
-        color: var(--el-text-color-placeholder);
-      }
-
-      &:hover {
-        border-color: var(--el-border-color-hover);
-      }
-
-      &:focus {
-        border-color: var(--el-color-primary);
-        box-shadow: 0 0 0 1px var(--el-color-primary-light-8);
-      }
-    }
-
-    .key-info {
-      margin-top: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: var(--el-text-color-secondary);
-    }
-
-    .input-stats,
-    .output-controls {
-      margin-top: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--el-text-color-secondary);
-      font-size: 12px;
-    }
-
     .input-area {
       width: 100%;
       border: 2px dashed var(--el-border-color);
@@ -482,8 +444,14 @@ const handleDownload = () => {
       }
     }
 
-    :deep(.el-button) {
-      display: none;
+    .input-stats,
+    .output-controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--el-text-color-secondary);
+      font-size: 12px;
     }
   }
 }

@@ -74,7 +74,7 @@
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
-import type { UploadFile } from 'element-plus'
+import type { UploadFile, UploadRawFile } from 'element-plus'
 
 const mode = ref<'merge' | 'split' | 'compress'>('merge')
 const fileList = ref<UploadFile[]>([])
@@ -87,7 +87,8 @@ const compressForm = reactive({
   quality: 80
 })
 
-const handleFileChange = (file: File) => {
+const handleFileChange = (uploadFile: UploadFile) => {
+  const file = uploadFile.raw as File
   if (!file) return
 
   if (file.type !== 'application/pdf') {
@@ -95,11 +96,15 @@ const handleFileChange = (file: File) => {
     return
   }
 
+  const timestamp = Date.now()
+  const rawFile = Object.assign(file, { uid: timestamp }) as UploadRawFile
+  
   fileList.value.push({
     name: file.name,
+    uid: timestamp,
     size: file.size,
-    type: file.type,
-    raw: file
+    status: 'success',
+    raw: rawFile
   })
 }
 

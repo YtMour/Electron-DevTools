@@ -1,55 +1,85 @@
+import { XMLParser, XMLBuilder } from 'fast-xml-parser'
+
 interface XmlSerializeOptions {
   indent?: string
   newline?: string
 }
 
+const parser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '@_'
+})
+
+const builder = new XMLBuilder({
+  ignoreAttributes: false,
+  attributeNamePrefix: '@_'
+})
+
 /**
- * 解析 XML 字符串为 DOM 文档
+ * 解析 XML 字符串为对象或 DOM 文档
  * @param xml XML 字符串
- * @returns DOM 文档
+ * @param useDom 是否使用 DOM 解析（默认为 false）
+ * @returns 解析后的对象或 DOM 文档
  */
-export function parseXml(xml: string): Document {
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(xml, 'text/xml')
-  
-  // 检查解析错误
-  const parseError = doc.getElementsByTagName('parsererror')
-  if (parseError.length > 0) {
-    throw new Error('XML 解析错误：' + parseError[0].textContent)
+export function parseXml(xml: string, useDom = false): any {
+  if (useDom) {
+    const domParser = new DOMParser()
+    const doc = domParser.parseFromString(xml, 'text/xml')
+    
+    // 检查解析错误
+    const parseError = doc.getElementsByTagName('parsererror')
+    if (parseError.length > 0) {
+      throw new Error('XML 解析错误：' + parseError[0].textContent)
+    }
+    
+    return doc
   }
-  
-  return doc
+
+  try {
+    return parser.parse(xml)
+  } catch (error) {
+    console.error('XML parsing error:', error)
+    throw error
+  }
 }
 
 /**
- * 序列化 DOM 文档为 XML 字符串
- * @param doc DOM 文档
+ * 序列化对象或 DOM 文档为 XML 字符串
+ * @param input 要序列化的对象或 DOM 文档
  * @param options 序列化选项
  * @returns XML 字符串
  */
-export function serializeXml(doc: Document, options: XmlSerializeOptions = {}): string {
-  const { indent = '', newline = '' } = options
-  
-  // 创建序列化器
-  const serializer = new XMLSerializer()
-  let xml = serializer.serializeToString(doc)
-  
-  // 如果需要格式化
-  if (indent || newline) {
-    xml = formatXml(xml, indent, newline)
+export function serializeXml(input: any, options: XmlSerializeOptions = {}): string {
+  try {
+    let result: string
+    
+    if (input instanceof Document) {
+      const serializer = new XMLSerializer()
+      result = serializer.serializeToString(input)
+    } else {
+      result = builder.build(input)
+    }
+    
+    if (options.indent || options.newline) {
+      return formatXml(result, options)
+    }
+    
+    return result
+  } catch (error) {
+    console.error('XML serialization error:', error)
+    throw error
   }
-  
-  return xml
 }
 
 /**
  * 格式化 XML 字符串
  * @param xml XML 字符串
- * @param indent 缩进字符串
- * @param newline 换行字符串
+ * @param options 格式化选项
  * @returns 格式化后的 XML 字符串
  */
-function formatXml(xml: string, indent: string, newline: string): string {
+function formatXml(xml: string, options: XmlSerializeOptions): string {
+  const indent = options.indent || '  '
+  const newline = options.newline || '\n'
   let formatted = ''
   let depth = 0
   let lastChar = ''

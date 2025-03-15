@@ -133,6 +133,15 @@ import {
   Close
 } from '@element-plus/icons-vue'
 
+declare global {
+  interface Window {
+    ipcRenderer: {
+      on: (channel: string, listener: (...args: any[]) => void) => void
+      send: (channel: string, ...args: any[]) => void
+    }
+  }
+}
+
 const route = useRoute()
 const isCollapse = ref(false)
 const isDark = ref(false)
@@ -179,7 +188,7 @@ const themeManager = {
 }
 
 // 监听窗口最大化状态
-window.ipcRenderer.on('window-maximized-state-changed', (maximized: boolean) => {
+window.ipcRenderer.on('window-maximized-state-changed', (_event, maximized: boolean) => {
   isMaximized.value = maximized
 })
 
@@ -208,11 +217,13 @@ onMounted(() => {
   })
 
   // 监听系统主题变化
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+  const handleThemeChange = (e: MediaQueryListEvent) => {
     if (!localStorage.getItem('theme')) {
       toggleTheme(e.matches)
     }
-  })
+  }
+  mediaQuery.addEventListener('change', handleThemeChange)
 })
 
 // 窗口控制

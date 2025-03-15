@@ -10,9 +10,14 @@ interface XmlSerializeOptions {
  * @param xml XML 字符串
  * @returns JSON 对象
  */
-export function xml2json(xml: string): any {
-  const doc = parseXml(xml)
-  return elementToJson(doc.documentElement)
+export function xml2json(xml: string): string {
+  try {
+    const obj = parseXml(xml)
+    return JSON.stringify(obj, null, 2)
+  } catch (error) {
+    console.error('XML to JSON conversion error:', error)
+    throw error
+  }
 }
 
 /**
@@ -21,10 +26,13 @@ export function xml2json(xml: string): any {
  * @param options 序列化选项
  * @returns XML 字符串
  */
-export function json2xml(json: any, options: XmlSerializeOptions = {}): string {
-  const doc = document.implementation.createDocument(null, 'root', null)
-  jsonToElement(json, doc.documentElement)
-  return serializeXml(doc, options)
+export function json2xml(json: any, options?: XmlSerializeOptions): string {
+  try {
+    return serializeXml(json, options)
+  } catch (error) {
+    console.error('JSON to XML conversion error:', error)
+    throw error
+  }
 }
 
 /**
@@ -36,7 +44,9 @@ function elementToJson(element: Element): any {
   const result: any = {}
   
   // 处理属性
-  for (const attr of element.attributes) {
+  const attrs = element.attributes
+  for (let i = 0; i < attrs.length; i++) {
+    const attr = attrs[i]
     result[`@${attr.name}`] = attr.value
   }
   

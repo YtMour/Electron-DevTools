@@ -1,97 +1,66 @@
-import { app, Menu, BrowserWindow, globalShortcut, ipcMain } from "electron";
-import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
-createRequire(import.meta.url);
-const __dirname = dirname(fileURLToPath(import.meta.url));
-app.setName("DevTools Plus");
-Menu.setApplicationMenu(null);
-const gotTheLock = app.requestSingleInstanceLock();
-if (!gotTheLock) {
-  app.quit();
-}
-process.env.APP_ROOT = join(__dirname, "..");
-const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-const MAIN_DIST = join(process.env.APP_ROOT, "dist-electron");
-const RENDERER_DIST = join(process.env.APP_ROOT, "dist");
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? join(process.env.APP_ROOT, "public") : RENDERER_DIST;
-let win;
-function createWindow() {
-  win = new BrowserWindow({
+import { app as o, Menu as c, BrowserWindow as s, globalShortcut as r, ipcMain as i } from "electron";
+import { createRequire as d } from "node:module";
+import { fileURLToPath as u } from "node:url";
+import { dirname as f, join as t } from "node:path";
+d(import.meta.url);
+const a = f(u(import.meta.url));
+o.setName("Yt Tools");
+c.setApplicationMenu(null);
+const p = o.requestSingleInstanceLock();
+p || o.quit();
+process.env.APP_ROOT = t(a, "..");
+const n = process.env.VITE_DEV_SERVER_URL, h = t(process.env.APP_ROOT, "dist-electron"), l = t(process.env.APP_ROOT, "dist");
+process.env.VITE_PUBLIC = n ? t(process.env.APP_ROOT, "public") : l;
+let e;
+function m() {
+  e = new s({
     width: 1200,
     height: 800,
-    frame: false,
-    autoHideMenuBar: true,
+    frame: !1,
+    autoHideMenuBar: !0,
     titleBarStyle: "hidden",
-    icon: join(process.env.VITE_PUBLIC, "logo.svg"),
+    title: "Yt Tools",
+    icon: t(process.env.VITE_PUBLIC, "favicon.ico"),
     webPreferences: {
-      preload: join(__dirname, "preload.mjs"),
-      nodeIntegration: true,
-      contextIsolation: true,
-      devTools: true
+      preload: t(a, "preload.mjs"),
+      nodeIntegration: !0,
+      contextIsolation: !0,
+      devTools: !0
       // 启用开发者工具
     }
-  });
-  win.setMenuBarVisibility(false);
-  win.on("maximize", () => {
-    win == null ? void 0 : win.webContents.send("window-maximized-state-changed", true);
-  });
-  win.on("unmaximize", () => {
-    win == null ? void 0 : win.webContents.send("window-maximized-state-changed", false);
-  });
-  ipcMain.on("window-minimize", () => {
-    win == null ? void 0 : win.minimize();
-  });
-  ipcMain.on("window-maximize", () => {
-    if (win == null ? void 0 : win.isMaximized()) {
-      win.unmaximize();
-    } else {
-      win == null ? void 0 : win.maximize();
-    }
-  });
-  ipcMain.on("window-close", () => {
-    win == null ? void 0 : win.close();
-  });
-  win.webContents.on("did-finish-load", () => {
-    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
-  });
-  globalShortcut.register("CommandOrControl+Shift+I", () => {
-    if (win == null ? void 0 : win.webContents) {
-      win.webContents.toggleDevTools();
-    }
-  });
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL);
-  } else {
-    win.loadFile(join(RENDERER_DIST, "index.html"));
-  }
-  win.on("focus", () => {
-    win == null ? void 0 : win.setMenuBarVisibility(false);
+  }), e.setMenuBarVisibility(!1), e.on("maximize", () => {
+    e == null || e.webContents.send("window-maximized-state-changed", !0);
+  }), e.on("unmaximize", () => {
+    e == null || e.webContents.send("window-maximized-state-changed", !1);
+  }), i.on("window-minimize", () => {
+    e == null || e.minimize();
+  }), i.on("window-maximize", () => {
+    e != null && e.isMaximized() ? e.unmaximize() : e == null || e.maximize();
+  }), i.on("window-close", () => {
+    e == null || e.close();
+  }), e.webContents.on("did-finish-load", () => {
+    e == null || e.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  }), r.register("CommandOrControl+Shift+I", () => {
+    e != null && e.webContents && e.webContents.toggleDevTools();
+  }), n ? e.loadURL(n) : e.loadFile(t(l, "index.html")), e.on("focus", () => {
+    e == null || e.setMenuBarVisibility(!1);
   });
 }
-app.on("second-instance", () => {
-  if (win) {
-    if (win.isMinimized()) win.restore();
-    win.focus();
-  }
+o.on("second-instance", () => {
+  e && (e.isMinimized() && e.restore(), e.focus());
 });
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-    win = null;
-  }
+o.on("window-all-closed", () => {
+  process.platform !== "darwin" && (o.quit(), e = null);
 });
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+o.on("activate", () => {
+  s.getAllWindows().length === 0 && m();
 });
-app.whenReady().then(createWindow);
-app.on("will-quit", () => {
-  globalShortcut.unregisterAll();
+o.whenReady().then(m);
+o.on("will-quit", () => {
+  r.unregisterAll();
 });
 export {
-  MAIN_DIST,
-  RENDERER_DIST,
-  VITE_DEV_SERVER_URL
+  h as MAIN_DIST,
+  l as RENDERER_DIST,
+  n as VITE_DEV_SERVER_URL
 };

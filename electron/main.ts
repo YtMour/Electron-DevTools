@@ -7,7 +7,7 @@ const require = createRequire(import.meta.url)
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // 设置应用名称
-app.setName('DevTools Plus')
+app.setName('Yt Tools')
 
 // 禁用菜单栏
 Menu.setApplicationMenu(null)
@@ -45,7 +45,8 @@ function createWindow() {
     frame: false,
     autoHideMenuBar: true,
     titleBarStyle: 'hidden',
-    icon: join(process.env.VITE_PUBLIC, 'logo.svg'),
+    title: 'Yt Tools',
+    icon: join(process.env.VITE_PUBLIC, 'favicon.ico'),
     webPreferences: {
       preload: join(__dirname, 'preload.mjs'),
       nodeIntegration: true,

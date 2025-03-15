@@ -110,6 +110,9 @@ const form = reactive({
   output: ''
 })
 
+const leftText = ref('')
+const rightText = ref('')
+
 // 处理文件上传
 const handleFileChange = async (uploadFile: UploadFile) => {
   try {
@@ -202,32 +205,15 @@ const handleDownload = () => {
 // 计算差异结果
 const diffResult = computed(() => {
   if (!leftText.value && !rightText.value) {
-    return ''
+    return []
   }
 
   try {
     const diff = DiffLib.diffLines(leftText.value, rightText.value)
-    let html = ''
-
-    for (const part of diff) {
-      const color = part.added ? 'var(--el-color-success-light-9)' :
-                   part.removed ? 'var(--el-color-danger-light-9)' :
-                   'transparent'
-      const borderColor = part.added ? 'var(--el-color-success)' :
-                         part.removed ? 'var(--el-color-danger)' :
-                         'transparent'
-      html += `<div style="background-color: ${color}; border-left: 2px solid ${borderColor}; padding: 0 8px;">${
-        part.value.replace(/\n$/, '')
-          .split('\n')
-          .map((line: string) => line || '&nbsp;')
-          .join('\n')
-      }</div>`
-    }
-
-    return html
+    return diff
   } catch (error) {
-    ElMessage.error('差异对比失败')
-    return ''
+    console.error('Diff error:', error)
+    return []
   }
 })
 </script>
@@ -323,20 +309,41 @@ const diffResult = computed(() => {
 
   .page-content {
     flex: 1;
-    background-color: var(--el-bg-color);
+    background-color: var(--el-fill-color-blank);
     border-radius: 8px;
     padding: 24px;
     box-shadow: var(--el-box-shadow-light);
+    border: 1px solid var(--el-border-color-light);
     overflow-y: auto;
 
     :deep(.el-form-item__content) {
       width: 100%;
     }
 
+    :deep(.el-form-item__label) {
+      color: var(--el-text-color-regular);
+    }
+
     :deep(.el-textarea__inner) {
       font-family: var(--el-font-family);
       font-size: 14px;
       line-height: 1.6;
+      background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
+      color: var(--el-text-color-primary);
+      border-color: var(--el-border-color);
+
+      &::placeholder {
+        color: var(--el-text-color-placeholder);
+      }
+
+      &:hover {
+        border-color: var(--el-border-color-hover);
+      }
+
+      &:focus {
+        border-color: var(--el-color-primary);
+        box-shadow: 0 0 0 1px var(--el-color-primary-light-8);
+      }
     }
 
     .input-area {
@@ -344,9 +351,12 @@ const diffResult = computed(() => {
       border: 2px dashed var(--el-border-color);
       border-radius: 4px;
       transition: all 0.3s;
+      background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
 
       :deep(.el-textarea__inner) {
         border: none;
+        background-color: transparent;
+        width: 100%;
         
         &:focus {
           box-shadow: none;
@@ -366,10 +376,6 @@ const diffResult = computed(() => {
       align-items: center;
       color: var(--el-text-color-secondary);
       font-size: 12px;
-    }
-
-    :deep(.el-button) {
-      display: none;
     }
   }
 }

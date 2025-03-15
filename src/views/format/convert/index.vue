@@ -185,8 +185,8 @@ const handleProcess = () => {
       output.value = JSON.stringify(result, options.sortKeys ? Object.keys(result).sort() : null, options.indentSize)
     } else {
       // JSON 转 XML
-      const json = JSON.parse(input.value)
-      output.value = json2xml(json, {
+      const obj = JSON.parse(input.value)
+      output.value = json2xml(obj, {
         indent: options.indentSize > 0 ? ' '.repeat(options.indentSize) : '',
         newline: options.indentSize > 0 ? '\n' : ''
       })
@@ -257,6 +257,32 @@ const handleDownload = () => {
   height: 100%;
   display: flex;
   flex-direction: column;
+
+  :deep(.el-button) {
+    &.el-button--primary {
+      background-color: var(--el-color-primary);
+      border-color: var(--el-color-primary);
+      color: var(--el-color-white);
+
+      &:not(.is-disabled):hover {
+        background-color: var(--el-color-primary-light-3);
+        border-color: var(--el-color-primary-light-3);
+      }
+
+      &.is-disabled {
+        background-color: var(--el-color-primary-light-5);
+        border-color: var(--el-color-primary-light-5);
+      }
+    }
+
+    &:not(.el-button--primary) {
+      &:not(.is-disabled):hover {
+        color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+        background-color: var(--el-button-hover-bg-color);
+      }
+    }
+  }
 
   .page-header {
     margin-bottom: 24px;
