@@ -1,15 +1,15 @@
-import { contextBridge, ipcRenderer } from "electron";
-contextBridge.exposeInMainWorld("ipcRenderer", {
-  send: (channel, ...args) => {
-    ipcRenderer.send(channel, ...args);
+import { contextBridge as t, ipcRenderer as r } from "electron";
+t.exposeInMainWorld("ipcRenderer", {
+  send: (e, ...n) => {
+    r.send(e, ...n);
   },
-  on: (channel, func) => {
-    ipcRenderer.on(channel, (event, ...args) => func(...args));
+  on: (e, n) => {
+    r.on(e, (i, ...o) => n(...o));
   },
-  once: (channel, func) => {
-    ipcRenderer.once(channel, (event, ...args) => func(...args));
+  once: (e, n) => {
+    r.once(e, (i, ...o) => n(...o));
   },
-  removeListener: (channel, func) => {
-    ipcRenderer.removeListener(channel, func);
+  removeListener: (e, n) => {
+    r.removeListener(e, n);
   }
 });
