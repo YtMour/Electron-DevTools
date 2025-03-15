@@ -1,8 +1,8 @@
-# 🛠 DevTools Plus
+# 🛠 YT Tools Plus
 
 ## 📋 项目概述
 
-DevTools Plus 是一个面向开发者的现代化桌面工具集，集成了日常开发中最常用的工具和功能。本项目基于 Electron + Vue 3 + TypeScript + Vite 构建，旨在提供一个高效、易用、可扩展的开发工具平台。
+YT Tools Plus 是一个面向开发者的现代化桌面工具集，集成了日常开发中最常用的工具和功能。本项目基于 Electron + Vue 3 + TypeScript + Vite 构建，旨在提供一个高效、易用、可扩展的开发工具平台。
 
 ### 🎯 项目目标
 - 提供一站式开发工具解决方案
@@ -13,32 +13,41 @@ DevTools Plus 是一个面向开发者的现代化桌面工具集，集成了日
 ## ✨ 核心功能
 
 ### 🔐 密码学工具集
-- [x] Base64 编解码器
+- [x] Base64 编解码器 ✨
   * [x] 文本编解码
   * [x] 文件编解码
   * [ ] 批量处理支持
-- [x] 哈希计算器
+  * [x] 实时编码预览
+  * [x] 一键复制/下载结果
+- [x] 哈希计算器 ✨
   * [x] MD5
   * [x] SHA-1/SHA-256/SHA-512
   * [x] 文件校验
   * [x] 哈希值验证
+  * [x] 实时计算
 - [x] 加密解密工具
-  * [x] AES 加解密
+  * [x] AES 加解密 ✨
     * [x] AES-128/192/256 支持
     * [x] 多种加密模式（CBC/ECB/CFB/OFB/CTR）
     * [x] IV 向量支持
+    * [x] 密钥验证
   * [ ] DES 加解密
-  * [x] RSA 加解密
+  * [x] RSA 加解密 ✨
+    * [x] 密钥对生成（1024/2048/4096位）
+    * [x] 公钥加密/私钥解密
+    * [x] 密钥导入导出
   * [ ] JWT 解析器
   * [ ] 证书工具
 
 ### 🔄 格式转换工具
-- [ ] JSON 工具
-  * [ ] 格式化/压缩
+- [x] JSON 工具 ✨
+  * [x] 格式化/压缩
+  * [x] 自定义缩进
+  * [x] 键值排序
   * [ ] Schema 验证
   * [ ] JSON Path 查询
-- [ ] 数据格式转换
-  * [ ] XML ⇔ JSON
+- [x] 数据格式转换 ✨
+  * [x] XML ⇔ JSON
   * [ ] YAML ⇔ JSON
   * [ ] CSV ⇔ JSON
 - [ ] 代码格式化
@@ -55,10 +64,10 @@ DevTools Plus 是一个面向开发者的现代化桌面工具集，集成了日
   * [ ] 合并/分割
   * [ ] 格式转换
   * [ ] 页面提取
-- [x] 文本工具
+- [x] 文本工具 ✨
   * [x] 文本对比
-  * [ ] 编码转换
-  * [ ] 正则处理
+  * [x] 编码转换
+  * [x] 正则处理
 
 ### 🎯 开发工具集
 - [ ] 代码生成器
@@ -266,7 +275,7 @@ DevTools Plus 是一个面向开发者的现代化桌面工具集，集成了日
 - [x] 开发语言：TypeScript 5.2.2
 
 ### UI 组件
-- [x] Element Plus：UI 组件库
+- [x] Element Plus：UI 组件库 ✨
 - [ ] TailwindCSS：样式框架
 - [ ] IconPark：图标系统
 
@@ -275,11 +284,11 @@ DevTools Plus 是一个面向开发者的现代化桌面工具集，集成了日
 - [x] Vue Router：路由管理
 
 ### 工具库
-- [x] crypto-js：加密算法
+- [x] crypto-js：加密算法 ✨
 - [ ] sharp：图片处理
 - [ ] pdf-lib：PDF 处理
 - [ ] file-type：文件类型检测
-- [x] diff：文本对比
+- [x] diff：文本对比 ✨
 - [ ] prettier：代码格式化
 - [ ] marked：Markdown 解析
 - [ ] deepseek-api：文档生成
@@ -294,8 +303,8 @@ DevTools Plus 是一个面向开发者的现代化桌面工具集，集成了日
 ### 开发设置
 1. 克隆项目
 ```bash
-git clone https://github.com/your-username/devtools-plus.git
-cd devtools-plus
+git clone https://github.com/YtMour/Electron-DevTools.git
+cd yt-tools-plus
 ```
 
 2. 安装依赖
@@ -370,7 +379,7 @@ npm run build
 - 使用本项目即表示同意遵守上述条款
 
 ### 版权声明
-Copyright © 2024 DevTools Plus Team. All Rights Reserved.
+Copyright © 2024 YT Tools Plus Team. All Rights Reserved.
 
 如需商业使用或获取商业授权，请联系项目维护团队。
 
