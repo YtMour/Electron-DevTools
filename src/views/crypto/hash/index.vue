@@ -1,33 +1,46 @@
 <template>
-  <div class="hash-page">
-    <div class="page-header">
-      <div class="header-title">
-        <h2>Hash 计算器</h2>
-        <p class="header-desc">支持 MD5、SHA-1、SHA-256、SHA-512 等多种哈希算法</p>
-      </div>
-      <div class="header-controls">
-        <el-radio-group v-model="mode" size="small">
-          <el-radio-button label="calculate">计算</el-radio-button>
-          <el-radio-button label="verify">验证</el-radio-button>
+  <div class="hash-container">
+    <div class="header">
+      <h2>Hash 计算器</h2>
+      <el-alert
+        title="哈希算法说明"
+        type="info"
+        description="哈希（Hash）是一种单向加密算法，具有不可逆性。这意味着通过哈希算法生成的值无法被解密还原为原始数据。我们只能通过比对两个哈希值是否相同来验证数据的完整性和一致性。如果您需要可以解密的加密方式，请使用 AES 或 RSA 加密工具。"
+        show-icon
+        :closable="false"
+        class="hash-info"
+      />
+    </div>
+
+    <div class="options">
+      <div class="option-row">
+        <el-radio-group v-model="selectedAlgorithm">
+          <el-radio-button label="MD5">MD5</el-radio-button>
+          <el-radio-button label="SHA1">SHA-1</el-radio-button>
+          <el-radio-button label="SHA256">SHA-256</el-radio-button>
+          <el-radio-button label="SHA512">SHA-512</el-radio-button>
         </el-radio-group>
-        <el-select v-model="algorithm" placeholder="选择算法">
-          <el-option label="MD5" value="md5" />
-          <el-option label="SHA-1" value="sha1" />
-          <el-option label="SHA-256" value="sha256" />
-          <el-option label="SHA-512" value="sha512" />
-        </el-select>
-        <el-tooltip content="上传文件">
+      </div>
+      
+      <div class="option-row">
+        <el-radio-group v-model="mode" class="mode-select">
+          <el-radio-button label="calculate">计算哈希值</el-radio-button>
+          <el-radio-button label="verify">验证哈希值</el-radio-button>
+        </el-radio-group>
+
+        <div class="upload-btn">
           <el-upload
-            class="upload-btn"
+            ref="upload"
             action=""
             :auto-upload="false"
             :show-file-list="false"
             :on-change="handleFileChange">
-            <el-button type="primary" plain>
+            <el-button type="primary">
               <el-icon><Upload /></el-icon>
+              选择文件
             </el-button>
           </el-upload>
-        </el-tooltip>
+        </div>
       </div>
     </div>
 
@@ -228,36 +241,57 @@ const handleCopy = async () => {
 </script>
 
 <style lang="scss" scoped>
-.hash-page {
+.hash-container {
   height: 100%;
   display: flex;
   flex-direction: column;
 
-  .page-header {
-    margin-bottom: 24px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+  .header {
+    margin-bottom: 20px;
 
-    .header-title {
-      h2 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: 600;
-        color: var(--el-text-color-primary);
-      }
-
-      .header-desc {
-        margin: 8px 0 0;
-        font-size: 14px;
-        color: var(--el-text-color-secondary);
-      }
+    h2 {
+      margin-bottom: 12px;
     }
 
-    .header-controls {
+    .hash-info {
+      margin-bottom: 16px;
+      font-size: 13px;
+      
+      :deep(.el-alert__title) {
+        font-size: 13px;
+        line-height: 18px;
+      }
+      
+      :deep(.el-alert__description) {
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 4px 0 0 0;
+      }
+    }
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+
+    .option-row {
       display: flex;
       align-items: center;
       gap: 12px;
+
+      &:first-child {
+        margin-bottom: 4px;
+      }
+
+      .mode-select {
+        flex: 1;
+      }
+
+      .upload-btn {
+        flex-shrink: 0;
+      }
     }
   }
 

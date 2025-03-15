@@ -1,39 +1,53 @@
 <template>
-  <div class="aes-page">
-    <div class="page-header">
-      <div class="header-title">
-        <h2>AES 加密</h2>
-        <p class="header-desc">支持 AES-128、AES-192、AES-256 加密解密</p>
-      </div>
-      <div class="header-controls">
-        <el-radio-group v-model="mode" size="small">
-          <el-radio-button label="encrypt">加密</el-radio-button>
-          <el-radio-button label="decrypt">解密</el-radio-button>
-        </el-radio-group>
-        <el-select v-model="keySize" placeholder="密钥长度">
+  <div class="aes-container">
+    <div class="header">
+      <h2>AES 加密</h2>
+      <el-alert
+        title="AES 加密说明"
+        type="info"
+        description="AES 是一种对称加密算法，使用相同的密钥进行加密和解密。支持 128/192/256 位密钥长度和多种加密模式。请妥善保管您的密钥，密钥一旦丢失将无法解密数据。"
+        show-icon
+        :closable="false"
+        class="aes-info"
+      />
+    </div>
+
+    <div class="options">
+      <div class="option-row">
+        <el-select v-model="keySize" placeholder="选择密钥长度">
           <el-option label="AES-128" value="128" />
           <el-option label="AES-192" value="192" />
           <el-option label="AES-256" value="256" />
         </el-select>
-        <el-select v-model="cipherMode" placeholder="加密模式">
+        
+        <el-select v-model="mode" placeholder="选择加密模式">
           <el-option label="CBC" value="CBC" />
           <el-option label="ECB" value="ECB" />
           <el-option label="CFB" value="CFB" />
           <el-option label="OFB" value="OFB" />
           <el-option label="CTR" value="CTR" />
         </el-select>
-        <el-tooltip content="上传文件">
+      </div>
+      
+      <div class="option-row">
+        <el-radio-group v-model="operation" class="operation-select">
+          <el-radio-button label="encrypt">加密</el-radio-button>
+          <el-radio-button label="decrypt">解密</el-radio-button>
+        </el-radio-group>
+
+        <div class="upload-btn">
           <el-upload
-            class="upload-btn"
+            ref="upload"
             action=""
             :auto-upload="false"
             :show-file-list="false"
             :on-change="handleFileChange">
-            <el-button type="primary" plain>
+            <el-button type="primary">
               <el-icon><Upload /></el-icon>
+              选择文件
             </el-button>
           </el-upload>
-        </el-tooltip>
+        </div>
       </div>
     </div>
 
@@ -268,70 +282,99 @@ const handleDownload = () => {
 </script>
 
 <style lang="scss" scoped>
-.aes-page {
+.aes-container {
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: $spacing-large;
 
-  .page-header {
-    @include flex-between;
-    padding-bottom: $spacing-large;
-    border-bottom: 1px solid $border-color-light;
+  .header {
+    margin-bottom: 20px;
 
-    .header-title {
-      h2 {
-        margin: 0;
-        font-size: $font-size-extra-large;
-        color: $text-primary;
-      }
-
-      .header-desc {
-        margin: $spacing-mini 0 0;
-        font-size: $font-size-small;
-        color: $text-secondary;
-      }
+    h2 {
+      margin-bottom: 12px;
     }
 
-    .header-controls {
+    .aes-info {
+      margin-bottom: 16px;
+      font-size: 13px;
+      
+      :deep(.el-alert__title) {
+        font-size: 13px;
+        line-height: 18px;
+      }
+      
+      :deep(.el-alert__description) {
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 4px 0 0 0;
+      }
+    }
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+
+    .option-row {
       display: flex;
-      gap: $spacing-base;
       align-items: center;
+      gap: 12px;
+
+      &:first-child {
+        margin-bottom: 4px;
+      }
+
+      .el-select {
+        flex: 1;
+      }
+
+      .operation-select {
+        flex: 1;
+      }
+
+      .upload-btn {
+        flex-shrink: 0;
+      }
     }
   }
 
   .page-content {
     flex: 1;
+    background-color: var(--el-bg-color);
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: var(--el-box-shadow-light);
     overflow-y: auto;
-    @include scrollbar;
 
     .input-area {
-      border: 1px dashed $border-color;
-      border-radius: $border-radius-base;
-      transition: border-color $transition-duration;
+      border: 2px dashed var(--el-border-color);
+      border-radius: 4px;
+      transition: all 0.3s;
 
       &:hover {
-        border-color: $primary-color;
+        border-color: var(--el-color-primary);
       }
     }
 
     .key-info {
-      margin-top: $spacing-mini;
-      @include flex-between;
-      font-size: $font-size-small;
-      color: $text-secondary;
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
     }
 
     .input-stats,
-    .output-stats {
-      margin-top: $spacing-mini;
-      font-size: $font-size-small;
-      color: $text-secondary;
-    }
-
     .output-controls {
-      margin-top: $spacing-mini;
-      @include flex-between;
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--el-text-color-secondary);
+      font-size: 12px;
     }
   }
 }

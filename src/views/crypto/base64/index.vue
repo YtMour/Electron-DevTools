@@ -1,27 +1,37 @@
 <template>
-  <div class="base64-page">
-    <div class="page-header">
-      <div class="header-title">
-        <h2>Base64 编解码</h2>
-        <p class="header-desc">支持文本和文件的 Base64 编码与解码，支持中文字符</p>
-      </div>
-      <div class="header-controls">
-        <el-radio-group v-model="mode" size="small">
+  <div class="base64-container">
+    <div class="header">
+      <h2>Base64 编解码</h2>
+      <el-alert
+        title="Base64 编码说明"
+        type="info"
+        description="Base64 是一种基于 64 个可打印字符来表示二进制数据的编码方式。它可以用来传输包含二进制数据的文本，常用于在 URL、Cookie、网页中传输少量二进制数据。注意：Base64 是编码方式而非加密算法，不能用于数据加密。"
+        show-icon
+        :closable="false"
+        class="base64-info"
+      />
+    </div>
+
+    <div class="options">
+      <div class="option-row">
+        <el-radio-group v-model="mode" class="mode-select">
           <el-radio-button label="encode">编码</el-radio-button>
           <el-radio-button label="decode">解码</el-radio-button>
         </el-radio-group>
-        <el-tooltip content="上传文件">
+
+        <div class="upload-btn">
           <el-upload
-            class="upload-btn"
+            ref="upload"
             action=""
             :auto-upload="false"
             :show-file-list="false"
             :on-change="handleFileChange">
-            <el-button type="primary" plain>
+            <el-button type="primary">
               <el-icon><Upload /></el-icon>
+              选择文件
             </el-button>
           </el-upload>
-        </el-tooltip>
+        </div>
       </div>
     </div>
 
@@ -37,7 +47,7 @@
               v-model="form.input"
               type="textarea"
               :rows="8"
-              :placeholder="mode === 'encode' ? '请输入要编码的文本，或拖放文件到此处' : '请输入要解码的 Base64 文本'"
+              :placeholder="mode === 'encode' ? '请输入要编码的文本，或拖放文件到此处' : '请输入要解码的 Base64 文本，或拖放文件到此处'"
               @input="handleInput"
             />
           </div>
@@ -52,11 +62,11 @@
             type="textarea"
             :rows="8"
             readonly
-            :placeholder="mode === 'encode' ? '编码结果' : '解码结果'"
+            :placeholder="mode === 'encode' ? 'Base64 编码结果' : '解码结果'"
           />
           <div class="output-controls">
             <div class="output-stats" v-if="form.output">
-              <span>字符数：{{ form.output.length }}</span>
+              <span>{{ mode === 'encode' ? 'Base64 文本' : '原始文本' }}</span>
             </div>
             <div class="output-actions">
               <el-button-group>
@@ -73,7 +83,9 @@
 
         <el-form-item>
           <el-button-group>
-            <el-button type="primary" @click="handleConvert">转换</el-button>
+            <el-button type="primary" @click="handleProcess" :disabled="!form.input">
+              {{ mode === 'encode' ? '编码' : '解码' }}
+            </el-button>
             <el-button @click="handleClear">清空</el-button>
           </el-button-group>
         </el-form-item>
@@ -230,36 +242,53 @@ const diffResult = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-.base64-page {
+.base64-container {
   height: 100%;
   display: flex;
   flex-direction: column;
 
-  .page-header {
-    margin-bottom: 24px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+  .header {
+    margin-bottom: 20px;
 
-    .header-title {
-      h2 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: 600;
-        color: var(--el-text-color-primary);
-      }
-
-      .header-desc {
-        margin: 8px 0 0;
-        font-size: 14px;
-        color: var(--el-text-color-secondary);
-      }
+    h2 {
+      margin-bottom: 12px;
     }
 
-    .header-controls {
+    .base64-info {
+      margin-bottom: 16px;
+      font-size: 13px;
+      
+      :deep(.el-alert__title) {
+        font-size: 13px;
+        line-height: 18px;
+      }
+      
+      :deep(.el-alert__description) {
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 4px 0 0 0;
+      }
+    }
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+
+    .option-row {
       display: flex;
       align-items: center;
       gap: 12px;
+
+      .mode-select {
+        flex: 1;
+      }
+
+      .upload-btn {
+        flex-shrink: 0;
+      }
     }
   }
 
@@ -269,33 +298,25 @@ const diffResult = computed(() => {
     border-radius: 8px;
     padding: 24px;
     box-shadow: var(--el-box-shadow-light);
-  }
 
-  .input-area {
-    border: 2px dashed var(--el-border-color);
-    border-radius: 4px;
-    transition: all 0.3s;
+    .input-area {
+      border: 2px dashed var(--el-border-color);
+      border-radius: 4px;
+      transition: all 0.3s;
 
-    &:hover {
-      border-color: var(--el-color-primary);
+      &:hover {
+        border-color: var(--el-color-primary);
+      }
     }
-  }
 
-  .input-stats,
-  .output-controls {
-    margin-top: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: var(--el-text-color-secondary);
-    font-size: 12px;
-  }
-
-  .upload-btn {
-    display: inline-block;
-    
-    :deep(.el-upload) {
-      display: block;
+    .input-stats,
+    .output-controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--el-text-color-secondary);
+      font-size: 12px;
     }
   }
 }
