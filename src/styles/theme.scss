@@ -1,0 +1,175 @@
+// 主题变量
+:root {
+  // 亮色主题变量
+  --custom-bg-color: #ffffff;
+  --custom-text-color: #303133;
+  --custom-border-color: #dcdfe6;
+  --custom-menu-bg-color: #ffffff;
+  --custom-hover-color: #f5f7fa;
+  --custom-shadow-color: rgba(0, 0, 0, 0.1);
+  
+  // Element Plus 变量覆盖
+  --el-color-primary: #409eff;
+  --el-menu-active-color: var(--el-color-primary);
+  --el-menu-hover-bg-color: var(--custom-hover-color);
+  --el-bg-color: #ffffff;
+  --el-bg-color-page: #f2f3f5;
+  --el-fill-color-blank: #ffffff;
+  --el-text-color-primary: #303133;
+  --el-text-color-regular: #606266;
+  --el-border-color: #dcdfe6;
+  --el-border-color-light: #e4e7ed;
+  --el-box-shadow-light: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark {
+  // 暗色主题变量
+  --custom-bg-color: #141414;
+  --custom-text-color: #e5eaf3;
+  --custom-border-color: #363637;
+  --custom-menu-bg-color: #1d1e1f;
+  --custom-hover-color: #262727;
+  --custom-shadow-color: rgba(0, 0, 0, 0.3);
+
+  // Element Plus 变量覆盖
+  --el-bg-color: #141414;
+  --el-bg-color-page: #0a0a0a;
+  --el-fill-color-blank: #1d1e1f;
+  --el-text-color-primary: #e5eaf3;
+  --el-text-color-regular: #cfd3dc;
+  --el-border-color: #363637;
+  --el-border-color-light: #434343;
+  --el-box-shadow-light: 0 0 12px rgba(0, 0, 0, 0.3);
+  
+  // 输入框相关
+  --el-input-bg-color: #1d1e1f;
+  --el-input-border-color: #4c4d4f;
+  --el-input-hover-border-color: #666768;
+  --el-input-focus-border-color: var(--el-color-primary);
+  
+  // 卡片相关
+  --el-card-bg-color: #1d1e1f;
+  
+  // 按钮相关
+  --el-button-bg-color: #1d1e1f;
+  --el-button-hover-bg-color: #262727;
+  --el-button-active-bg-color: #2b2b2c;
+  
+  // 下拉菜单相关
+  --el-dropdown-menu-bg-color: #1d1e1f;
+  --el-dropdown-menuItem-hover-fill: #262727;
+  
+  // 弹出框相关
+  --el-popup-bg-color: #1d1e1f;
+  --el-popup-border-color: #363637;
+  
+  // 滚动条
+  --el-scrollbar-bg-color: #141414;
+  --el-scrollbar-thumb-color: #363637;
+  
+  // Alert 相关
+  --el-alert-bg-color: var(--el-fill-color-blank);
+  --el-alert-border-color: var(--el-border-color-light);
+  --el-alert-title-color: var(--el-text-color-primary);
+  --el-alert-description-color: var(--el-text-color-regular);
+  --el-alert-icon-color: var(--el-text-color-regular);
+  --el-alert-close-color: var(--el-text-color-regular);
+}
+
+// 应用主题变量
+body {
+  background-color: var(--el-bg-color);
+  color: var(--el-text-color-primary);
+}
+
+// Element Plus 组件主题覆盖
+.el-card {
+  background-color: var(--el-card-bg-color, var(--el-bg-color));
+  border-color: var(--el-border-color);
+}
+
+.el-button {
+  background-color: var(--el-button-bg-color, var(--el-fill-color-blank));
+  border-color: var(--el-border-color);
+  color: var(--el-text-color-regular);
+  
+  &:hover {
+    background-color: var(--el-button-hover-bg-color);
+    border-color: var(--el-border-color-light);
+  }
+}
+
+.el-input__wrapper,
+.el-textarea__wrapper {
+  background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
+  border-color: var(--el-input-border-color, var(--el-border-color));
+  
+  .el-input__inner,
+  .el-textarea__inner {
+    color: var(--el-text-color-primary);
+    background-color: transparent;
+  }
+}
+
+.el-menu {
+  background-color: var(--custom-menu-bg-color);
+  border-color: var(--el-border-color);
+}
+
+.el-menu-item,
+.el-submenu__title {
+  color: var(--el-text-color-primary);
+  
+  &:hover {
+    background-color: var(--el-menu-hover-bg-color);
+  }
+}
+
+.el-alert {
+  background-color: var(--el-alert-bg-color, var(--el-fill-color-blank));
+  border-color: var(--el-alert-border-color, var(--el-border-color-light));
+  
+  .el-alert__title {
+    color: var(--el-alert-title-color, var(--el-text-color-primary));
+  }
+  
+  .el-alert__description {
+    color: var(--el-alert-description-color, var(--el-text-color-regular));
+  }
+  
+  .el-alert__icon {
+    color: var(--el-alert-icon-color, var(--el-text-color-regular));
+  }
+  
+  .el-alert__close-btn {
+    color: var(--el-alert-close-color, var(--el-text-color-regular));
+  }
+}
+
+// 自定义组件主题
+.app-container {
+  background-color: var(--custom-bg-color);
+}
+
+.app-header {
+  background-color: var(--custom-menu-bg-color);
+  border-color: var(--el-border-color-light);
+}
+
+.app-aside {
+  background-color: var(--custom-menu-bg-color);
+  border-color: var(--el-border-color-light);
+}
+
+// 滚动条主题
+::-webkit-scrollbar-track {
+  background-color: var(--el-scrollbar-bg-color, var(--el-bg-color));
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--el-scrollbar-thumb-color, var(--el-border-color));
+  
+  &:hover {
+    background-color: var(--el-border-color-light);
+  }
+} 

@@ -1,9 +1,11 @@
 <template>
   <el-container class="app-container">
-    <el-aside width="240px" class="app-aside">
-      <div class="logo-container">
+    <el-aside :width="isCollapse ? '64px' : '240px'" class="app-aside">
+      <div class="logo-container" :class="{ 'collapsed': isCollapse }">
         <img src="./assets/logo.svg" alt="Yt Tools" class="logo" />
-        <h1>Yt Tools</h1>
+        <transition name="fade-scale">
+          <h1 v-if="!isCollapse">Yt Tools</h1>
+        </transition>
       </div>
       
       <el-menu
@@ -48,7 +50,7 @@
         </el-sub-menu>
       </el-menu>
 
-      <div class="app-footer">
+      <div class="app-footer" :class="{ 'collapsed': isCollapse }">
         <el-button
           type="text"
           class="collapse-btn"
@@ -117,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   HomeFilled,
@@ -136,6 +138,46 @@ const isCollapse = ref(false)
 const isDark = ref(false)
 const isMaximized = ref(false)
 
+// 主题管理工具
+const themeManager = {
+  // 设置主题
+  setTheme(isDarkMode: boolean) {
+    const html = document.documentElement
+    const body = document.body
+    
+    // 设置根元素class
+    if (isDarkMode) {
+      html.classList.add('dark')
+    } else {
+      html.classList.remove('dark')
+    }
+    
+    // 设置Element Plus组件主题
+    body.setAttribute('class', isDarkMode ? 'dark' : '')
+    
+    // 保存主题设置
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light')
+  },
+  
+  // 获取当前主题
+  getCurrentTheme(): boolean {
+    const savedTheme = localStorage.getItem('theme')
+    if (savedTheme) {
+      return savedTheme === 'dark'
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  },
+  
+  // 监听系统主题变化
+  watchSystemTheme(callback: (isDark: boolean) => void) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        callback(e.matches)
+      }
+    })
+  }
+}
+
 // 监听窗口最大化状态
 window.ipcRenderer.on('window-maximized-state-changed', (maximized: boolean) => {
   isMaximized.value = maximized
@@ -148,10 +190,30 @@ const toggleCollapse = () => {
   isCollapse.value = !isCollapse.value
 }
 
+// 主题切换逻辑
 const toggleTheme = (val: string | number | boolean) => {
-  // TODO: 实现主题切换逻辑
-  console.log('Theme changed:', val)
+  const isDarkMode = Boolean(val)
+  isDark.value = isDarkMode
+  themeManager.setTheme(isDarkMode)
 }
+
+// 初始化主题
+onMounted(() => {
+  const shouldUseDark = themeManager.getCurrentTheme()
+  isDark.value = shouldUseDark
+  themeManager.setTheme(shouldUseDark)
+  themeManager.watchSystemTheme((isDarkMode) => {
+    isDark.value = isDarkMode
+    themeManager.setTheme(isDarkMode)
+  })
+
+  // 监听系统主题变化
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (!localStorage.getItem('theme')) {
+      toggleTheme(e.matches)
+    }
+  })
+})
 
 // 窗口控制
 const handleMinimize = () => {
@@ -168,23 +230,6 @@ const handleClose = () => {
 </script>
 
 <style lang="scss">
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-#app {
-  width: 100%;
-  height: 100%;
-}
-
 .app-container {
   width: 100%;
   height: 100%;
@@ -196,47 +241,134 @@ html, body {
     border-right: 1px solid var(--el-border-color-light);
     display: flex;
     flex-direction: column;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
 
     .logo-container {
       height: 60px;
+      min-height: 60px;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
-      padding: 0 20px;
-      background-color: var(--el-color-primary-light-9);
+      padding: 16px;
+      background-color: var(--el-menu-bg-color);
+      border-bottom: 1px solid var(--el-border-color-light);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      white-space: nowrap;
 
       .logo {
         width: 32px;
         height: 32px;
         margin-right: 12px;
+        flex-shrink: 0;
+        transition: margin 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       h1 {
         margin: 0;
         font-size: 18px;
+        font-weight: 600;
         color: var(--el-text-color-primary);
         white-space: nowrap;
+        flex-shrink: 0;
+        opacity: 1;
+        transform: translateX(0);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      &.collapsed {
+        padding: 16px 0;
+        justify-content: center;
+
+        .logo {
+          margin-right: 0;
+        }
+
+        h1 {
+          width: 0;
+          opacity: 0;
+          transform: translateX(-10px);
+        }
       }
     }
 
     .app-menu {
       flex: 1;
       border-right: none;
+      overflow-y: auto;
+      overflow-x: hidden;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        border-radius: 3px;
+        background-color: var(--el-scrollbar-thumb-color, var(--el-border-color));
+
+        &:hover {
+          background-color: var(--el-border-color-light);
+        }
+      }
+
+      &::-webkit-scrollbar-track {
+        background-color: var(--el-scrollbar-bg-color, var(--el-bg-color));
+      }
+
+      :deep(.el-menu-item), :deep(.el-sub-menu__title) {
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      :deep(.el-menu-item.is-active) {
+        background-color: var(--el-menu-hover-bg-color);
+      }
+
+      :deep(.el-menu-item):hover,
+      :deep(.el-sub-menu__title):hover {
+        background-color: var(--el-menu-hover-bg-color);
+      }
     }
 
     .app-footer {
+      height: 60px;
+      min-height: 60px;
+      flex-shrink: 0;
       padding: 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-top: 1px solid var(--el-border-color-light);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      white-space: nowrap;
 
       .collapse-btn {
         padding: 8px;
         font-size: 20px;
+        flex-shrink: 0;
       }
 
       .theme-switch {
-        margin-left: 8px;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: right;
+
+        :deep(.el-switch__core) {
+          background-color: var(--el-border-color-light);
+        }
+      }
+
+      &.collapsed {
+        padding: 16px 0;
+        justify-content: center;
+
+        .theme-switch {
+          transform: scale(0);
+          width: 0;
+          margin: 0;
+          opacity: 0;
+        }
       }
     }
   }
@@ -276,8 +408,7 @@ html, body {
         }
 
         &.close:hover {
-          background-color: #ff4d4f;
-          color: #fff;
+          background-color: var(--el-color-danger);
         }
 
         .el-icon {
@@ -304,4 +435,26 @@ html, body {
 .fade-leave-to {
   opacity: 0;
 }
+
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  transform-origin: left;
+}
+
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scaleX(0);
+  width: 0;
+  margin: 0;
+}
+
+.fade-scale-enter-to,
+.fade-scale-leave-from {
+  opacity: 1;
+  transform: scaleX(1);
+}
 </style>
+

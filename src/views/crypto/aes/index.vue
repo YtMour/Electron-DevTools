@@ -345,11 +345,16 @@ const handleDownload = () => {
 
   .page-content {
     flex: 1;
-    background-color: var(--el-bg-color);
+    background-color: var(--el-fill-color-blank);
     border-radius: 8px;
     padding: 24px;
     box-shadow: var(--el-box-shadow-light);
+    border: 1px solid var(--el-border-color-light);
     overflow-y: auto;
+
+    :deep(.el-form-item__label) {
+      color: var(--el-text-color-regular);
+    }
 
     :deep(.el-form-item__content) {
       width: 100%;
@@ -359,24 +364,40 @@ const handleDownload = () => {
       font-family: var(--el-font-family);
       font-size: 14px;
       line-height: 1.6;
-    }
+      background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
+      color: var(--el-text-color-primary);
+      border-color: var(--el-border-color);
 
-    .input-area {
-      width: 100%;
-      border: 2px dashed var(--el-border-color);
-      border-radius: 4px;
-      transition: all 0.3s;
-
-      :deep(.el-textarea__inner) {
-        border: none;
-        
-        &:focus {
-          box-shadow: none;
-        }
+      &::placeholder {
+        color: var(--el-text-color-placeholder);
       }
 
       &:hover {
+        border-color: var(--el-border-color-hover);
+      }
+
+      &:focus {
         border-color: var(--el-color-primary);
+        box-shadow: 0 0 0 1px var(--el-color-primary-light-8);
+      }
+    }
+
+    :deep(.el-input__inner) {
+      background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
+      color: var(--el-text-color-primary);
+      border-color: var(--el-border-color);
+
+      &::placeholder {
+        color: var(--el-text-color-placeholder);
+      }
+
+      &:hover {
+        border-color: var(--el-border-color-hover);
+      }
+
+      &:focus {
+        border-color: var(--el-color-primary);
+        box-shadow: 0 0 0 1px var(--el-color-primary-light-8);
       }
     }
 

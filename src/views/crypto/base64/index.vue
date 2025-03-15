@@ -243,21 +243,30 @@ const diffResult = computed(() => {
 
     h2 {
       margin-bottom: 12px;
+      color: var(--el-text-color-primary);
     }
 
     .base64-info {
       margin-bottom: 16px;
       font-size: 13px;
+      background-color: var(--el-fill-color-blank);
+      border-color: var(--el-border-color-light);
       
       :deep(.el-alert__title) {
         font-size: 13px;
         line-height: 18px;
+        color: var(--el-text-color-primary);
       }
       
       :deep(.el-alert__description) {
         font-size: 12px;
         line-height: 1.5;
         margin: 4px 0 0 0;
+        color: var(--el-text-color-regular);
+      }
+
+      :deep(.el-alert__icon) {
+        color: var(--el-text-color-regular);
       }
     }
   }
@@ -285,11 +294,16 @@ const diffResult = computed(() => {
 
   .page-content {
     flex: 1;
-    background-color: var(--el-bg-color);
+    background-color: var(--el-fill-color-blank);
     border-radius: 8px;
     padding: 24px;
     box-shadow: var(--el-box-shadow-light);
+    border: 1px solid var(--el-border-color-light);
     overflow-y: auto;
+
+    :deep(.el-form-item__label) {
+      color: var(--el-text-color-regular);
+    }
 
     :deep(.el-form-item__content) {
       width: 100%;
@@ -299,6 +313,22 @@ const diffResult = computed(() => {
       font-family: var(--el-font-family);
       font-size: 14px;
       line-height: 1.6;
+      background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
+      color: var(--el-text-color-primary);
+      border-color: var(--el-border-color);
+
+      &::placeholder {
+        color: var(--el-text-color-placeholder);
+      }
+
+      &:hover {
+        border-color: var(--el-border-color-hover);
+      }
+
+      &:focus {
+        border-color: var(--el-color-primary);
+        box-shadow: 0 0 0 1px var(--el-color-primary-light-8);
+      }
     }
 
     .input-area {
@@ -306,9 +336,11 @@ const diffResult = computed(() => {
       border: 2px dashed var(--el-border-color);
       border-radius: 4px;
       transition: all 0.3s;
+      background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
 
       :deep(.el-textarea__inner) {
         border: none;
+        background-color: transparent;
         
         &:focus {
           box-shadow: none;
@@ -328,6 +360,30 @@ const diffResult = computed(() => {
       align-items: center;
       color: var(--el-text-color-secondary);
       font-size: 12px;
+    }
+
+    :deep(.el-button) {
+      background-color: var(--el-button-bg-color, var(--el-fill-color-blank));
+      border-color: var(--el-border-color);
+      color: var(--el-text-color-regular);
+
+      &:not(.is-disabled):hover {
+        background-color: var(--el-color-primary-light-9);
+        border-color: var(--el-color-primary);
+        color: var(--el-color-primary);
+      }
+
+      &.el-button--primary {
+        background-color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+        color: var(--el-color-white);
+
+        &:not(.is-disabled):hover {
+          background-color: var(--el-color-primary-light-3);
+          border-color: var(--el-color-primary-light-3);
+          color: var(--el-color-white);
+        }
+      }
     }
   }
 }
