@@ -172,7 +172,7 @@ const handleFileChange = async (uploadFile: UploadFile) => {
     reader.onload = (e) => {
       if (e.target?.result) {
         form.input = e.target.result as string
-        handleCalculate()
+        handleCalculate() // 文件内容加载后自动计算哈希值
       }
     }
     reader.readAsText(file)
@@ -193,9 +193,7 @@ const handleDrop = async (e: DragEvent) => {
 }
 
 const handleInput = () => {
-  if (form.input) {
-    handleCalculate()
-  } else {
+  if (!form.input) {
     form.output = ''
   }
 }

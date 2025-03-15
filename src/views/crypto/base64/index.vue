@@ -83,7 +83,7 @@
 
         <el-form-item>
           <el-button-group>
-            <el-button type="primary" @click="handleProcess" :disabled="!form.input">
+            <el-button type="primary" @click="handleConvert" :disabled="!form.input">
               {{ mode === 'encode' ? '编码' : '解码' }}
             </el-button>
             <el-button @click="handleClear">清空</el-button>
@@ -119,21 +119,14 @@ const handleFileChange = async (uploadFile: UploadFile) => {
       return
     }
 
-    if (mode.value === 'encode') {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          const base64String = (e.target.result as string).split(',')[1]
-          form.input = base64String
-          handleConvert()
-        }
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        form.input = e.target.result as string
+        handleConvert() // 文件内容加载后自动进行转换
       }
-      reader.readAsDataURL(file)
-    } else {
-      const text = await file.text()
-      form.input = text
-      handleConvert()
     }
+    reader.readAsText(file)
   } catch (error) {
     ElMessage.error('文件处理失败')
   }
@@ -151,9 +144,7 @@ const handleDrop = async (e: DragEvent) => {
 }
 
 const handleInput = () => {
-  if (form.input) {
-    handleConvert()
-  } else {
+  if (!form.input) {
     form.output = ''
   }
 }

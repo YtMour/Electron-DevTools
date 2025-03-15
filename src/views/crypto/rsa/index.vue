@@ -15,11 +15,12 @@
     <div class="options">
       <div class="option-row">
         <el-radio-group v-model="mode" class="mode-select">
+          <el-radio-button label="generate">生成密钥</el-radio-button>
           <el-radio-button label="encrypt">加密</el-radio-button>
           <el-radio-button label="decrypt">解密</el-radio-button>
         </el-radio-group>
 
-        <div class="upload-btn">
+        <div class="upload-btn" v-if="mode !== 'generate'">
           <el-upload
             ref="upload"
             action=""
@@ -37,68 +38,138 @@
 
     <div class="page-content">
       <el-form :model="form" label-width="80px">
-        <el-form-item :label="mode === 'encrypt' ? '公钥' : '私钥'">
-          <el-input
-            v-model="form.key"
-            type="textarea"
-            :rows="3"
-            :placeholder="mode === 'encrypt' ? '请输入 RSA 公钥' : '请输入 RSA 私钥'"
-            show-password
-          />
-        </el-form-item>
+        <template v-if="mode === 'generate'">
+          <el-form-item label="密钥长度">
+            <el-select v-model="form.keySize" placeholder="选择密钥长度">
+              <el-option label="1024 位" :value="1024" />
+              <el-option label="2048 位" :value="2048" />
+              <el-option label="4096 位" :value="4096" />
+            </el-select>
+          </el-form-item>
 
-        <el-form-item label="输入">
-          <div
-            class="input-area"
-            @drop.prevent="handleDrop"
-            @dragover.prevent
-            @dragenter.prevent>
+          <el-form-item label="公钥">
             <el-input
-              v-model="form.input"
+              v-model="form.publicKey"
               type="textarea"
               :rows="3"
-              :placeholder="mode === 'encrypt' ? '请输入要加密的文本，或拖放文件到此处' : '请输入要解密的文本，或拖放文件到此处'"
-              @input="handleInput"
+              readonly
+              placeholder="生成的公钥将显示在这里"
             />
-          </div>
-          <div class="input-stats" v-if="form.input">
-            <span>字符数：{{ form.input.length }}</span>
-          </div>
-        </el-form-item>
-
-        <el-form-item label="输出">
-          <el-input
-            v-model="form.output"
-            type="textarea"
-            :rows="3"
-            readonly
-            :placeholder="mode === 'encrypt' ? '加密结果' : '解密结果'"
-          />
-          <div class="output-controls">
-            <div class="output-stats" v-if="form.output">
-              <span>{{ mode === 'encrypt' ? '密文' : '明文' }}</span>
+            <div class="output-controls" v-if="form.publicKey">
+              <div class="output-stats">
+                <span>RSA 公钥</span>
+              </div>
+              <div class="output-actions">
+                <el-button-group>
+                  <el-button type="primary" @click="handleCopyPublic">
+                    <el-icon><DocumentCopy /></el-icon> 复制
+                  </el-button>
+                  <el-button type="primary" @click="handleDownloadPublic">
+                    <el-icon><Download /></el-icon> 下载
+                  </el-button>
+                </el-button-group>
+              </div>
             </div>
-            <div class="output-actions">
-              <el-button-group>
-                <el-button type="primary" @click="handleCopy" :disabled="!form.output">
-                  <el-icon><DocumentCopy /></el-icon> 复制
-                </el-button>
-                <el-button type="primary" @click="handleDownload" :disabled="!form.output">
-                  <el-icon><Download /></el-icon> 下载
-                </el-button>
-              </el-button-group>
-            </div>
-          </div>
-        </el-form-item>
+          </el-form-item>
 
-        <el-form-item>
-          <el-button-group>
-            <el-button type="primary" @click="handleProcess" :disabled="!form.key">
-              {{ mode === 'encrypt' ? '加密' : '解密' }}
-            </el-button>
-            <el-button @click="handleClear">清空</el-button>
-          </el-button-group>
-        </el-form-item>
+          <el-form-item label="私钥">
+            <el-input
+              v-model="form.privateKey"
+              type="textarea"
+              :rows="3"
+              readonly
+              show-password
+              placeholder="生成的私钥将显示在这里"
+            />
+            <div class="output-controls" v-if="form.privateKey">
+              <div class="output-stats">
+                <span>RSA 私钥</span>
+              </div>
+              <div class="output-actions">
+                <el-button-group>
+                  <el-button type="primary" @click="handleCopyPrivate">
+                    <el-icon><DocumentCopy /></el-icon> 复制
+                  </el-button>
+                  <el-button type="primary" @click="handleDownloadPrivate">
+                    <el-icon><Download /></el-icon> 下载
+                  </el-button>
+                </el-button-group>
+              </div>
+            </div>
+          </el-form-item>
+
+          <el-form-item>
+            <el-button-group>
+              <el-button type="primary" @click="handleGenerate">生成密钥对</el-button>
+              <el-button @click="handleClear">清空</el-button>
+            </el-button-group>
+          </el-form-item>
+        </template>
+
+        <template v-else>
+          <el-form-item :label="mode === 'encrypt' ? '公钥' : '私钥'">
+            <el-input
+              v-model="form.key"
+              type="textarea"
+              :rows="3"
+              :placeholder="mode === 'encrypt' ? '请输入 RSA 公钥' : '请输入 RSA 私钥'"
+              show-password
+            />
+          </el-form-item>
+
+          <el-form-item label="输入">
+            <div
+              class="input-area"
+              @drop.prevent="handleDrop"
+              @dragover.prevent
+              @dragenter.prevent>
+              <el-input
+                v-model="form.input"
+                type="textarea"
+                :rows="3"
+                :placeholder="mode === 'encrypt' ? '请输入要加密的文本，或拖放文件到此处' : '请输入要解密的文本，或拖放文件到此处'"
+                @input="handleInput"
+              />
+            </div>
+            <div class="input-stats" v-if="form.input">
+              <span>字符数：{{ form.input.length }}</span>
+            </div>
+          </el-form-item>
+
+          <el-form-item label="输出">
+            <el-input
+              v-model="form.output"
+              type="textarea"
+              :rows="3"
+              readonly
+              :placeholder="mode === 'encrypt' ? '加密结果' : '解密结果'"
+            />
+            <div class="output-controls">
+              <div class="output-stats" v-if="form.output">
+                <span>{{ mode === 'encrypt' ? '密文' : '明文' }}</span>
+              </div>
+              <div class="output-actions">
+                <el-button-group>
+                  <el-button type="primary" @click="handleCopy" :disabled="!form.output">
+                    <el-icon><DocumentCopy /></el-icon> 复制
+                  </el-button>
+                  <el-button type="primary" @click="handleDownload" :disabled="!form.output">
+                    <el-icon><Download /></el-icon> 下载
+                  </el-button>
+                </el-button-group>
+              </div>
+            </div>
+          </el-form-item>
+
+          <el-form-item>
+            <el-button-group>
+              <el-button type="primary" @click="handleProcess" :disabled="!form.key">
+                {{ mode === 'encrypt' ? '加密' : '解密' }}
+              </el-button>
+              <el-button @click="handleClear">清空</el-button>
+            </el-button-group>
+          </el-form-item>
+        </template>
       </el-form>
     </div>
   </div>
@@ -136,12 +207,8 @@ const handleFileChange = async (uploadFile: UploadFile) => {
     const reader = new FileReader()
     reader.onload = (e) => {
       if (e.target?.result) {
-        if (mode.value === 'generate') {
-          form.key = e.target.result as string
-        } else {
-          form.input = e.target.result as string
-          handleProcess()
-        }
+        form.input = e.target.result as string
+        handleProcess() // 文件内容加载后自动进行加密/解密
       }
     }
     reader.readAsText(file)
@@ -162,9 +229,7 @@ const handleDrop = async (e: DragEvent) => {
 }
 
 const handleInput = () => {
-  if (form.input && form.key) {
-    handleProcess()
-  } else {
+  if (!form.input) {
     form.output = ''
   }
 }
@@ -172,11 +237,20 @@ const handleInput = () => {
 // 生成密钥对
 const handleGenerate = () => {
   try {
+    ElMessage.info('正在生成密钥对，请稍候...')
     const encrypt = new JSEncrypt({ default_key_size: form.keySize.toString() })
     form.publicKey = encrypt.getPublicKey() || ''
     form.privateKey = encrypt.getPrivateKey() || ''
+    
+    if (form.publicKey && form.privateKey) {
+      ElMessage.success('密钥对生成成功')
+    } else {
+      throw new Error('生成失败')
+    }
   } catch (error) {
     ElMessage.error('生成密钥对失败')
+    form.publicKey = ''
+    form.privateKey = ''
   }
 }
 
@@ -213,9 +287,14 @@ const handleProcess = () => {
 }
 
 const handleClear = () => {
-  form.key = ''
-  form.input = ''
-  form.output = ''
+  if (mode.value === 'generate') {
+    form.publicKey = ''
+    form.privateKey = ''
+  } else {
+    form.key = ''
+    form.input = ''
+    form.output = ''
+  }
 }
 
 // 复制结果

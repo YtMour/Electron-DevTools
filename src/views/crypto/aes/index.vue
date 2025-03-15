@@ -222,6 +222,7 @@ const handleFileChange = async (uploadFile: UploadFile) => {
     reader.onload = (e) => {
       if (e.target?.result) {
         form.input = e.target.result as string
+        handleProcess() // 文件内容加载后自动进行加密/解密
       }
     }
     reader.readAsText(file)
@@ -242,7 +243,9 @@ const handleDrop = async (e: DragEvent) => {
 }
 
 const handleInput = () => {
-  form.output = ''
+  if (!form.input) {
+    form.output = ''
+  }
 }
 
 const handleClear = () => {
