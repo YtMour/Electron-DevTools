@@ -99,6 +99,9 @@
                 <el-button type="primary" @click="handleCopy" :disabled="!form.output">
                   <el-icon><DocumentCopy /></el-icon> 复制
                 </el-button>
+                <el-button type="primary" @click="handleDownload" :disabled="!form.output">
+                  <el-icon><Download /></el-icon> 下载
+                </el-button>
               </el-button-group>
             </div>
           </div>
@@ -106,7 +109,7 @@
 
         <el-form-item>
           <el-button-group>
-            <el-button type="primary" @click="handleCalculate">
+            <el-button type="primary" @click="handleCalculate" :disabled="!form.input">
               {{ mode === 'calculate' ? '计算' : '验证' }}
             </el-button>
             <el-button @click="handleClear">清空</el-button>
@@ -120,7 +123,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Upload, DocumentCopy } from '@element-plus/icons-vue'
+import { Upload, Download, DocumentCopy } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
 import type { UploadFile, UploadRawFile } from 'element-plus'
 import CryptoJS from 'crypto-js'
@@ -236,6 +239,24 @@ const handleCopy = async () => {
     ElMessage.error('复制失败')
   }
 }
+
+// 下载结果
+const handleDownload = () => {
+  try {
+    const blob = new Blob([form.output], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `hash_${algorithm.value}_${Date.now()}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    ElMessage.success('下载成功')
+  } catch (error) {
+    ElMessage.error('下载失败')
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -249,7 +270,6 @@ const handleCopy = async () => {
 
     h2 {
       margin-bottom: 12px;
-      color: var(--el-text-color-primary);
     }
 
     .hash-info {
@@ -311,37 +331,18 @@ const handleCopy = async () => {
     border: 1px solid var(--el-border-color-light);
     overflow-y: auto;
 
-    :deep(.el-form-item__label) {
-      color: var(--el-text-color-regular);
-    }
-
     :deep(.el-form-item__content) {
       width: 100%;
+    }
+
+    :deep(.el-form-item__label) {
+      color: var(--el-text-color-regular);
     }
 
     :deep(.el-textarea__inner) {
       font-family: var(--el-font-family);
       font-size: 14px;
       line-height: 1.6;
-      background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
-      color: var(--el-text-color-primary);
-      border-color: var(--el-border-color);
-
-      &::placeholder {
-        color: var(--el-text-color-placeholder);
-      }
-
-      &:hover {
-        border-color: var(--el-border-color-hover);
-      }
-
-      &:focus {
-        border-color: var(--el-color-primary);
-        box-shadow: 0 0 0 1px var(--el-color-primary-light-8);
-      }
-    }
-
-    :deep(.el-input__inner) {
       background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
       color: var(--el-text-color-primary);
       border-color: var(--el-border-color);
@@ -370,6 +371,7 @@ const handleCopy = async () => {
       :deep(.el-textarea__inner) {
         border: none;
         background-color: transparent;
+        width: 100%;
         
         &:focus {
           box-shadow: none;
@@ -378,6 +380,32 @@ const handleCopy = async () => {
 
       &:hover {
         border-color: var(--el-color-primary);
+      }
+    }
+  }
+
+  :deep(.el-button) {
+    &.el-button--primary {
+      background-color: var(--el-color-primary);
+      border-color: var(--el-color-primary);
+      color: var(--el-color-white);
+
+      &:not(.is-disabled):hover {
+        background-color: var(--el-color-primary-light-3);
+        border-color: var(--el-color-primary-light-3);
+      }
+
+      &.is-disabled {
+        background-color: var(--el-color-primary-light-5);
+        border-color: var(--el-color-primary-light-5);
+      }
+    }
+
+    &:not(.el-button--primary) {
+      &:not(.is-disabled):hover {
+        color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+        background-color: var(--el-button-hover-bg-color);
       }
     }
   }
@@ -397,63 +425,6 @@ const handleCopy = async () => {
     
     :deep(.el-upload) {
       display: block;
-    }
-  }
-
-  :deep(.el-radio-button__inner) {
-    background-color: var(--el-button-bg-color, var(--el-fill-color-blank));
-    color: var(--el-text-color-regular);
-    border-color: var(--el-border-color);
-
-    &:hover {
-      color: var(--el-color-primary);
-    }
-  }
-
-  :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-    background-color: var(--el-color-primary);
-    color: var(--el-color-white);
-    border-color: var(--el-color-primary);
-  }
-
-  :deep(.el-button) {
-    background-color: var(--el-button-bg-color, var(--el-fill-color-blank));
-    border-color: var(--el-border-color);
-    color: var(--el-text-color-regular);
-
-    &:not(.is-disabled):hover {
-      background-color: var(--el-color-primary-light-9);
-      border-color: var(--el-color-primary);
-      color: var(--el-color-primary);
-    }
-
-    &.el-button--primary {
-      background-color: var(--el-color-primary);
-      border-color: var(--el-color-primary);
-      color: var(--el-color-white);
-
-      &:not(.is-disabled):hover {
-        background-color: var(--el-color-primary-light-3);
-        border-color: var(--el-color-primary-light-3);
-        color: var(--el-color-white);
-      }
-    }
-  }
-
-  :deep(.el-tag) {
-    background-color: var(--el-fill-color-blank);
-    border-color: var(--el-border-color);
-
-    &.el-tag--success {
-      background-color: var(--el-color-success-light-9);
-      border-color: var(--el-color-success-light-5);
-      color: var(--el-color-success);
-    }
-
-    &.el-tag--danger {
-      background-color: var(--el-color-danger-light-9);
-      border-color: var(--el-color-danger-light-5);
-      color: var(--el-color-danger);
     }
   }
 }

@@ -385,6 +385,32 @@ const handleDownloadPrivate = () => {
   display: flex;
   flex-direction: column;
 
+  :deep(.el-button) {
+    &.el-button--primary {
+      background-color: var(--el-color-primary);
+      border-color: var(--el-color-primary);
+      color: var(--el-color-white);
+
+      &:not(.is-disabled):hover {
+        background-color: var(--el-color-primary-light-3);
+        border-color: var(--el-color-primary-light-3);
+      }
+
+      &.is-disabled {
+        background-color: var(--el-color-primary-light-5);
+        border-color: var(--el-color-primary-light-5);
+      }
+    }
+
+    &:not(.el-button--primary) {
+      &:not(.is-disabled):hover {
+        color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+        background-color: var(--el-button-hover-bg-color);
+      }
+    }
+  }
+
   .header {
     margin-bottom: 20px;
 
@@ -395,16 +421,24 @@ const handleDownloadPrivate = () => {
     .rsa-info {
       margin-bottom: 16px;
       font-size: 13px;
+      background-color: var(--el-fill-color-blank);
+      border-color: var(--el-border-color-light);
       
       :deep(.el-alert__title) {
         font-size: 13px;
         line-height: 18px;
+        color: var(--el-text-color-primary);
       }
       
       :deep(.el-alert__description) {
         font-size: 12px;
         line-height: 1.5;
         margin: 4px 0 0 0;
+        color: var(--el-text-color-regular);
+      }
+
+      :deep(.el-alert__icon) {
+        color: var(--el-text-color-regular);
       }
     }
   }
@@ -426,22 +460,21 @@ const handleDownloadPrivate = () => {
 
       .upload-btn {
         flex-shrink: 0;
+        
+        :deep(.el-upload) {
+          display: block;
+        }
       }
     }
   }
 
   .page-content {
     flex: 1;
-    background-color: var(--el-fill-color-blank);
+    background-color: var(--el-bg-color);
     border-radius: 8px;
     padding: 24px;
     box-shadow: var(--el-box-shadow-light);
-    border: 1px solid var(--el-border-color-light);
     overflow-y: auto;
-
-    :deep(.el-form-item__label) {
-      color: var(--el-text-color-regular);
-    }
 
     :deep(.el-form-item__content) {
       width: 100%;
@@ -451,22 +484,10 @@ const handleDownloadPrivate = () => {
       font-family: var(--el-font-family);
       font-size: 14px;
       line-height: 1.6;
-      background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
-      color: var(--el-text-color-primary);
-      border-color: var(--el-border-color);
+    }
 
-      &::placeholder {
-        color: var(--el-text-color-placeholder);
-      }
-
-      &:hover {
-        border-color: var(--el-border-color-hover);
-      }
-
-      &:focus {
-        border-color: var(--el-color-primary);
-        box-shadow: 0 0 0 1px var(--el-color-primary-light-8);
-      }
+    :deep(.el-button) {
+      display: none;
     }
 
     .input-area {

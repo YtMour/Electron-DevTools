@@ -245,6 +245,8 @@ const handleDrop = async (e: DragEvent) => {
 const handleInput = () => {
   if (!form.input) {
     form.output = ''
+  } else if (isKeyValid.value && (!needIV.value || form.iv)) {
+    handleProcess() // 当密钥有效且 IV（如果需要）已填写时，自动处理
   }
 }
 
@@ -290,6 +292,32 @@ const handleDownload = () => {
   display: flex;
   flex-direction: column;
 
+  :deep(.el-button) {
+    &.el-button--primary {
+      background-color: var(--el-color-primary);
+      border-color: var(--el-color-primary);
+      color: var(--el-color-white);
+
+      &:not(.is-disabled):hover {
+        background-color: var(--el-color-primary-light-3);
+        border-color: var(--el-color-primary-light-3);
+      }
+
+      &.is-disabled {
+        background-color: var(--el-color-primary-light-5);
+        border-color: var(--el-color-primary-light-5);
+      }
+    }
+
+    &:not(.el-button--primary) {
+      &:not(.is-disabled):hover {
+        color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+        background-color: var(--el-button-hover-bg-color);
+      }
+    }
+  }
+
   .header {
     margin-bottom: 20px;
 
@@ -300,16 +328,24 @@ const handleDownload = () => {
     .aes-info {
       margin-bottom: 16px;
       font-size: 13px;
+      background-color: var(--el-fill-color-blank);
+      border-color: var(--el-border-color-light);
       
       :deep(.el-alert__title) {
         font-size: 13px;
         line-height: 18px;
+        color: var(--el-text-color-primary);
       }
       
       :deep(.el-alert__description) {
         font-size: 12px;
         line-height: 1.5;
         margin: 4px 0 0 0;
+        color: var(--el-text-color-regular);
+      }
+
+      :deep(.el-alert__icon) {
+        color: var(--el-text-color-regular);
       }
     }
   }
@@ -339,6 +375,10 @@ const handleDownload = () => {
 
       .upload-btn {
         flex-shrink: 0;
+        
+        :deep(.el-upload) {
+          display: block;
+        }
       }
     }
   }
@@ -418,6 +458,32 @@ const handleDownload = () => {
       align-items: center;
       color: var(--el-text-color-secondary);
       font-size: 12px;
+    }
+
+    .input-area {
+      width: 100%;
+      border: 2px dashed var(--el-border-color);
+      border-radius: 4px;
+      transition: all 0.3s;
+      background-color: var(--el-input-bg-color, var(--el-fill-color-blank));
+
+      :deep(.el-textarea__inner) {
+        border: none;
+        background-color: transparent;
+        width: 100%;
+        
+        &:focus {
+          box-shadow: none;
+        }
+      }
+
+      &:hover {
+        border-color: var(--el-color-primary);
+      }
+    }
+
+    :deep(.el-button) {
+      display: none;
     }
   }
 }
