@@ -42,4 +42,7 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    assetsInlineLimit: 0, // 禁用资源内联，确保 SVG 文件被正确处理
+  },
 })

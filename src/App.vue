@@ -2,8 +2,8 @@
   <el-container class="app-container">
     <el-aside width="240px" class="app-aside">
       <div class="logo-container">
-        <img src="./assets/logo.png" alt="DevTools Plus" class="logo" />
-        <h1>DevTools Plus</h1>
+        <img src="./assets/logo.svg" alt="Yt Tools" class="logo" />
+        <h1>Yt Tools</h1>
       </div>
       
       <el-menu

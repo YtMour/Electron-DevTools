@@ -1,4 +1,4 @@
-import { app, Menu, BrowserWindow, ipcMain } from "electron";
+import { app, Menu, BrowserWindow, globalShortcut, ipcMain } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -23,11 +23,13 @@ function createWindow() {
     frame: false,
     autoHideMenuBar: true,
     titleBarStyle: "hidden",
-    icon: join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    icon: join(process.env.VITE_PUBLIC, "logo.svg"),
     webPreferences: {
       preload: join(__dirname, "preload.mjs"),
       nodeIntegration: true,
-      contextIsolation: true
+      contextIsolation: true,
+      devTools: true
+      // 启用开发者工具
     }
   });
   win.setMenuBarVisibility(false);
@@ -52,6 +54,11 @@ function createWindow() {
   });
   win.webContents.on("did-finish-load", () => {
     win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  });
+  globalShortcut.register("CommandOrControl+Shift+I", () => {
+    if (win == null ? void 0 : win.webContents) {
+      win.webContents.toggleDevTools();
+    }
   });
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
@@ -80,6 +87,9 @@ app.on("activate", () => {
   }
 });
 app.whenReady().then(createWindow);
+app.on("will-quit", () => {
+  globalShortcut.unregisterAll();
+});
 export {
   MAIN_DIST,
   RENDERER_DIST,

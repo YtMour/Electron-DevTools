@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, globalShortcut } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { join, dirname } from 'node:path'
@@ -45,11 +45,12 @@ function createWindow() {
     frame: false,
     autoHideMenuBar: true,
     titleBarStyle: 'hidden',
-    icon: join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
+    icon: join(process.env.VITE_PUBLIC, 'logo.svg'),
     webPreferences: {
       preload: join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
-      contextIsolation: true
+      contextIsolation: true,
+      devTools: true // 启用开发者工具
     },
   })
 
@@ -85,6 +86,13 @@ function createWindow() {
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
+  })
+
+  // 注册开发者工具快捷键
+  globalShortcut.register('CommandOrControl+Shift+I', () => {
+    if (win?.webContents) {
+      win.webContents.toggleDevTools()
+    }
   })
 
   if (VITE_DEV_SERVER_URL) {
@@ -127,4 +135,9 @@ app.on('activate', () => {
 })
 
 app.whenReady().then(createWindow)
+
+// 在应用退出时注销快捷键
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll()
+})
 

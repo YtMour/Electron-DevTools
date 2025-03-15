@@ -5,11 +5,11 @@
         <el-card class="welcome-card">
           <template #header>
             <div class="card-header">
-              <h2>欢迎使用 DevTools Plus</h2>
+              <h2>欢迎使用 Yt Tools</h2>
             </div>
           </template>
           <div class="welcome-content">
-            <p>DevTools Plus 是一个强大的开发工具集合，提供多种实用功能，帮助您提高开发效率。</p>
+            <p>Yt Tools 是一个强大的开发工具集合，提供多种实用功能，帮助您提高开发效率。</p>
           </div>
         </el-card>
       </el-col>
@@ -17,7 +17,7 @@
 
     <el-row :gutter="20" class="tool-categories">
       <el-col :span="8">
-        <el-card class="tool-card" @click="$router.push('/crypto')">
+        <el-card class="tool-card" @click="$router.push('/crypto/base64')">
           <template #header>
             <div class="card-header">
               <el-icon><Lock /></el-icon>
@@ -31,7 +31,7 @@
       </el-col>
 
       <el-col :span="8">
-        <el-card class="tool-card" @click="$router.push('/format')">
+        <el-card class="tool-card" @click="$router.push('/format/json')">
           <template #header>
             <div class="card-header">
               <el-icon><Document /></el-icon>
@@ -45,7 +45,7 @@
       </el-col>
 
       <el-col :span="8">
-        <el-card class="tool-card" @click="$router.push('/file')">
+        <el-card class="tool-card" @click="$router.push('/file/process')">
           <template #header>
             <div class="card-header">
               <el-icon><Folder /></el-icon>
