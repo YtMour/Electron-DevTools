@@ -18,6 +18,17 @@ export default defineConfig({
         onstart(options) {
           options.reload()
         },
+        vite: {
+          build: {
+            outDir: 'dist-electron',
+            rollupOptions: {
+              output: {
+                entryFileNames: '[name].js',
+                format: 'cjs', // 使用 CommonJS 格式
+              },
+            },
+          },
+        },
       },
     ]),
     renderer(),

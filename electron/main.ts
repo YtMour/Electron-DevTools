@@ -25,7 +25,7 @@ if (!gotTheLock) {
 // │ │
 // │ ├─┬ dist-electron
 // │ │ ├── main.js
-// │ │ └── preload.mjs
+// │ │ └── preload.js
 // │
 process.env.APP_ROOT = join(__dirname, '..')
 
@@ -48,7 +48,7 @@ function createWindow() {
     title: 'Yt Tools',
     icon: join(process.env.VITE_PUBLIC, 'favicon.ico'),
     webPreferences: {
-      preload: join(__dirname, 'preload.mjs'),
+      preload: join(__dirname, 'preload.js'),
       nodeIntegration: true,
       contextIsolation: true,
       devTools: true // 启用开发者工具

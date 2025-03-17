@@ -7,7 +7,6 @@
     "name": "Your Name",
     "email": "your.email@example.com"
   },
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && electron-builder",
