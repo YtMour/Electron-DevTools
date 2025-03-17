@@ -175,4 +175,64 @@ function formatXml(xml: string, options: XmlSerializeOptions): string {
   }
   
   return formatted
+}
+
+/**
+ * 将 XML 转换为 JSON 字符串
+ * @param xml XML 字符串
+ * @param indentSize JSON 缩进大小
+ * @returns 格式化的 JSON 字符串
+ */
+export function xml2json(xml: string, indentSize: number = 2): string {
+  try {
+    const obj = parseXml(xml)
+    return JSON.stringify(obj, null, indentSize)
+  } catch (error) {
+    console.error('XML to JSON conversion error:', error)
+    throw error
+  }
+}
+
+/**
+ * 将 JSON 转换为 XML 字符串
+ * @param json JSON 字符串
+ * @param options 序列化选项
+ * @returns 格式化的 XML 字符串
+ */
+export function json2xml(json: string, options: XmlSerializeOptions = {}): string {
+  try {
+    const obj = JSON.parse(json)
+    return serializeXml(obj, options)
+  } catch (error) {
+    console.error('JSON to XML conversion error:', error)
+    throw error
+  }
+}
+
+/**
+ * 验证 XML 字符串是否有效
+ * @param xml XML 字符串
+ * @returns 是否有效
+ */
+export function isValidXml(xml: string): boolean {
+  try {
+    parseXml(xml, true)
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
+/**
+ * 验证 JSON 字符串是否有效
+ * @param json JSON 字符串
+ * @returns 是否有效
+ */
+export function isValidJson(json: string): boolean {
+  try {
+    JSON.parse(json)
+    return true
+  } catch (error) {
+    return false
+  }
 } 

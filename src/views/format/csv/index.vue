@@ -1,9 +1,9 @@
 <template>
-  <div class="xml-page">
+  <div class="csv-page">
     <div class="page-header">
       <div class="header-title">
-        <h2>XML/JSON 转换</h2>
-        <p class="header-desc">支持 XML 和 JSON 格式互相转换、格式化和压缩</p>
+        <h2>CSV/JSON 转换</h2>
+        <p class="header-desc">支持 CSV 和 JSON 格式互相转换、格式化和压缩</p>
       </div>
       <div class="header-controls">
         <div class="mode-controls">
@@ -16,13 +16,13 @@
               <el-icon class="mode-icon"><Fold /></el-icon>
               压缩
             </el-radio-button>
-            <el-radio-button label="xml2json">
+            <el-radio-button label="csv2json">
               <el-icon class="mode-icon"><Document /></el-icon>
-              XML 转 JSON
+              CSV 转 JSON
             </el-radio-button>
-            <el-radio-button label="json2xml">
+            <el-radio-button label="json2csv">
               <el-icon class="mode-icon"><List /></el-icon>
-              JSON 转 XML
+              JSON 转 CSV
             </el-radio-button>
           </el-radio-group>
         </div>
@@ -81,7 +81,7 @@
               type="textarea"
               :rows="15"
               :placeholder="getInputPlaceholder()"
-              @input="handleInput"
+              @input="handleInputChange"
               resize="none"
               class="custom-textarea"
             />
@@ -92,7 +92,7 @@
         </div>
 
         <div class="editor-actions">
-          <el-tooltip :content="getActionTooltip()" placement="top">
+          <el-tooltip content="转换" placement="top">
             <el-button 
               type="primary" 
               size="large" 
@@ -117,12 +117,12 @@
                 </el-button>
               </el-tooltip>
               <el-tooltip content="复制到剪贴板" placement="top">
-                <el-button type="success" plain size="small" @click="handleCopy" :disabled="!output">
+                <el-button type="success" plain size="small" @click="handleCopyOutput" :disabled="!output">
                   <el-icon><DocumentCopy /></el-icon>
                 </el-button>
               </el-tooltip>
               <el-tooltip content="下载文件" placement="top">
-                <el-button type="primary" plain size="small" @click="handleDownload" :disabled="!output">
+                <el-button type="primary" plain size="small" @click="handleDownloadOutput" :disabled="!output">
                   <el-icon><Download /></el-icon>
                 </el-button>
               </el-tooltip>
@@ -148,29 +148,65 @@
       <div class="options-panel">
         <div class="options-header">
           <el-icon><Setting /></el-icon>
-          <span>处理选项</span>
+          <span>转换选项</span>
         </div>
         <el-form :model="options" label-position="top" size="default">
-          <el-form-item label="缩进空格数" v-if="mode !== 'compress'">
-            <el-input-number
-              v-model="options.indentSize"
-              :min="0"
-              :max="8"
-              :step="2"
-              style="width: 100%"
-            />
-          </el-form-item>
+          <template v-if="mode === 'csv2json'">
+            <el-form-item label="分隔符">
+              <el-select v-model="options.delimiter" style="width: 100%">
+                <el-option label="逗号 ," value="," />
+                <el-option label="分号 ;" value=";" />
+                <el-option label="制表符 \t" value="\t" />
+                <el-option label="竖线 |" value="|" />
+                <el-option label="自动检测" value="auto" />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-row :gutter="10">
+                <el-col :span="12">
+                  <el-checkbox v-model="options.header">首行为表头</el-checkbox>
+                </el-col>
+                <el-col :span="12">
+                  <el-checkbox v-model="options.dynamicTyping">自动类型转换</el-checkbox>
+                </el-col>
+              </el-row>
+            </el-form-item>
+            <el-form-item>
+              <el-row :gutter="10">
+                <el-col :span="12">
+                  <el-checkbox v-model="options.skipEmptyLines">跳过空行</el-checkbox>
+                </el-col>
+                <el-col :span="12">
+                  <el-checkbox v-model="options.liveConversion">实时转换</el-checkbox>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </template>
+          <template v-else>
+            <el-form-item label="分隔符">
+              <el-select v-model="options.delimiter" style="width: 100%">
+                <el-option label="逗号 ," value="," />
+                <el-option label="分号 ;" value=";" />
+                <el-option label="制表符 \t" value="\t" />
+                <el-option label="竖线 |" value="|" />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-row :gutter="10">
+                <el-col :span="12">
+                  <el-checkbox v-model="options.header">包含表头</el-checkbox>
+                </el-col>
+                <el-col :span="12">
+                  <el-checkbox v-model="options.liveConversion">实时转换</el-checkbox>
+                </el-col>
+              </el-row>
+            </el-form-item>
+          </template>
+          <el-divider />
           <el-form-item>
-            <el-checkbox v-model="options.liveConversion">实时转换</el-checkbox>
-          </el-form-item>
-          <el-form-item>
-            <el-button 
-              type="primary" 
-              @click="handleProcess" 
-              :disabled="!input.trim()"
-              style="width: 100%">
+            <el-button type="primary" @click="handleProcess" :disabled="!input.trim()" style="width: 100%">
               <el-icon><Refresh /></el-icon>
-              {{ getActionButtonText() }}
+              转换
             </el-button>
           </el-form-item>
         </el-form>
@@ -187,11 +223,11 @@
             </p>
             <p>
               <el-icon><Check /></el-icon>
-              支持格式化与压缩
+              支持自动检测分隔符
             </p>
             <p>
               <el-icon><Check /></el-icon>
-              支持XML与JSON互转
+              支持实时转换预览
             </p>
             <p>
               <el-icon><Check /></el-icon>
@@ -209,62 +245,62 @@ import { ref, reactive, watch, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { 
   Upload, Download, DocumentCopy, Delete, Right, Edit, View, 
-  Setting, InfoFilled, Check, Refresh, Menu, Fold, Document, List
+  Setting, InfoFilled, Check, Refresh, Document, List, Menu, Fold
 } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
-import type { UploadFile, UploadRawFile } from 'element-plus'
-import { parseXml, serializeXml, xml2json, json2xml, isValidXml, isValidJson } from '@/utils/xml'
-import { xmlExample, compressedXmlExample, jsonForXmlExample } from '@/utils/xml-example'
+import type { UploadFile } from 'element-plus'
+import { csv2json, json2csv, isValidCsv, isValidJson } from '@/utils/csv'
+import { formatJson, compressJson } from '@/utils/json'
+// 导入示例数据
+import { csvExample, jsonExample } from '@/utils/csv-example'
 
 const { copy } = useClipboard()
-const mode = ref<'format' | 'compress' | 'xml2json' | 'json2xml'>('format')
+const mode = ref<'format' | 'compress' | 'csv2json' | 'json2csv'>('format')
 const input = ref('')
 const output = ref('')
 const isDragOver = ref(false)
 
 const options = reactive({
-  indentSize: 2,
-  liveConversion: true
+  delimiter: ',',
+  header: true,
+  dynamicTyping: true,
+  skipEmptyLines: true,
+  liveConversion: true,
+  indentSize: 2
 })
 
-// 初始化示例数据
-onMounted(() => {
-  loadExampleData()
+// 使用动态导入 papaparse
+import('papaparse').then(papaparseModule => {
+  const Papa = papaparseModule.default
+  
+  // 初始化示例数据
+  if (mode.value === 'csv2json') {
+    input.value = csvExample
+  } else {
+    input.value = JSON.stringify(jsonExample, null, 2)
+  }
+  handleProcess()
 })
 
 // 监听模式变化，清空输入输出并加载示例数据
 watch(mode, () => {
-  loadExampleData()
-})
-
-// 加载示例数据
-const loadExampleData = () => {
-  switch (mode.value) {
-    case 'format':
-      input.value = xmlExample
-      break
-    case 'compress':
-      input.value = xmlExample
-      break
-    case 'xml2json':
-      input.value = xmlExample
-      break
-    case 'json2xml':
-      input.value = JSON.stringify(jsonForXmlExample, null, 2)
-      break
+  if (mode.value === 'csv2json') {
+    input.value = csvExample
+  } else {
+    input.value = JSON.stringify(jsonExample, null, 2)
   }
   handleProcess()
-}
+})
 
 // 获取输入标题
 const getInputTitle = () => {
   switch (mode.value) {
     case 'format':
     case 'compress':
-    case 'xml2json':
-      return '输入 XML'
-    case 'json2xml':
+    case 'json2csv':
       return '输入 JSON'
+    case 'csv2json':
+      return '输入 CSV'
     default:
       return '输入'
   }
@@ -276,10 +312,10 @@ const getOutputTitle = () => {
     case 'format':
     case 'compress':
       return '输出结果'
-    case 'xml2json':
+    case 'csv2json':
       return '输出 JSON'
-    case 'json2xml':
-      return '输出 XML'
+    case 'json2csv':
+      return '输出 CSV'
     default:
       return '输出结果'
   }
@@ -290,10 +326,10 @@ const getInputPlaceholder = () => {
   switch (mode.value) {
     case 'format':
     case 'compress':
-    case 'xml2json':
-      return '请输入要处理的 XML 文本，或拖放文件到此处'
-    case 'json2xml':
+    case 'json2csv':
       return '请输入要处理的 JSON 文本，或拖放文件到此处'
+    case 'csv2json':
+      return '请输入要处理的 CSV 文本，或拖放文件到此处'
     default:
       return '请输入要处理的文本，或拖放文件到此处'
   }
@@ -305,10 +341,10 @@ const getOutputPlaceholder = () => {
     case 'format':
     case 'compress':
       return '处理结果将显示在这里'
-    case 'xml2json':
+    case 'csv2json':
       return 'JSON 结果将显示在这里'
-    case 'json2xml':
-      return 'XML 结果将显示在这里'
+    case 'json2csv':
+      return 'CSV 结果将显示在这里'
     default:
       return '处理结果将显示在这里'
   }
@@ -321,10 +357,10 @@ const getActionButtonText = () => {
       return '格式化'
     case 'compress':
       return '压缩'
-    case 'xml2json':
-      return 'XML 转 JSON'
-    case 'json2xml':
-      return 'JSON 转 XML'
+    case 'csv2json':
+      return 'CSV 转 JSON'
+    case 'json2csv':
+      return 'JSON 转 CSV'
     default:
       return '处理'
   }
@@ -337,73 +373,77 @@ const getActionTooltip = () => {
       return '格式化'
     case 'compress':
       return '压缩'
-    case 'xml2json':
-      return 'XML 转 JSON'
-    case 'json2xml':
-      return 'JSON 转 XML'
+    case 'csv2json':
+      return 'CSV 转 JSON'
+    case 'json2csv':
+      return 'JSON 转 CSV'
     default:
       return '处理'
   }
 }
 
 // 处理输入变化
-const handleInput = () => {
-  if (options.liveConversion && input.value) {
+const handleInputChange = () => {
+  if (options.liveConversion) {
     handleProcess()
-  } else if (!input.value) {
-    output.value = ''
   }
 }
 
-// 处理格式化/压缩/转换
+// 处理转换
 const handleProcess = () => {
-  if (!input.value) {
-    ElMessage.warning('请输入要处理的文本')
+  if (!input.value.trim()) {
+    output.value = ''
     return
   }
 
   try {
     switch (mode.value) {
       case 'format':
-      case 'compress':
-        // 先尝试解析 XML
-        if (!isValidXml(input.value)) {
-          ElMessage.error('XML 格式错误，请检查输入')
-          return
-        }
-        const doc = parseXml(input.value)
-        
-        // 格式化或压缩
-        output.value = serializeXml(doc, {
-          indent: mode.value === 'format' ? ' '.repeat(options.indentSize) : '',
-          newline: mode.value === 'format' ? '\n' : ''
-        })
-        break
-        
-      case 'xml2json':
-        // XML 转 JSON
-        if (!isValidXml(input.value)) {
-          ElMessage.error('XML 格式错误，请检查输入')
-          return
-        }
-        output.value = xml2json(input.value, options.indentSize)
-        break
-        
-      case 'json2xml':
-        // JSON 转 XML
+        // 格式化 JSON
         if (!isValidJson(input.value)) {
-          ElMessage.error('JSON 格式错误，请检查输入')
+          ElMessage.error('无效的 JSON 格式')
           return
         }
-        output.value = json2xml(input.value, {
-          indent: ' '.repeat(options.indentSize),
-          newline: '\n'
-        })
+        output.value = formatJson(input.value, options.indentSize)
+        break
+        
+      case 'compress':
+        // 压缩 JSON
+        if (!isValidJson(input.value)) {
+          ElMessage.error('无效的 JSON 格式')
+          return
+        }
+        output.value = compressJson(input.value)
+        break
+        
+      case 'csv2json':
+        if (!isValidCsv(input.value)) {
+          ElMessage.error('无效的 CSV 格式')
+          return
+        }
+        output.value = csv2json(
+          input.value, 
+          options.header, 
+          options.delimiter, 
+          options.dynamicTyping,
+          options.indentSize
+        )
+        break
+        
+      case 'json2csv':
+        if (!isValidJson(input.value)) {
+          ElMessage.error('无效的 JSON 格式')
+          return
+        }
+        output.value = json2csv(
+          input.value, 
+          options.header, 
+          options.delimiter
+        )
         break
     }
   } catch (error) {
-    ElMessage.error(`处理失败: ${(error as Error).message}`)
-    output.value = ''
+    ElMessage.error(`转换失败: ${(error as Error).message}`)
   }
 }
 
@@ -420,6 +460,12 @@ const handleFileChange = async (uploadFile: UploadFile) => {
     reader.onload = (e) => {
       if (e.target?.result) {
         input.value = e.target.result as string
+        
+        // 如果是 CSV 模式且设置为自动检测分隔符
+        if (mode.value === 'csv2json' && options.delimiter === 'auto') {
+          options.delimiter = detectDelimiter(input.value)
+        }
+        
         handleProcess()
         ElMessage.success(`文件 "${file.name}" 已成功加载`)
       }
@@ -430,15 +476,26 @@ const handleFileChange = async (uploadFile: UploadFile) => {
   }
 }
 
-// 处理文件拖放
-const handleDrop = async (e: DragEvent) => {
+// 处理拖放
+const handleDrop = (e: DragEvent) => {
   isDragOver.value = false
   const files = e.dataTransfer?.files
-  if (files?.length) {
-    const rawFile = files[0] as UploadRawFile
-    rawFile.uid = Date.now()
-    handleFileChange({ raw: rawFile } as UploadFile)
-    ElMessage.success(`文件 "${files[0].name}" 已成功加载`)
+  if (files && files.length > 0) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        input.value = e.target.result as string
+        
+        // 如果是 CSV 模式且设置为自动检测分隔符
+        if (mode.value === 'csv2json' && options.delimiter === 'auto') {
+          options.delimiter = detectDelimiter(input.value)
+        }
+        
+        handleProcess()
+        ElMessage.success(`文件 "${files[0].name}" 已成功加载`)
+      }
+    }
+    reader.readAsText(files[0])
   }
 }
 
@@ -472,11 +529,17 @@ const handleClearOutput = () => {
   ElMessage.info('输出已清空')
 }
 
-// 粘贴输入
+// 粘贴到输入
 const handlePasteInput = async () => {
   try {
     const text = await navigator.clipboard.readText()
     input.value = text
+    
+    // 如果是 CSV 模式且设置为自动检测分隔符
+    if (mode.value === 'csv2json' && options.delimiter === 'auto') {
+      options.delimiter = detectDelimiter(input.value)
+    }
+    
     handleProcess()
     ElMessage.success('已从剪贴板粘贴内容')
   } catch (error) {
@@ -484,63 +547,57 @@ const handlePasteInput = async () => {
   }
 }
 
-// 复制结果
-const handleCopy = async () => {
+// 复制输出
+const handleCopyOutput = () => {
   if (!output.value) {
     ElMessage.warning('没有可复制的内容')
     return
   }
-
-  try {
-    await copy(output.value)
-    ElMessage.success('复制成功')
-  } catch (error) {
-    ElMessage.error('复制失败')
-  }
+  
+  copy(output.value)
+  ElMessage.success('已复制到剪贴板')
 }
 
-// 下载结果
-const handleDownload = () => {
+// 下载输出
+const handleDownloadOutput = () => {
   if (!output.value) {
     ElMessage.warning('没有可下载的内容')
     return
   }
+  
+  const blob = new Blob([output.value], { type: 'text/plain' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = mode.value === 'csv2json' ? 'output.json' : 'output.csv'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+  ElMessage.success(`已下载为 ${mode.value === 'csv2json' ? 'output.json' : 'output.csv'}`)
+}
 
-  try {
-    let mimeType = 'text/plain'
-    let extension = 'txt'
-    
-    switch (mode.value) {
-      case 'format':
-      case 'compress':
-      case 'json2xml':
-        mimeType = 'application/xml'
-        extension = 'xml'
-        break
-      case 'xml2json':
-        mimeType = 'application/json'
-        extension = 'json'
-        break
+// 检测 CSV 分隔符
+function detectDelimiter(csvStr: string): string {
+  const firstLine = csvStr.split('\n')[0]
+  const delimiters = [',', ';', '\t', '|']
+  let bestDelimiter = ','
+  let maxCount = 0
+  
+  for (const delimiter of delimiters) {
+    const count = (firstLine.match(new RegExp(delimiter, 'g')) || []).length
+    if (count > maxCount) {
+      maxCount = count
+      bestDelimiter = delimiter
     }
-    
-    const blob = new Blob([output.value], { type: mimeType })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `output_${Date.now()}.${extension}`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    ElMessage.success(`已下载为 output_${Date.now()}.${extension}`)
-  } catch (error) {
-    ElMessage.error('下载失败')
   }
+  
+  return bestDelimiter
 }
 </script>
 
 <style lang="scss" scoped>
-.xml-page {
+.csv-page {
   padding: 20px;
   height: 100%;
   display: flex;
@@ -717,15 +774,6 @@ const handleDownload = () => {
   }
 }
 
-.editor-footer {
-  padding: 8px 16px;
-  border-top: 1px solid var(--el-border-color-light);
-  color: var(--el-text-color-secondary);
-  font-size: 12px;
-  display: flex;
-  justify-content: flex-end;
-}
-
 .editor-actions {
   display: flex;
   flex-direction: column;
@@ -803,5 +851,14 @@ const handleDownload = () => {
 
 .el-divider {
   margin: 16px 0;
+}
+
+.editor-footer {
+  padding: 8px 16px;
+  border-top: 1px solid var(--el-border-color-light);
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style> 

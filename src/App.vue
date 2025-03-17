@@ -37,6 +37,7 @@
           <el-menu-item index="/format/json">JSON 格式化</el-menu-item>
           <el-menu-item index="/format/xml">XML/JSON 转换</el-menu-item>
           <el-menu-item index="/format/yaml">YAML/JSON 转换</el-menu-item>
+          <el-menu-item index="/format/csv">CSV/JSON 转换</el-menu-item>
         </el-sub-menu>
 
         <el-sub-menu index="/file">
@@ -136,8 +137,10 @@ import {
 declare global {
   interface Window {
     ipcRenderer: {
-      on: (channel: string, listener: (...args: any[]) => void) => void
       send: (channel: string, ...args: any[]) => void
+      on: (channel: string, func: (...args: any[]) => void) => void
+      once: (channel: string, func: (...args: any[]) => void) => void
+      removeListener: (channel: string, func: (...args: any[]) => void) => void
     }
   }
 }

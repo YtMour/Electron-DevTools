@@ -32,6 +32,14 @@ const menuConfig: MenuItem[] = [
       {
         path: '/format/xml',
         name: 'XML'
+      },
+      {
+        path: '/format/yaml',
+        name: 'YAML'
+      },
+      {
+        path: '/format/csv',
+        name: 'CSV'
       }
     ]
   },

@@ -83,6 +83,14 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'YAML/JSON 转换'
         }
+      },
+      {
+        path: 'csv',
+        name: 'CSV',
+        component: () => import('../views/format/csv/index.vue'),
+        meta: {
+          title: 'CSV/JSON 转换'
+        }
       }
     ]
   },
