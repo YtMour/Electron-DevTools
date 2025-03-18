@@ -1,7 +1,7 @@
 {
   "name": "yt-tools",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "A collection of useful development tools",
   "author": {
     "name": "Your Name",
@@ -32,6 +32,8 @@
     "jsencrypt": "^3.3.2",
     "lodash-es": "^4.17.0",
     "papaparse": "^5.5.2",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^5.0.375",
     "pinia": "^2.1.0",
     "sharp": "^0.33.5",
     "tailwindcss": "^3.4.0",
