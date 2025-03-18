@@ -1,0 +1,498 @@
+// 格式转换页面公共样式
+.format-page {
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .page-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--el-border-color-light);
+  
+    .header-title {
+      h2 {
+        font-size: 24px;
+        margin: 0 0 8px 0;
+        color: var(--el-text-color-primary);
+      }
+    }
+  
+    .header-desc {
+      color: var(--el-text-color-secondary);
+      margin: 0 0 16px 0;
+    }
+  
+    .header-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      
+      .mode-controls {
+        flex: 1;
+        min-width: 0;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        
+        .el-radio-group {
+          white-space: nowrap;
+        }
+        
+        .mode-icon {
+          margin-right: 4px;
+        }
+      }
+      
+      .upload-control {
+        flex: 0 0 auto;
+        
+        .upload-btn {
+          width: auto;
+          min-width: 110px;
+          font-weight: 500;
+          border-radius: 4px;
+          padding: 8px 12px;
+          height: 32px;
+          line-height: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  .page-content {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .editor-container {
+    display: flex;
+    flex: 1;
+    gap: 10px;
+    min-width: 0;
+    overflow: hidden;
+  }
+  
+  .editor-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--el-bg-color-page);
+    border-radius: 8px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: all 0.3s;
+    min-width: 0;
+  
+    &.input-section {
+      border-left: 4px solid var(--el-color-primary);
+    }
+  
+    &.output-section {
+      border-left: 4px solid var(--el-color-success);
+    }
+  }
+  
+  .editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background-color: var(--el-bg-color);
+    border-bottom: 1px solid var(--el-border-color-light);
+  
+    .editor-title {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--el-text-color-primary);
+      min-width: 100px;
+      max-width: 70%;
+      overflow: hidden;
+  
+      .el-icon {
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+      
+      span, div {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 14px;
+      }
+    }
+  
+    .editor-controls {
+      display: flex;
+      gap: 1px;
+      flex-shrink: 0;
+      margin-left: 4px;
+      
+      .el-button {
+        padding: 4px;
+        height: 24px;
+        width: 24px;
+        transition: all 0.3s ease;
+        background-color: transparent;
+        
+        .el-icon {
+          font-size: 14px;
+        }
+        
+        // 统一按钮样式风格
+        &.delete-btn,
+        &.copy-btn,
+        &.download-btn {
+          border: none;
+          
+          &:hover {
+            transform: scale(1.1);
+          }
+        }
+        
+        // 删除按钮样式
+        &.delete-btn {
+          color: var(--custom-action-danger-color) !important;
+          
+          &:hover {
+            background-color: var(--custom-action-danger-bg) !important;
+          }
+        }
+        
+        // 复制按钮样式
+        &.copy-btn {
+          color: var(--custom-action-primary-color) !important;
+          
+          &:hover {
+            background-color: var(--custom-action-primary-bg) !important;
+          }
+        }
+        
+        // 下载按钮样式
+        &.download-btn {
+          color: var(--custom-action-success-color) !important;
+          
+          &:hover {
+            background-color: var(--custom-action-success-bg) !important;
+          }
+        }
+      }
+    }
+  }
+  
+  .editor-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    display: flex;
+  
+    &.drag-over {
+      background-color: var(--el-fill-color-light);
+      border: 2px dashed var(--el-color-primary);
+    }
+  
+    .drop-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(var(--el-color-primary-rgb), 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      
+      .drop-icon {
+        font-size: 48px;
+        color: var(--el-color-primary);
+        margin-bottom: 16px;
+      }
+      
+      span {
+        font-size: 18px;
+        color: var(--el-color-primary);
+      }
+    }
+  
+    :deep(.el-textarea) {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      
+      .el-textarea__wrapper {
+        height: 100%;
+        width: 100%;
+        padding: 0;
+      }
+      
+      .el-textarea__inner {
+        height: 100% !important;
+        width: 100%;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        line-height: 1.6;
+        resize: none;
+        border: 1px solid var(--el-border-color);
+        border-radius: 4px;
+        background-color: var(--custom-input-bg);
+        color: var(--custom-text-color);
+        transition: all 0.3s;
+        padding: 12px;
+        box-sizing: border-box;
+        min-height: unset !important;
+        
+        &:focus {
+          box-shadow: 0 0 0 2px rgba(var(--el-color-primary-rgb), 0.2);
+        }
+      }
+    }
+    
+    &.output-area {
+      :deep(.el-textarea__inner) {
+        background-color: var(--custom-output-bg) !important;
+      }
+    }
+  }
+  
+  .editor-footer {
+    padding: 6px 12px;
+    border-top: 1px solid var(--el-border-color-light);
+    color: var(--el-text-color-secondary);
+    font-size: 12px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .editor-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 6px;
+    flex-shrink: 0;
+    min-width: 36px;
+    
+    .el-button {
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+  
+  .options-panel {
+    min-width: 250px;
+    padding: 12px 10px;
+    border-left: 1px solid var(--el-border-color-light);
+    background-color: var(--el-bg-color-page);
+    overflow-y: auto;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+  
+    .panel-section {
+      &:not(:last-child) {
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--el-border-color-lighter);
+      }
+    }
+  
+    .section-title {
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: var(--el-text-color-regular);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  
+    .form-item {
+      margin-bottom: 8px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      :deep(.el-input__inner) {
+        height: 32px;
+      }
+      
+      :deep(.el-select) {
+        width: 100%;
+      }
+    }
+    
+    .el-form {
+      padding: 12px;
+      flex: 1;
+      overflow-y: auto;
+      
+      .el-button {
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        
+        .el-icon {
+          margin-right: 4px;
+          font-size: 14px;
+        }
+        
+        span {
+          font-size: 13px;
+        }
+      }
+    }
+    
+    .help-section {
+      margin-top: auto;
+      border-top: 1px solid var(--el-border-color-light);
+      
+      .help-header {
+        padding: 10px 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--el-text-color-primary);
+        font-size: 13px;
+        
+        .el-icon {
+          color: var(--el-color-info);
+          font-size: 14px;
+        }
+      }
+      
+      .help-content {
+        padding: 0 12px 12px;
+        
+        p {
+          margin: 6px 0;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: var(--el-text-color-secondary);
+          font-size: 13px;
+          
+          .el-icon {
+            color: var(--el-color-success);
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+  
+  .el-divider {
+    margin: 16px 0;
+  }
+
+  // 统一按钮文字和图标风格
+  .el-button {
+    &.convert-btn,
+    &.upload-btn {
+      .el-icon {
+        margin-right: 4px;
+        font-size: 14px;
+        vertical-align: middle;
+      }
+      
+      span {
+        font-size: 13px;
+        vertical-align: middle;
+      }
+      
+      // 确保按钮颜色正确
+      &.el-button--primary {
+        background-color: var(--el-color-primary) !important;
+        border-color: var(--el-color-primary) !important;
+        color: var(--el-color-white) !important;
+        
+        .el-icon, span {
+          color: var(--el-color-white) !important;
+        }
+        
+        &:not(.is-disabled):hover {
+          background-color: var(--el-color-primary-light-3) !important;
+          border-color: var(--el-color-primary-light-3) !important;
+        }
+      }
+      
+      &:not(.el-button--primary) {
+        .el-icon, span {
+          color: var(--el-text-color-regular) !important;
+        }
+        
+        &:not(.is-disabled):hover {
+          color: var(--el-color-primary) !important;
+          border-color: var(--el-color-primary) !important;
+          background-color: var(--el-button-hover-bg-color) !important;
+          
+          .el-icon, span {
+            color: var(--el-color-primary) !important;
+          }
+        }
+      }
+    }
+  }
+  
+  // 单独处理上传按钮
+  .upload-btn .el-button--primary {
+    background-color: var(--el-color-primary) !important;
+    border-color: var(--el-color-primary) !important;
+    color: var(--el-color-white) !important;
+    
+    .el-icon, span {
+      color: var(--el-color-white) !important;
+    }
+  }
+  
+  // 模式选择按钮样式
+  .mode-controls {
+    .el-radio-button {
+      &.el-radio-button--default {
+        .el-radio-button__inner {
+          height: 32px;
+          padding: 0 12px;
+          display: flex;
+          align-items: center;
+          font-size: 13px;
+          
+          .mode-icon {
+            margin-right: 4px;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+
+  // 中间转换按钮特殊样式
+  .editor-actions .convert-btn {
+    background-color: var(--el-color-primary) !important;
+    border-color: var(--el-color-primary) !important;
+    
+    .el-icon {
+      color: var(--el-color-white) !important;
+      font-size: 16px !important;
+    }
+    
+    &:not(.is-disabled):hover {
+      background-color: var(--el-color-primary-light-3) !important;
+      border-color: var(--el-color-primary-light-3) !important;
+    }
+  }
+} 

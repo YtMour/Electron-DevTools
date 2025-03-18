@@ -1,5 +1,5 @@
 <template>
-  <div class="csv-page">
+  <div class="format-page csv-page">
     <div class="page-header">
       <div class="header-title">
         <h2>CSV/JSON 转换</h2>
@@ -34,7 +34,7 @@
               :auto-upload="false"
               :show-file-list="false"
               :on-change="handleFileChange">
-              <el-button type="primary" size="default">
+              <el-button type="primary" size="default" class="upload-btn">
                 <el-icon><Upload /></el-icon>
                 上传文件
               </el-button>
@@ -50,16 +50,16 @@
           <div class="editor-header">
             <span class="editor-title">
               <el-icon><Edit /></el-icon>
-              {{ getInputTitle() }}
+              <span>{{ getInputTitle() }}</span>
             </span>
             <div class="editor-controls">
               <el-tooltip content="清空" placement="top">
-                <el-button type="info" plain size="small" @click="handleClearInput">
+                <el-button type="info" plain size="small" class="delete-btn" @click="handleClearInput">
                   <el-icon><Delete /></el-icon>
                 </el-button>
               </el-tooltip>
               <el-tooltip content="从剪贴板粘贴" placement="top">
-                <el-button type="info" plain size="small" @click="handlePasteInput">
+                <el-button type="info" plain size="small" class="copy-btn" @click="handlePasteInput">
                   <el-icon><DocumentCopy /></el-icon>
                 </el-button>
               </el-tooltip>
@@ -83,7 +83,6 @@
               :placeholder="getInputPlaceholder()"
               @input="handleInputChange"
               resize="none"
-              class="custom-textarea"
             />
           </div>
           <div class="editor-footer">
@@ -97,6 +96,7 @@
               type="primary" 
               size="large" 
               circle 
+              class="convert-btn"
               @click="handleProcess"
               :disabled="!input.trim()">
               <el-icon><Right /></el-icon>
@@ -108,27 +108,27 @@
           <div class="editor-header">
             <span class="editor-title">
               <el-icon><View /></el-icon>
-              {{ getOutputTitle() }}
+              <span>{{ getOutputTitle() }}</span>
             </span>
             <div class="editor-controls">
               <el-tooltip content="清空" placement="top">
-                <el-button type="info" plain size="small" @click="handleClearOutput">
+                <el-button type="info" plain size="small" class="delete-btn" @click="handleClearOutput">
                   <el-icon><Delete /></el-icon>
                 </el-button>
               </el-tooltip>
               <el-tooltip content="复制到剪贴板" placement="top">
-                <el-button type="success" plain size="small" @click="handleCopyOutput" :disabled="!output">
+                <el-button type="success" plain size="small" class="copy-btn" @click="handleCopyOutput" :disabled="!output">
                   <el-icon><DocumentCopy /></el-icon>
                 </el-button>
               </el-tooltip>
               <el-tooltip content="下载文件" placement="top">
-                <el-button type="primary" plain size="small" @click="handleDownloadOutput" :disabled="!output">
+                <el-button type="primary" plain size="small" class="download-btn" @click="handleDownloadOutput" :disabled="!output">
                   <el-icon><Download /></el-icon>
                 </el-button>
               </el-tooltip>
             </div>
           </div>
-          <div class="editor-area">
+          <div class="editor-area output-area">
             <el-input
               v-model="output"
               type="textarea"
@@ -136,7 +136,6 @@
               readonly
               resize="none"
               :placeholder="getOutputPlaceholder()"
-              class="custom-textarea output-textarea"
             />
           </div>
           <div class="editor-footer">
@@ -204,7 +203,7 @@
           </template>
           <el-divider />
           <el-form-item>
-            <el-button type="primary" @click="handleProcess" :disabled="!input.trim()" style="width: 100%">
+            <el-button type="primary" @click="handleProcess" :disabled="!input.trim()" style="width: 100%" class="convert-btn">
               <el-icon><Refresh /></el-icon>
               转换
             </el-button>
@@ -596,269 +595,18 @@ function detectDelimiter(csvStr: string): string {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+// 应用公共样式，添加特定于CSV页面的样式
 .csv-page {
-  padding: 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.page-header {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--el-border-color-light);
-
-  .header-title {
-    h2 {
-      font-size: 24px;
-      margin: 0 0 8px 0;
-      color: var(--el-text-color-primary);
-    }
-  }
-
-  .header-desc {
-    color: var(--el-text-color-secondary);
-    margin: 0 0 16px 0;
-  }
-
-  .header-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-    
-    .mode-controls {
-      flex: 1;
-      min-width: 0;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      
-      .el-radio-group {
-        white-space: nowrap;
-      }
-      
-      .mode-icon {
-        margin-right: 4px;
-      }
+  // 编辑器容器样式优化
+  .editor-container {
+    .editor-section {
+      max-width: 48%;
     }
     
-    .upload-control {
-      flex: 0 0 auto;
-      
-      .upload-btn {
-        width: 120px;
-      }
+    .editor-actions {
+      padding: 0 4px;
     }
   }
-}
-
-.page-content {
-  display: flex;
-  gap: 20px;
-  flex: 1;
-  overflow: hidden;
-}
-
-.editor-container {
-  display: flex;
-  flex: 1;
-  gap: 16px;
-  overflow: hidden;
-}
-
-.editor-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--el-bg-color-page);
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  transition: all 0.3s;
-
-  &.input-section {
-    border-left: 4px solid var(--el-color-primary);
-  }
-
-  &.output-section {
-    border-left: 4px solid var(--el-color-success);
-  }
-}
-
-.editor-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background-color: var(--el-bg-color);
-  border-bottom: 1px solid var(--el-border-color-light);
-
-  .editor-title {
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--el-text-color-primary);
-
-    .el-icon {
-      font-size: 18px;
-    }
-  }
-
-  .editor-controls {
-    display: flex;
-    gap: 8px;
-  }
-}
-
-.editor-area {
-  flex: 1;
-  padding: 16px;
-  position: relative;
-  overflow: hidden;
-
-  &.drag-over {
-    background-color: var(--el-fill-color-light);
-    border: 2px dashed var(--el-color-primary);
-  }
-
-  .drop-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(var(--el-color-primary-rgb), 0.1);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-    
-    .drop-icon {
-      font-size: 48px;
-      color: var(--el-color-primary);
-      margin-bottom: 16px;
-    }
-    
-    span {
-      font-size: 18px;
-      color: var(--el-color-primary);
-    }
-  }
-
-  .custom-textarea {
-    height: 100%;
-    
-    :deep(.el-textarea__inner) {
-      height: 100%;
-      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-      line-height: 1.6;
-      padding: 12px;
-      background-color: var(--el-bg-color);
-      border-radius: 4px;
-      transition: all 0.3s;
-      
-      &:focus {
-        box-shadow: 0 0 0 2px rgba(var(--el-color-primary-rgb), 0.2);
-      }
-    }
-  }
-  
-  .output-textarea {
-    :deep(.el-textarea__inner) {
-      background-color: var(--el-fill-color-light);
-    }
-  }
-}
-
-.editor-actions {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 0 8px;
-}
-
-.options-panel {
-  width: 280px;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--el-bg-color);
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-
-  .options-header {
-    padding: 16px;
-    font-weight: 600;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid var(--el-border-color-light);
-    color: var(--el-text-color-primary);
-    
-    .el-icon {
-      font-size: 18px;
-      color: var(--el-color-primary);
-    }
-  }
-
-  .el-form {
-    padding: 16px;
-    flex: 1;
-    overflow-y: auto;
-  }
-
-  .help-section {
-    margin-top: auto;
-    border-top: 1px solid var(--el-border-color-light);
-    
-    .help-header {
-      padding: 12px 16px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--el-text-color-primary);
-      
-      .el-icon {
-        color: var(--el-color-info);
-      }
-    }
-    
-    .help-content {
-      padding: 0 16px 16px;
-      
-      p {
-        margin: 8px 0;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--el-text-color-secondary);
-        font-size: 14px;
-        
-        .el-icon {
-          color: var(--el-color-success);
-        }
-      }
-    }
-  }
-}
-
-.el-divider {
-  margin: 16px 0;
-}
-
-.editor-footer {
-  padding: 8px 16px;
-  border-top: 1px solid var(--el-border-color-light);
-  color: var(--el-text-color-secondary);
-  font-size: 12px;
-  display: flex;
-  justify-content: flex-end;
 }
 </style> 

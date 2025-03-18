@@ -7,6 +7,8 @@
   --custom-menu-bg-color: #ffffff;
   --custom-hover-color: #f5f7fa;
   --custom-shadow-color: rgba(0, 0, 0, 0.1);
+  --custom-input-bg: #ffffff;
+  --custom-output-bg: #f5f7fa;
   
   // Element Plus 变量覆盖
   --el-color-primary: #409eff;
@@ -15,11 +17,24 @@
   --el-bg-color: #ffffff;
   --el-bg-color-page: #f2f3f5;
   --el-fill-color-blank: #ffffff;
+  --el-fill-color-light: #f5f7fa;
   --el-text-color-primary: #303133;
   --el-text-color-regular: #606266;
   --el-border-color: #dcdfe6;
   --el-border-color-light: #e4e7ed;
   --el-box-shadow-light: 0 0 12px rgba(0, 0, 0, 0.1);
+
+  // 操作按钮颜色 - 亮色模式
+  --custom-action-info-color: #909399;
+  --custom-action-info-bg: #f4f4f5;
+  --custom-action-success-color: #67c23a;
+  --custom-action-success-bg: #f0f9eb;
+  --custom-action-primary-color: #409eff;
+  --custom-action-primary-bg: #ecf5ff;
+  --custom-action-danger-color: #f56c6c;
+  --custom-action-danger-bg: #fef0f0;
+  --custom-action-warning-color: #e6a23c;
+  --custom-action-warning-bg: #fdf6ec;
 }
 
 :root.dark {
@@ -30,11 +45,14 @@
   --custom-menu-bg-color: #1d1e1f;
   --custom-hover-color: #262727;
   --custom-shadow-color: rgba(0, 0, 0, 0.3);
+  --custom-input-bg: #1d1e1f;
+  --custom-output-bg: #1a1a1c;
 
   // Element Plus 变量覆盖
   --el-bg-color: #141414;
   --el-bg-color-page: #0a0a0a;
   --el-fill-color-blank: #1d1e1f;
+  --el-fill-color-light: #1a1a1c; // 修改深色模式下的浅填充色
   --el-text-color-primary: #e5eaf3;
   --el-text-color-regular: #cfd3dc;
   --el-border-color: #363637;
@@ -74,6 +92,18 @@
   --el-alert-description-color: var(--el-text-color-regular);
   --el-alert-icon-color: var(--el-text-color-regular);
   --el-alert-close-color: var(--el-text-color-regular);
+
+  // 操作按钮颜色 - 暗色模式
+  --custom-action-info-color: #a6a9ad;
+  --custom-action-info-bg: #2c2d30;
+  --custom-action-success-color: #85ce61;
+  --custom-action-success-bg: #1e3218;
+  --custom-action-primary-color: #5daefd;
+  --custom-action-primary-bg: #18324b;
+  --custom-action-danger-color: #f78989;
+  --custom-action-danger-bg: #3d2323;
+  --custom-action-warning-color: #eebe77;
+  --custom-action-warning-bg: #3d321e;
 }
 
 // 应用主题变量
@@ -96,6 +126,62 @@ body {
   &:hover {
     background-color: var(--el-button-hover-bg-color);
     border-color: var(--el-border-color-light);
+  }
+
+  // 自定义按钮颜色
+  &.el-button--primary.is-plain {
+    color: var(--custom-action-primary-color);
+    background-color: var(--custom-action-primary-bg);
+    border-color: var(--custom-action-primary-color);
+    
+    &:hover {
+      background-color: var(--custom-action-primary-color);
+      color: #ffffff;
+    }
+  }
+  
+  &.el-button--success.is-plain {
+    color: var(--custom-action-success-color);
+    background-color: var(--custom-action-success-bg);
+    border-color: var(--custom-action-success-color);
+    
+    &:hover {
+      background-color: var(--custom-action-success-color);
+      color: #ffffff;
+    }
+  }
+  
+  &.el-button--info.is-plain {
+    color: var(--custom-action-info-color);
+    background-color: var(--custom-action-info-bg);
+    border-color: var(--custom-action-info-color);
+    
+    &:hover {
+      background-color: var(--custom-action-info-color);
+      color: #ffffff;
+    }
+  }
+  
+  &.el-button--danger.is-plain {
+    color: var(--custom-action-danger-color);
+    background-color: var(--custom-action-danger-bg);
+    border-color: var(--custom-action-danger-color);
+    
+    &:hover {
+      background-color: var(--custom-action-danger-color);
+      color: #ffffff;
+    }
+  }
+  
+  &.el-button--warning.is-plain {
+    color: var(--custom-action-warning-color);
+    background-color: var(--custom-action-warning-bg);
+    border-color: var(--custom-action-warning-color);
+    
+    &:hover {
+      background-color: var(--custom-action-warning-color);
+      color: #ffffff;
+    }
   }
 }
 
@@ -171,5 +257,23 @@ body {
   
   &:hover {
     background-color: var(--el-border-color-light);
+  }
+}
+
+// 文本区域特殊样式 - 格式转换工具
+.format-page {
+  .el-textarea {
+    display: flex;
+    height: 100%;
+    
+    .el-textarea__wrapper {
+      height: 100%;
+      padding: 0;
+      
+      .el-textarea__inner {
+        height: 100% !important;
+        min-height: unset !important;
+      }
+    }
   }
 } 

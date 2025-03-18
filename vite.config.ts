@@ -48,7 +48,12 @@ export default defineConfig({
           @use "sass:math";
           @use "sass:color";
           @use "@/styles/variables" as *;
-        `
+        `,
+        sassOptions: {
+          outputStyle: 'expanded',
+          sourceMap: true,
+          javascriptEnabled: true
+        }
       },
     },
   },

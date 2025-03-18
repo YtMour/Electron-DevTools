@@ -1,0 +1,109 @@
+// Element UI 样式覆盖
+
+// 按钮样式优化（提高主题适配性）
+.el-button {
+  &.is-plain {
+    // 信息按钮
+    &.el-button--info {
+      color: var(--el-text-color-regular);
+      background-color: var(--el-bg-color);
+      border-color: var(--el-border-color);
+      
+      &:hover, &:focus {
+        color: var(--el-color-primary);
+        border-color: var(--el-color-primary-light-5);
+        background-color: var(--el-color-primary-light-9);
+      }
+    }
+    
+    // 成功按钮
+    &.el-button--success {
+      color: var(--el-color-success);
+      background-color: var(--el-bg-color);
+      border-color: var(--el-color-success-light-5);
+      
+      &:hover, &:focus {
+        color: var(--el-color-success-light-3);
+        border-color: var(--el-color-success-light-3);
+        background-color: var(--el-color-success-light-9);
+      }
+    }
+    
+    // 主要按钮
+    &.el-button--primary {
+      color: var(--el-color-primary);
+      background-color: var(--el-bg-color);
+      border-color: var(--el-color-primary-light-5);
+      
+      &:hover, &:focus {
+        color: var(--el-color-primary-light-3);
+        border-color: var(--el-color-primary-light-3);
+        background-color: var(--el-color-primary-light-9);
+      }
+    }
+    
+    // 危险按钮
+    &.el-button--danger {
+      color: var(--el-color-danger);
+      background-color: var(--el-bg-color);
+      border-color: var(--el-color-danger-light-5);
+      
+      &:hover, &:focus {
+        color: var(--el-color-danger-light-3);
+        border-color: var(--el-color-danger-light-3);
+        background-color: var(--el-color-danger-light-9);
+      }
+    }
+    
+    // 警告按钮
+    &.el-button--warning {
+      color: var(--el-color-warning);
+      background-color: var(--el-bg-color);
+      border-color: var(--el-color-warning-light-5);
+      
+      &:hover, &:focus {
+        color: var(--el-color-warning-light-3);
+        border-color: var(--el-color-warning-light-3);
+        background-color: var(--el-color-warning-light-9);
+      }
+    }
+  }
+}
+
+// 文本域样式优化
+.el-textarea {
+  &.is-disabled {
+    .el-textarea__inner {
+      background-color: var(--el-fill-color-light) !important;
+      color: var(--el-text-color-secondary);
+      border-color: var(--el-border-color-lighter);
+    }
+  }
+}
+
+// 单选按钮组样式优化
+.el-radio-group {
+  .el-radio-button__inner {
+    color: var(--el-text-color-regular);
+    background-color: var(--el-bg-color);
+    border-color: var(--el-border-color);
+  }
+  
+  .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+    color: var(--el-color-white);
+    background-color: var(--el-color-primary);
+    border-color: var(--el-color-primary);
+    box-shadow: -1px 0 0 0 var(--el-color-primary);
+  }
+}
+
+// 卡片样式优化
+.el-card {
+  background-color: var(--el-bg-color);
+  border-color: var(--el-border-color-light);
+  color: var(--el-text-color-primary);
+  
+  .el-card__header {
+    border-bottom-color: var(--el-border-color-light);
+  }
+} 

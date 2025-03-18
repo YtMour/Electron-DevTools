@@ -1,3 +1,11 @@
-@use './theme';
-@use './base';
-@use './transitions'; 
+// 全局样式入口文件 - 使用现代@use语法导入所有样式模块
+
+// 导入主题变量和基础样式
+@use './theme' as *;
+@use './base' as *;
+@use './transitions' as *;
+@use './element-ui' as *;
+@use './format-page' as *; // 格式转换页面公共样式
+
+// 注意：使用as *可以在全局作用域中使用这些样式
+// 不添加命名空间前缀，简化使用，但要注意变量名冲突 
