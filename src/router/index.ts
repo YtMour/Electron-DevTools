@@ -117,6 +117,30 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '文件比较'
         }
+      },
+      {
+        path: 'diff',
+        name: 'file-diff',
+        component: () => import('../views/file/diff/index.vue'),
+        meta: {
+          title: '文本对比'
+        }
+      },
+      {
+        path: 'image',
+        name: 'file-image',
+        component: () => import('../views/file/image/index.vue'),
+        meta: {
+          title: '图片工具'
+        }
+      },
+      {
+        path: 'pdf',
+        name: 'file-pdf',
+        component: () => import('../views/file/pdf/index.vue'),
+        meta: {
+          title: 'PDF工具'
+        }
       }
     ]
   }
