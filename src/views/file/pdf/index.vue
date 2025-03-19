@@ -86,7 +86,7 @@
                       v-model="splitForm.filename"
                       placeholder="保存的文件名"
                     />
-                    <div class="filename-extension">.pdf</div>
+                    <div class="filename-extension" style="background-color: #1d1e1f; color: #e0e0e0; border-color: #4c4d4f;">.pdf</div>
                   </div>
                 </div>
               </div>
@@ -120,7 +120,7 @@
                       v-model="compressForm.filename"
                       placeholder="保存的文件名"
                     />
-                    <div class="filename-extension">.pdf</div>
+                    <div class="filename-extension" style="background-color: #1d1e1f; color: #e0e0e0; border-color: #4c4d4f;">.pdf</div>
                   </div>
                 </div>
               </div>
@@ -145,7 +145,7 @@
                       v-model="mergeForm.filename"
                       placeholder="保存的文件名"
                     />
-                    <div class="filename-extension">.pdf</div>
+                    <div class="filename-extension" style="background-color: #1d1e1f; color: #e0e0e0; border-color: #4c4d4f;">.pdf</div>
                   </div>
                 </div>
               </div>
@@ -162,7 +162,7 @@
                 <el-icon><Download /></el-icon>
                 下载
               </el-button>
-              <el-button size="small" @click="handleClear" class="clear-btn">
+              <el-button type="danger" size="small" @click="handleClear" class="clear-btn">
                 <el-icon><Delete /></el-icon>
                 清空
               </el-button>
@@ -203,7 +203,7 @@
             </el-icon>
             {{ actionText }}
           </el-button>
-          <el-button @click="handleClear" class="clear-btn">
+          <el-button type="danger" @click="handleClear" class="clear-btn">
             <el-icon><Delete /></el-icon>
             清空
           </el-button>
@@ -682,7 +682,7 @@ const formatFileSize = (size: number) => {
     .el-card__header {
       padding: 12px 20px;
       min-height: 40px;
-      border-bottom: 1px solid var(--el-border-color-lighter);
+      border-bottom: 1px solid var(--el-border-color-light);
       background-color: var(--el-fill-color-light);
       border-radius: 8px 8px 0 0;
     }
@@ -830,7 +830,7 @@ const formatFileSize = (size: number) => {
     width: 100%;
     max-width: 90%;
     margin: 0 auto;
-    border: 1px solid var(--el-border-color-lighter);
+    border: 1px solid var(--el-border-color-light);
     border-radius: 8px;
     overflow: hidden;
     flex-shrink: 0;
@@ -845,7 +845,7 @@ const formatFileSize = (size: number) => {
     align-items: center;
     padding: 12px 16px;
     background-color: var(--el-fill-color-light);
-    border-bottom: 1px solid var(--el-border-color-lighter);
+    border-bottom: 1px solid var(--el-border-color-light);
     
     .section-title {
       font-size: 14px;
@@ -860,6 +860,18 @@ const formatFileSize = (size: number) => {
       
       .el-button {
         padding: 6px 12px;
+        
+        &.el-button--primary {
+          background-color: var(--el-color-primary);
+          border-color: var(--el-color-primary);
+          color: white;
+        }
+        
+        &.el-button--danger {
+          background-color: var(--el-color-danger);
+          border-color: var(--el-color-danger);
+          color: white;
+        }
         
         .el-icon {
           margin-right: 4px;
@@ -910,13 +922,29 @@ const formatFileSize = (size: number) => {
           .filename-extension {
             margin-left: 8px;
             font-size: 14px;
-            color: var(--el-text-color-secondary);
-            background-color: var(--el-fill-color);
+            color: #606266;
+            background-color: #f0f2f5;
             padding: 0 8px;
             height: 32px;
             line-height: 32px;
             border-radius: 4px;
-            border: 1px solid var(--el-border-color);
+            border: 1px solid #dcdfe6;
+            font-family: monospace;
+            font-weight: 500;
+          }
+          
+          :global(.dark) .filename-extension {
+            background-color: #1d1e1f !important;
+            border-color: #4c4d4f !important;
+            color: #e0e0e0 !important;
+          }
+          
+          @media (prefers-color-scheme: dark) {
+            .filename-extension {
+              background-color: #1d1e1f !important;
+              border-color: #4c4d4f !important;
+              color: #e0e0e0 !important;
+            }
           }
         }
         
@@ -976,18 +1004,19 @@ const formatFileSize = (size: number) => {
   .result-content {
     padding: 16px;
     flex: 1;
-    background-color: var(--el-fill-color-blank);
+    background-color: var(--el-bg-color);
     
     .result-item {
       display: flex;
       align-items: center;
       padding: 12px;
-      background-color: var(--el-fill-color-light);
+      background-color: var(--el-fill-color);
       border-radius: 6px;
       transition: all 0.3s ease;
+      border: 1px solid var(--el-border-color-light);
       
       &:hover {
-        background-color: var(--el-fill-color);
+        background-color: var(--el-fill-color-light);
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       }
@@ -1049,6 +1078,18 @@ const formatFileSize = (size: number) => {
       border-radius: 4px;
       transition: all 0.3s ease;
       
+      &.el-button--primary {
+        background-color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+        color: white;
+      }
+      
+      &.el-button--danger {
+        background-color: var(--el-color-danger);
+        border-color: var(--el-color-danger);
+        color: white;
+      }
+      
       &:hover {
         transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(var(--el-color-primary-rgb), 0.2);
@@ -1061,6 +1102,14 @@ const formatFileSize = (size: number) => {
       &.process-btn {
         min-width: 120px;
       }
+    }
+  }
+
+  // 修改链接下划线颜色
+  a {
+    text-decoration-color: var(--el-border-color-light);
+    &:hover {
+      text-decoration-color: var(--el-color-primary);
     }
   }
 }

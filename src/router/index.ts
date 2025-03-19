@@ -111,14 +111,6 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
-        path: 'compare',
-        name: 'file-compare',
-        component: () => import('../views/file/compare/index.vue'),
-        meta: {
-          title: '文本对比'
-        }
-      },
-      {
         path: 'image',
         name: 'file-image',
         component: () => import('../views/file/image/index.vue'),

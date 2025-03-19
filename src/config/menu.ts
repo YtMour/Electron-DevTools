@@ -53,10 +53,6 @@ const menuConfig: MenuItem[] = [
         name: '文件处理'
       },
       {
-        path: '/file/compare',
-        name: '文本对比'
-      },
-      {
         path: '/file/image',
         name: '图片转换'
       },

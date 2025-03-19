@@ -53,7 +53,7 @@
             </div>
           </template>
           <div class="card-content">
-            <p>提供图片转换、PDF 处理、文本对比等功能</p>
+            <p>提供图片转换、PDF 处理等文件操作功能</p>
           </div>
         </el-card>
       </el-col>
