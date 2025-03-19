@@ -1,129 +1,131 @@
 <template>
   <div class="compare-page">
-    <div class="page-header">
-      <div class="header-title">
-        <h2>文件比较</h2>
-        <p class="header-desc">支持文本文件内容比较和差异高亮</p>
-      </div>
-      <div class="header-controls">
-        <el-button-group>
-          <el-tooltip content="上传左侧文件">
-            <el-upload
-              class="upload-btn"
-              action=""
-              :auto-upload="false"
-              :show-file-list="false"
-              :on-change="handleLeftFileChange">
-              <el-button type="primary" plain>
-                <el-icon><Upload /></el-icon> 左侧
-              </el-button>
-            </el-upload>
-          </el-tooltip>
-          <el-tooltip content="上传右侧文件">
-            <el-upload
-              class="upload-btn"
-              action=""
-              :auto-upload="false"
-              :show-file-list="false"
-              :on-change="handleRightFileChange">
-              <el-button type="primary" plain>
-                <el-icon><Upload /></el-icon> 右侧
-              </el-button>
-            </el-upload>
-          </el-tooltip>
-        </el-button-group>
-      </div>
-    </div>
+    <el-card>
+      <template #header>
+        <div class="card-header">
+          <h3>文本对比</h3>
+        </div>
+      </template>
 
-    <div class="page-content">
-      <div class="editor-container">
-        <div class="editor-section">
-          <div class="editor-header">
-            <span>左侧文本</span>
-            <div class="editor-controls">
-              <el-button-group>
-                <el-button size="small" @click="handleClearLeft">
-                  <el-icon><Delete /></el-icon>
+      <div class="compare-content">
+        <div class="upload-controls">
+          <el-button-group>
+            <el-tooltip content="上传左侧文件">
+              <el-upload
+                class="upload-btn"
+                action=""
+                :auto-upload="false"
+                :show-file-list="false"
+                :on-change="handleLeftFileChange">
+                <el-button type="primary" plain>
+                  <el-icon><Upload /></el-icon> 左侧
                 </el-button>
-                <el-button size="small" @click="handlePasteLeft">
+              </el-upload>
+            </el-tooltip>
+            <el-tooltip content="上传右侧文件">
+              <el-upload
+                class="upload-btn"
+                action=""
+                :auto-upload="false"
+                :show-file-list="false"
+                :on-change="handleRightFileChange">
+                <el-button type="primary" plain>
+                  <el-icon><Upload /></el-icon> 右侧
+                </el-button>
+              </el-upload>
+            </el-tooltip>
+          </el-button-group>
+        </div>
+
+        <div class="editor-container">
+          <div class="editor-section">
+            <div class="section-header">
+              <div class="section-title">左侧文本</div>
+              <div class="editor-controls">
+                <el-button-group>
+                  <el-button size="small" @click="handleClearLeft">
+                    <el-icon><Delete /></el-icon>
+                  </el-button>
+                  <el-button size="small" @click="handlePasteLeft">
+                    <el-icon><DocumentCopy /></el-icon>
+                  </el-button>
+                </el-button-group>
+              </div>
+            </div>
+            <div
+              class="editor-area"
+              @drop.prevent="(e) => handleDrop(e, 'left')"
+              @dragover.prevent
+              @dragenter.prevent>
+              <el-input
+                v-model="leftText"
+                type="textarea"
+                :rows="20"
+                :placeholder="'请输入或拖放左侧文本文件'"
+                @input="handleInput"
+              />
+            </div>
+            <div class="editor-footer">
+              <span>字符数：{{ leftText.length }}</span>
+            </div>
+          </div>
+
+          <div class="editor-section">
+            <div class="section-header">
+              <div class="section-title">右侧文本</div>
+              <div class="editor-controls">
+                <el-button-group>
+                  <el-button size="small" @click="handleClearRight">
+                    <el-icon><Delete /></el-icon>
+                  </el-button>
+                  <el-button size="small" @click="handlePasteRight">
+                    <el-icon><DocumentCopy /></el-icon>
+                  </el-button>
+                </el-button-group>
+              </div>
+            </div>
+            <div
+              class="editor-area"
+              @drop.prevent="(e) => handleDrop(e, 'right')"
+              @dragover.prevent
+              @dragenter.prevent>
+              <el-input
+                v-model="rightText"
+                type="textarea"
+                :rows="20"
+                :placeholder="'请输入或拖放右侧文本文件'"
+                @input="handleInput"
+              />
+            </div>
+            <div class="editor-footer">
+              <span>字符数：{{ rightText.length }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="diff-panel">
+          <div class="section-header">
+            <div class="section-title">差异对比</div>
+            <div class="diff-controls">
+              <el-button-group>
+                <el-button size="small" @click="handleCopyDiff">
                   <el-icon><DocumentCopy /></el-icon>
+                </el-button>
+                <el-button size="small" @click="handleDownloadDiff">
+                  <el-icon><Download /></el-icon>
                 </el-button>
               </el-button-group>
             </div>
           </div>
-          <div
-            class="editor-area"
-            @drop.prevent="(e) => handleDrop(e, 'left')"
-            @dragover.prevent
-            @dragenter.prevent>
-            <el-input
-              v-model="leftText"
-              type="textarea"
-              :rows="20"
-              :placeholder="'请输入或拖放左侧文本文件'"
-              @input="handleInput"
-            />
-          </div>
-          <div class="editor-footer">
-            <span>字符数：{{ leftText.length }}</span>
-          </div>
-        </div>
-
-        <div class="editor-section">
-          <div class="editor-header">
-            <span>右侧文本</span>
-            <div class="editor-controls">
-              <el-button-group>
-                <el-button size="small" @click="handleClearRight">
-                  <el-icon><Delete /></el-icon>
-                </el-button>
-                <el-button size="small" @click="handlePasteRight">
-                  <el-icon><DocumentCopy /></el-icon>
-                </el-button>
-              </el-button-group>
+          <div class="diff-content">
+            <pre v-if="diffResult" class="diff-result" v-html="diffResult"></pre>
+            <div v-else class="diff-placeholder">
+              <el-empty description="请输入要比较的文本" />
             </div>
           </div>
-          <div
-            class="editor-area"
-            @drop.prevent="(e) => handleDrop(e, 'right')"
-            @dragover.prevent
-            @dragenter.prevent>
-            <el-input
-              v-model="rightText"
-              type="textarea"
-              :rows="20"
-              :placeholder="'请输入或拖放右侧文本文件'"
-              @input="handleInput"
-            />
-          </div>
-          <div class="editor-footer">
-            <span>字符数：{{ rightText.length }}</span>
-          </div>
         </div>
       </div>
-
-      <div class="diff-panel">
-        <div class="diff-header">
-          <span>差异对比</span>
-          <div class="diff-controls">
-            <el-button-group>
-              <el-button size="small" @click="handleCopyDiff">
-                <el-icon><DocumentCopy /></el-icon>
-              </el-button>
-              <el-button size="small" @click="handleDownloadDiff">
-                <el-icon><Download /></el-icon>
-              </el-button>
-            </el-button-group>
-          </div>
-        </div>
-        <div class="diff-content">
-          <pre v-if="diffResult" class="diff-result" v-html="diffResult"></pre>
-          <div v-else class="diff-placeholder">
-            <el-empty description="请输入要比较的文本" />
-          </div>
-        </div>
-      </div>
-    </div>
+    </el-card>
   </div>
 </template>
 
@@ -317,158 +319,157 @@ const handleDownloadDiff = () => {
 <style lang="scss" scoped>
 .compare-page {
   height: 100%;
-  display: flex;
-  flex-direction: column;
-
-  :deep(.el-button) {
-    &.el-button--primary {
-      background-color: var(--el-color-primary);
-      border-color: var(--el-color-primary);
-      color: var(--el-color-white);
-
-      &:not(.is-disabled):hover {
-        background-color: var(--el-color-primary-light-3);
-        border-color: var(--el-color-primary-light-3);
-      }
-
-      &.is-disabled {
-        background-color: var(--el-color-primary-light-5);
-        border-color: var(--el-color-primary-light-5);
-      }
-    }
-
-    &:not(.el-button--primary) {
-      &:not(.is-disabled):hover {
-        color: var(--el-color-primary);
-        border-color: var(--el-color-primary);
-        background-color: var(--el-button-hover-bg-color);
-      }
-    }
-  }
-
-  .page-header {
-    margin-bottom: 24px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-
-    .header-title {
-      h2 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: 600;
-        color: var(--el-text-color-primary);
-      }
-
-      .header-desc {
-        margin: 8px 0 0;
-        font-size: 14px;
-        color: var(--el-text-color-secondary);
-      }
-    }
-
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-  }
-
-  .page-content {
-    flex: 1;
+  padding: 16px;
+  box-sizing: border-box;
+  
+  :deep(.el-card) {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    
+    .el-card__header {
+      padding: 12px 20px;
+      min-height: 40px;
+      border-bottom: 1px solid var(--el-border-color-lighter);
+      background-color: var(--el-fill-color-light);
+      border-radius: 8px 8px 0 0;
+    }
+    
+    .el-card__body {
+      flex: 1;
+      overflow: hidden;
+      padding: 0;
+    }
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+    }
+  }
+  
+  .compare-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    overflow-y: auto;
+    gap: 20px;
+    background-color: var(--el-bg-color);
+  }
+
+  .upload-controls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
   }
 
   .editor-container {
     display: flex;
-    gap: 24px;
-    min-height: 0;
-    flex: 1;
+    gap: 16px;
+    margin-bottom: 16px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
   }
 
-  .editor-section {
+  .editor-section, .diff-panel {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: var(--el-bg-color);
+    border: 1px solid var(--el-border-color-lighter);
     border-radius: 8px;
-    border: 1px solid var(--el-border-color);
-    box-shadow: var(--el-box-shadow-light);
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    background-color: var(--el-bg-color);
   }
 
-  .editor-header {
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--el-border-color);
+  .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 12px 16px;
     background-color: var(--el-fill-color-light);
+    border-bottom: 1px solid var(--el-border-color-lighter);
+    
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+      text-align: left;
+    }
   }
 
   .editor-area {
     flex: 1;
-    padding: 12px;
-
-    :deep(.el-textarea__inner) {
-      font-family: monospace;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+    
+    :deep(.el-textarea) {
+      height: 100%;
+      
+      .el-textarea__inner {
+        height: 100%;
+        border: none;
+        resize: none;
+        border-radius: 0;
+        padding: 12px;
+        font-family: monospace;
+        line-height: 1.6;
+      }
     }
   }
 
-  .editor-footer {
+  .editor-footer, .diff-footer {
     padding: 8px 12px;
-    border-top: 1px solid var(--el-border-color);
-    color: var(--el-text-color-secondary);
-    font-size: 12px;
     background-color: var(--el-fill-color-light);
-  }
-
-  .diff-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--el-bg-color);
-    border-radius: 8px;
-    border: 1px solid var(--el-border-color);
-    box-shadow: var(--el-box-shadow-light);
-    min-height: 0;
-  }
-
-  .diff-header {
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--el-border-color);
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    background-color: var(--el-fill-color-light);
   }
 
   .diff-content {
     flex: 1;
-    padding: 12px;
-    overflow: auto;
-  }
-
-  .diff-result {
-    margin: 0;
-    font-family: monospace;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-
-  .diff-placeholder {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .upload-btn {
-    display: inline-block;
+    overflow-y: auto;
+    padding: 0;
     
-    :deep(.el-upload) {
-      display: block;
+    .diff-result {
+      padding: 12px;
+      margin: 0;
+      white-space: pre-wrap;
+      font-family: monospace;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    
+    .diff-placeholder {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  
+  .editor-controls, .diff-controls {
+    display: flex;
+    gap: 8px;
+    
+    .el-button {
+      padding: 6px 12px;
+      
+      .el-icon {
+        margin-right: 0;
+      }
     }
   }
 }

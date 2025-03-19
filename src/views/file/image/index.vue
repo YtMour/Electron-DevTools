@@ -108,8 +108,8 @@
 
         <!-- 转换结果显示区域 -->
         <div v-if="processedFile" class="result-section">
-          <div class="result-header">
-            <div class="result-title">转换结果</div>
+          <div class="section-header">
+            <div class="section-title">处理结果</div>
             <div class="result-actions">
               <el-button type="primary" size="small" @click="handleDownload" class="download-btn">
                 <el-icon><Download /></el-icon>
@@ -334,11 +334,15 @@ const formatFileSize = (size: number) => {
     height: 100%;
     display: flex;
     flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
     
     .el-card__header {
-      padding: 8px 16px;
-      min-height: 32px;
+      padding: 12px 20px;
+      min-height: 40px;
       border-bottom: 1px solid var(--el-border-color-lighter);
+      background-color: var(--el-fill-color-light);
+      border-radius: 8px 8px 0 0;
     }
     
     .el-card__body {
@@ -356,6 +360,7 @@ const formatFileSize = (size: number) => {
     h3 {
       margin: 0;
       font-size: 16px;
+      font-weight: 600;
       color: var(--el-text-color-primary);
     }
   }
@@ -366,7 +371,8 @@ const formatFileSize = (size: number) => {
     flex-direction: column;
     padding: 16px;
     overflow-y: auto;
-    gap: 16px;
+    gap: 20px;
+    background-color: var(--el-bg-color);
   }
 
   .upload-container {
@@ -404,14 +410,26 @@ const formatFileSize = (size: number) => {
       justify-content: center;
       transition: all 0.3s ease;
       border: 2px dashed var(--el-border-color);
+      background-color: var(--el-fill-color-light);
+      border-radius: 8px;
       
       &:hover {
         border-color: var(--el-color-primary);
+        background-color: var(--el-color-primary-light-9);
       }
     }
     
     :deep(.el-upload-list) {
-      margin-top: 8px;
+      margin-top: 12px;
+      
+      .el-upload-list__item {
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background-color: var(--el-fill-color-light);
+        }
+      }
     }
 
     :deep(.el-icon--upload) {
@@ -423,6 +441,7 @@ const formatFileSize = (size: number) => {
     :deep(.el-upload__text) {
       margin: 16px 0;
       font-size: 18px;
+      color: var(--el-text-color-regular);
       
       em {
         color: var(--el-color-primary);
@@ -434,6 +453,7 @@ const formatFileSize = (size: number) => {
     :deep(.el-upload__tip) {
       font-size: 14px;
       margin-top: 12px;
+      color: var(--el-text-color-secondary);
     }
   }
   
@@ -441,8 +461,9 @@ const formatFileSize = (size: number) => {
     .image-uploader {
       :deep(.el-upload-dragger) {
         min-height: 100px;
-        padding: 10px;
+        padding: 16px;
         border-width: 1px;
+        background-color: var(--el-fill-color-light);
       }
       
       :deep(.el-icon--upload) {
@@ -468,165 +489,161 @@ const formatFileSize = (size: number) => {
     max-width: 90%;
     margin: 0 auto;
     border: 1px solid var(--el-border-color-lighter);
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
     flex-shrink: 0;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    background-color: var(--el-bg-color);
+    padding: 16px;
     
     .config-row {
       display: flex;
-      align-items: center;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--el-border-color-lighter);
+      margin-bottom: 16px;
       
       &:last-child {
-        border-bottom: none;
+        margin-bottom: 0;
       }
       
-      &:hover {
-        background-color: var(--el-fill-color-light);
-      }
-    }
-    
-    .config-label {
-      width: 100px;
-      flex-shrink: 0;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--el-text-color-primary);
-      padding-right: 16px;
-    }
-    
-    .config-content {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .format-options {
-      :deep(.el-radio-group) {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
+      .config-label {
+        width: 100px;
+        flex-shrink: 0;
+        padding-top: 8px;
+        color: var(--el-text-color-primary);
+        font-weight: 500;
+        font-size: 14px;
       }
       
-      :deep(.el-radio-button) {
-        margin-right: -1px;
+      .config-content {
+        flex: 1;
+        min-width: 0;
+      }
+      
+      .format-options {
+        :deep(.el-radio-group) {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
         
-        &:first-child {
+        :deep(.el-radio-button) {
+          margin-right: -1px;
+          
+          &:first-child {
+            .el-radio-button__inner {
+              border-radius: 4px 0 0 4px;
+            }
+          }
+          
+          &:last-child {
+            .el-radio-button__inner {
+              border-radius: 0 4px 4px 0;
+            }
+          }
+          
           .el-radio-button__inner {
-            border-radius: 4px 0 0 4px;
+            padding: 8px 16px;
+          }
+        }
+      }
+      
+      .quality-slider {
+        padding: 0 16px;
+        
+        .slider-marks {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+          padding: 0 12px;
+          
+          .mark {
+            font-size: 13px;
+            color: var(--el-text-color-regular);
+            font-weight: 500;
           }
         }
         
-        &:last-child {
-          .el-radio-button__inner {
-            border-radius: 0 4px 4px 0;
+        :deep(.el-slider) {
+          margin-top: 12px;
+          
+          .el-slider__button {
+            width: 18px;
+            height: 18px;
+          }
+          
+          .el-slider__bar {
+            height: 8px;
+          }
+          
+          .el-slider__runway {
+            height: 8px;
           }
         }
-        
-        .el-radio-button__inner {
-          padding: 8px 16px;
-        }
-      }
-    }
-    
-    .quality-slider {
-      padding: 0 16px;
-      
-      .slider-marks {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
-        padding: 0 12px;
-        
-        .mark {
-          font-size: 13px;
-          color: var(--el-text-color-regular);
-          font-weight: 500;
-        }
       }
       
-      :deep(.el-slider) {
-        margin-top: 12px;
-        
-        .el-slider__button {
-          width: 18px;
-          height: 18px;
-        }
-        
-        .el-slider__bar {
-          height: 8px;
-        }
-        
-        .el-slider__runway {
-          height: 8px;
-        }
-      }
-    }
-    
-    .resize-options {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      
-      :deep(.el-checkbox) {
-        margin-right: 8px;
-        
-        .el-checkbox__label {
-          font-size: 14px;
-          font-weight: 500;
-        }
-      }
-      
-      .resize-controls {
+      .resize-options {
         display: flex;
         align-items: center;
-        gap: 12px;
+        flex-wrap: wrap;
+        gap: 16px;
         
-        .dimension-separator {
-          color: var(--el-text-color-secondary);
-          font-weight: bold;
+        :deep(.el-checkbox) {
+          margin-right: 8px;
+          
+          .el-checkbox__label {
+            font-size: 14px;
+            font-weight: 500;
+          }
         }
         
-        :deep(.el-input-number) {
-          width: 140px;
+        .resize-controls {
+          display: flex;
+          align-items: center;
+          gap: 12px;
           
+          .dimension-separator {
+            color: var(--el-text-color-secondary);
+            font-weight: bold;
+          }
+          
+          :deep(.el-input-number) {
+            width: 140px;
+            
+            .el-input__inner {
+              font-size: 14px;
+              padding: 0 12px;
+            }
+          }
+        }
+      }
+      
+      .filename-input {
+        display: flex;
+        align-items: center;
+        
+        .el-input {
+          flex: 1;
+        }
+        
+        :deep(.el-input) {
           .el-input__inner {
             font-size: 14px;
             padding: 0 12px;
+            height: 36px;
           }
         }
-      }
-    }
-    
-    .filename-input {
-      display: flex;
-      align-items: center;
-      
-      .el-input {
-        flex: 1;
-      }
-      
-      :deep(.el-input) {
-        .el-input__inner {
-          font-size: 14px;
+        
+        .filename-extension {
+          margin-left: 12px;
           padding: 0 12px;
           height: 36px;
+          line-height: 36px;
+          background-color: var(--el-fill-color-light);
+          border-radius: 4px;
+          color: var(--el-text-color-regular);
+          font-family: monospace;
+          font-weight: 500;
+          font-size: 14px;
         }
-      }
-      
-      .filename-extension {
-        margin-left: 12px;
-        padding: 0 12px;
-        height: 36px;
-        line-height: 36px;
-        background-color: var(--el-fill-color-light);
-        border-radius: 4px;
-        color: var(--el-text-color-regular);
-        font-family: monospace;
-        font-weight: 500;
-        font-size: 14px;
       }
     }
   }
@@ -638,25 +655,34 @@ const formatFileSize = (size: number) => {
     flex-direction: column;
     min-height: 200px;
     border: 1px solid var(--el-border-color-lighter);
-    border-radius: 4px;
+    border-radius: 8px;
     
-    .result-header {
+    .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 16px;
-      border-bottom: 1px solid var(--el-border-color-lighter);
+      padding: 12px 16px;
       background-color: var(--el-fill-color-light);
+      border-bottom: 1px solid var(--el-border-color-lighter);
       
-      .result-title {
+      .section-title {
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
         color: var(--el-text-color-primary);
+        text-align: left;
       }
       
       .result-actions {
         display: flex;
         gap: 8px;
+        
+        .el-button {
+          padding: 6px 12px;
+          
+          .el-icon {
+            margin-right: 4px;
+          }
+        }
       }
     }
     

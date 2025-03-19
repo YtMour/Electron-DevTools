@@ -1,112 +1,123 @@
 <template>
   <div class="convert-page">
-    <div class="page-header">
-      <div class="header-title">
-        <h2>格式转换</h2>
-        <p class="header-desc">支持 XML 和 JSON 格式互相转换</p>
-      </div>
-      <div class="header-controls">
-        <el-radio-group v-model="mode" size="small">
-          <el-radio-button label="xml2json">XML 转 JSON</el-radio-button>
-          <el-radio-button label="json2xml">JSON 转 XML</el-radio-button>
-        </el-radio-group>
-        <el-tooltip content="上传文件">
-          <el-upload
-            class="upload-btn"
-            action=""
-            :auto-upload="false"
-            :show-file-list="false"
-            :on-change="handleFileChange">
-            <el-button type="primary" plain>
-              <el-icon><Upload /></el-icon>
-            </el-button>
-          </el-upload>
-        </el-tooltip>
-      </div>
-    </div>
+    <el-card>
+      <template #header>
+        <div class="card-header">
+          <h3>格式转换</h3>
+        </div>
+      </template>
 
-    <div class="page-content">
-      <div class="editor-container">
-        <div class="editor-section">
-          <div class="editor-header">
-            <span>{{ mode === 'xml2json' ? '输入 XML' : '输入 JSON' }}</span>
-            <div class="editor-controls">
-              <el-button-group>
-                <el-button size="small" @click="handleClearInput">
-                  <el-icon><Delete /></el-icon>
-                </el-button>
-                <el-button size="small" @click="handlePasteInput">
-                  <el-icon><DocumentCopy /></el-icon>
-                </el-button>
-              </el-button-group>
-            </div>
+      <div class="convert-content">
+        <div class="controls-wrapper">
+          <div class="mode-controls">
+            <el-radio-group v-model="mode" size="small">
+              <el-radio-button label="xml2json">XML 转 JSON</el-radio-button>
+              <el-radio-button label="json2xml">JSON 转 XML</el-radio-button>
+            </el-radio-group>
           </div>
-          <div
-            class="editor-area"
-            @drop.prevent="handleDrop"
-            @dragover.prevent
-            @dragenter.prevent>
-            <el-input
-              v-model="input"
-              type="textarea"
-              :rows="12"
-              :placeholder="mode === 'xml2json' ? '请输入要转换的 XML 文本，或拖放文件到此处' : '请输入要转换的 JSON 文本，或拖放文件到此处'"
-              @input="handleInput"
-            />
-          </div>
-          <div class="editor-footer">
-            <span>字符数：{{ input.length }}</span>
+          <div class="upload-control">
+            <el-tooltip content="上传文件">
+              <el-upload
+                class="upload-btn"
+                action=""
+                :auto-upload="false"
+                :show-file-list="false"
+                :on-change="handleFileChange">
+                <el-button type="primary" plain>
+                  <el-icon><Upload /></el-icon>
+                </el-button>
+              </el-upload>
+            </el-tooltip>
           </div>
         </div>
 
-        <div class="editor-section">
-          <div class="editor-header">
-            <span>{{ mode === 'xml2json' ? '输出 JSON' : '输出 XML' }}</span>
-            <div class="editor-controls">
-              <el-button-group>
-                <el-button size="small" @click="handleCopy">
-                  <el-icon><DocumentCopy /></el-icon>
-                </el-button>
-                <el-button size="small" @click="handleDownload">
-                  <el-icon><Download /></el-icon>
-                </el-button>
-              </el-button-group>
+        <div class="editor-container">
+          <div class="editor-section">
+            <div class="section-header">
+              <div class="section-title">{{ mode === 'xml2json' ? '输入 XML' : '输入 JSON' }}</div>
+              <div class="editor-controls">
+                <el-button-group>
+                  <el-button size="small" @click="handleClearInput">
+                    <el-icon><Delete /></el-icon>
+                  </el-button>
+                  <el-button size="small" @click="handlePasteInput">
+                    <el-icon><DocumentCopy /></el-icon>
+                  </el-button>
+                </el-button-group>
+              </div>
+            </div>
+            <div
+              class="editor-area"
+              @drop.prevent="handleDrop"
+              @dragover.prevent
+              @dragenter.prevent>
+              <el-input
+                v-model="input"
+                type="textarea"
+                :rows="12"
+                :placeholder="mode === 'xml2json' ? '请输入要转换的 XML 文本，或拖放文件到此处' : '请输入要转换的 JSON 文本，或拖放文件到此处'"
+                @input="handleInput"
+              />
+            </div>
+            <div class="editor-footer">
+              <span>字符数：{{ input.length }}</span>
             </div>
           </div>
-          <div class="editor-area">
-            <el-input
-              v-model="output"
-              type="textarea"
-              :rows="12"
-              readonly
-              :placeholder="'转换结果将显示在这里'"
-            />
+
+          <div class="editor-section">
+            <div class="section-header">
+              <div class="section-title">{{ mode === 'xml2json' ? '输出 JSON' : '输出 XML' }}</div>
+              <div class="editor-controls">
+                <el-button-group>
+                  <el-button size="small" @click="handleCopy">
+                    <el-icon><DocumentCopy /></el-icon>
+                  </el-button>
+                  <el-button size="small" @click="handleDownload">
+                    <el-icon><Download /></el-icon>
+                  </el-button>
+                </el-button-group>
+              </div>
+            </div>
+            <div class="editor-area">
+              <el-input
+                v-model="output"
+                type="textarea"
+                :rows="12"
+                readonly
+                :placeholder="'转换结果将显示在这里'"
+              />
+            </div>
+            <div class="editor-footer">
+              <span>字符数：{{ output.length }}</span>
+            </div>
           </div>
-          <div class="editor-footer">
-            <span>字符数：{{ output.length }}</span>
+        </div>
+
+        <div class="options-panel">
+          <div class="section-header">
+            <div class="section-title">转换选项</div>
+          </div>
+          <div class="options-content">
+            <el-form :model="options" label-width="120px" size="small">
+              <el-form-item label="缩进空格数">
+                <el-input-number
+                  v-model="options.indentSize"
+                  :min="0"
+                  :max="8"
+                  :step="2"
+                />
+              </el-form-item>
+              <el-form-item label="排序键">
+                <el-switch v-model="options.sortKeys" />
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="handleProcess">转换</el-button>
+              </el-form-item>
+            </el-form>
           </div>
         </div>
       </div>
-
-      <div class="options-panel">
-        <el-form :model="options" label-width="120px" size="small">
-          <el-form-item label="缩进空格数">
-            <el-input-number
-              v-model="options.indentSize"
-              :min="0"
-              :max="8"
-              :step="2"
-            />
-          </el-form-item>
-          <el-form-item label="排序键">
-            <el-switch v-model="options.sortKeys" />
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="handleProcess">转换</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
-    </div>
+    </el-card>
   </div>
 </template>
 
@@ -255,128 +266,145 @@ const handleDownload = () => {
 <style lang="scss" scoped>
 .convert-page {
   height: 100%;
-  display: flex;
-  flex-direction: column;
-
-  :deep(.el-button) {
-    &.el-button--primary {
-      background-color: var(--el-color-primary);
-      border-color: var(--el-color-primary);
-      color: var(--el-color-white);
-
-      &:not(.is-disabled):hover {
-        background-color: var(--el-color-primary-light-3);
-        border-color: var(--el-color-primary-light-3);
-      }
-
-      &.is-disabled {
-        background-color: var(--el-color-primary-light-5);
-        border-color: var(--el-color-primary-light-5);
-      }
-    }
-
-    &:not(.el-button--primary) {
-      &:not(.is-disabled):hover {
-        color: var(--el-color-primary);
-        border-color: var(--el-color-primary);
-        background-color: var(--el-button-hover-bg-color);
-      }
-    }
-  }
-
-  .page-header {
-    margin-bottom: 24px;
+  padding: 16px;
+  box-sizing: border-box;
+  
+  :deep(.el-card) {
+    height: 100%;
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-
-    .header-title {
-      h2 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: 600;
-        color: var(--el-text-color-primary);
-      }
-
-      .header-desc {
-        margin: 8px 0 0;
-        font-size: 14px;
-        color: var(--el-text-color-secondary);
-      }
-    }
-
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-  }
-
-  .page-content {
-    flex: 1;
-    background-color: var(--el-bg-color);
+    flex-direction: column;
     border-radius: 8px;
-    padding: 24px;
-    box-shadow: var(--el-box-shadow-light);
-    display: flex;
-    gap: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    
+    .el-card__header {
+      padding: 12px 20px;
+      min-height: 40px;
+      border-bottom: 1px solid var(--el-border-color-lighter);
+      background-color: var(--el-fill-color-light);
+      border-radius: 8px 8px 0 0;
+    }
+    
+    .el-card__body {
+      flex: 1;
+      overflow: hidden;
+      padding: 0;
+    }
   }
 
-  .editor-container {
-    flex: 1;
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+    }
+  }
+  
+  .convert-content {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    padding: 16px;
+    overflow-y: auto;
+    gap: 20px;
+    background-color: var(--el-bg-color);
   }
 
-  .editor-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--el-bg-color-page);
-    border-radius: 4px;
-    border: 1px solid var(--el-border-color);
-  }
-
-  .editor-header {
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--el-border-color);
+  .controls-wrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    margin-bottom: 4px;
+  }
+
+  .editor-container {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
+
+  .editor-section, .options-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--el-border-color-lighter);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    background-color: var(--el-bg-color);
+  }
+  
+  .options-panel {
+    flex: 0 0 auto;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
     background-color: var(--el-fill-color-light);
+    border-bottom: 1px solid var(--el-border-color-lighter);
+    
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+      text-align: left;
+    }
   }
 
   .editor-area {
     flex: 1;
-    padding: 12px;
-
-    :deep(.el-textarea__inner) {
-      font-family: monospace;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+    
+    :deep(.el-textarea) {
+      height: 100%;
+      
+      .el-textarea__inner {
+        height: 100%;
+        border: none;
+        resize: none;
+        border-radius: 0;
+        padding: 12px;
+        font-family: monospace;
+        line-height: 1.6;
+      }
     }
   }
 
   .editor-footer {
     padding: 8px 12px;
-    border-top: 1px solid var(--el-border-color);
-    color: var(--el-text-color-secondary);
-    font-size: 12px;
     background-color: var(--el-fill-color-light);
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
+    display: flex;
+    justify-content: space-between;
   }
-
-  .options-panel {
-    width: 280px;
+  
+  .options-content {
     padding: 16px;
-    background-color: var(--el-bg-color-page);
-    border-radius: 4px;
-    border: 1px solid var(--el-border-color);
   }
-
-  .upload-btn {
-    display: inline-block;
+  
+  .editor-controls {
+    display: flex;
+    gap: 8px;
     
-    :deep(.el-upload) {
-      display: block;
+    .el-button {
+      padding: 6px 12px;
+      
+      .el-icon {
+        margin-right: 0;
+      }
     }
   }
 }

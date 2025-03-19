@@ -4,146 +4,206 @@
       <template #header>
         <div class="card-header">
           <h3>PDF 处理</h3>
-          <div class="header-controls">
-            <el-radio-group v-model="mode" size="small">
-              <el-radio-button label="merge">合并</el-radio-button>
-              <el-radio-button label="split">拆分</el-radio-button>
-              <el-radio-button label="compress">压缩</el-radio-button>
-            </el-radio-group>
-          </div>
         </div>
       </template>
 
       <div class="pdf-content">
-        <el-upload
-          class="pdf-uploader"
-          drag
-          action="#"
-          :auto-upload="false"
-          :show-file-list="true"
-          :on-change="handleFileChange"
-          :file-list="fileList"
-          :limit="mode === 'merge' ? 10 : 1"
-          accept=".pdf">
-          <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-          <div class="el-upload__text">
-            拖拽文件到此处或 <em>点击上传</em>
+        <!-- 上传区域 -->
+        <div class="upload-container" :class="{'has-file': fileList.length > 0}">
+          <el-upload
+            class="pdf-uploader"
+            drag
+            action="#"
+            :auto-upload="false"
+            :show-file-list="true"
+            :on-change="handleFileChange"
+            :file-list="fileList"
+            :limit="mode === 'merge' ? 10 : 1"
+            accept=".pdf">
+            <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+            <div class="el-upload__text">
+              拖拽文件到此处或 <em>点击上传</em>
+            </div>
+            <template #tip>
+              <div class="el-upload__tip">
+                <template v-if="mode === 'merge'">
+                  支持上传多个PDF文件进行合并
+                </template>
+                <template v-else>
+                  支持上传单个PDF文件进行{{ mode === 'split' ? '拆分' : '压缩' }}
+                </template>
+              </div>
+            </template>
+          </el-upload>
+        </div>
+
+        <!-- 参数配置区域 -->
+        <div v-if="fileList.length > 0" class="config-section">
+          <!-- 处理操作标题 -->
+          <div class="section-header">
+            <div class="section-title">处理操作</div>
           </div>
-          <template #tip>
-            <div class="el-upload__tip">
-              <template v-if="mode === 'merge'">
-                支持上传多个PDF文件进行合并
-              </template>
-              <template v-else>
-                支持上传单个PDF文件进行{{ mode === 'split' ? '拆分' : '压缩' }}
-              </template>
-            </div>
-          </template>
-        </el-upload>
-
-        <div v-if="mode === 'split'" class="operation-options">
-          <el-divider content-position="left">拆分选项</el-divider>
-          <el-form :model="splitForm" label-width="100px">
-            <el-form-item label="页码范围">
-              <el-input
-                v-model="splitForm.pages"
-                placeholder="例如：1-3,5,7-9"
-              />
-            </el-form-item>
-            <el-form-item label="输出文件名">
-              <el-input
-                v-model="splitForm.filename"
-                placeholder="保存的文件名"
-              />
-            </el-form-item>
-          </el-form>
-        </div>
-
-        <div v-if="mode === 'compress'" class="operation-options">
-          <el-divider content-position="left">压缩选项</el-divider>
-          <el-form :model="compressForm" label-width="100px">
-            <el-form-item label="压缩质量">
-              <div class="quality-slider">
-                <el-slider
-                  v-model="compressForm.quality"
-                  :min="0"
-                  :max="100"
-                  :step="10"
-                  :format-tooltip="formatQuality"
-                  :marks="qualityMarks"
-                  style="max-width: 300px"
-                />
-                <span class="quality-value">{{ compressForm.quality }}%</span>
-              </div>
-            </el-form-item>
-            <el-form-item label="输出文件名">
-              <el-input
-                v-model="compressForm.filename"
-                placeholder="保存的文件名"
-              />
-            </el-form-item>
-          </el-form>
-        </div>
-
-        <div v-if="mode === 'merge'" class="operation-options">
-          <el-divider content-position="left">合并选项</el-divider>
-          <el-form :model="mergeForm" label-width="100px">
-            <el-form-item label="合并顺序">
-              <el-tooltip content="拖拽文件调整合并顺序" placement="top">
-                <el-radio-group v-model="mergeForm.sortBy" size="small">
-                  <el-radio-button label="name">按文件名</el-radio-button>
-                  <el-radio-button label="upload">按上传顺序</el-radio-button>
-                  <el-radio-button label="custom">自定义顺序</el-radio-button>
+          
+          <div class="operation-options">
+            <!-- 功能切换按钮 -->
+            <div class="config-row">
+              <div class="config-label">处理模式</div>
+              <div class="config-content">
+                <el-radio-group v-model="mode" size="small">
+                  <el-radio-button label="merge">
+                    <el-icon class="mode-icon"><ScaleToOriginal /></el-icon>
+                    合并
+                  </el-radio-button>
+                  <el-radio-button label="split">
+                    <el-icon class="mode-icon"><Scissor /></el-icon>
+                    拆分
+                  </el-radio-button>
+                  <el-radio-button label="compress">
+                    <el-icon class="mode-icon"><Compass /></el-icon>
+                    压缩
+                  </el-radio-button>
                 </el-radio-group>
-              </el-tooltip>
-            </el-form-item>
-            <el-form-item label="输出文件名">
-              <el-input
-                v-model="mergeForm.filename"
-                placeholder="保存的文件名"
-              />
-            </el-form-item>
-          </el-form>
-        </div>
-
-        <div v-if="processedFile" class="result-section">
-          <el-divider content-position="left">处理结果</el-divider>
-          <div class="result-info">
-            <span class="result-icon"><el-icon><Document /></el-icon></span>
-            <div class="result-details">
-              <div class="filename">{{ processedFile.name }}</div>
-              <div class="filesize">
-                <span>{{ formatFileSize(processedFile.size) }}</span>
-                <span v-if="compressionRatio !== null" class="compression-info">
-                  <el-tag :type="compressionRatio > 0 ? 'success' : 'info'" size="small">
-                    {{ compressionRatio > 0 
-                      ? `节省 ${compressionRatio}%` 
-                      : '无变化' }}
-                  </el-tag>
-                </span>
               </div>
             </div>
+          
+            <!-- 拆分配置 -->
+            <template v-if="mode === 'split'">
+              <div class="config-row">
+                <div class="config-label">页码范围</div>
+                <div class="config-content">
+                  <el-input
+                    v-model="splitForm.pages"
+                    placeholder="例如：1-3,5,7-9"
+                  />
+                  <div class="config-tip">请输入需要提取的页码，支持单页和范围</div>
+                </div>
+              </div>
+              <div class="config-row">
+                <div class="config-label">输出文件名</div>
+                <div class="config-content">
+                  <div class="filename-input">
+                    <el-input
+                      v-model="splitForm.filename"
+                      placeholder="保存的文件名"
+                    />
+                    <div class="filename-extension">.pdf</div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- 压缩配置 -->
+            <template v-if="mode === 'compress'">
+              <div class="config-row">
+                <div class="config-label">压缩质量</div>
+                <div class="config-content quality-slider">
+                  <div class="slider-marks">
+                    <span class="mark">低</span>
+                    <span class="mark">中</span>
+                    <span class="mark">高</span>
+                  </div>
+                  <el-slider
+                    v-model="compressForm.quality"
+                    :min="0"
+                    :max="100"
+                    :step="10"
+                    :format-tooltip="formatQuality"
+                    :marks="qualityMarks"
+                  />
+                </div>
+              </div>
+              <div class="config-row">
+                <div class="config-label">输出文件名</div>
+                <div class="config-content">
+                  <div class="filename-input">
+                    <el-input
+                      v-model="compressForm.filename"
+                      placeholder="保存的文件名"
+                    />
+                    <div class="filename-extension">.pdf</div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- 合并配置 -->
+            <template v-if="mode === 'merge'">
+              <div class="config-row">
+                <div class="config-label">合并顺序</div>
+                <div class="config-content">
+                  <el-radio-group v-model="mergeForm.sortBy" size="small">
+                    <el-radio-button label="name">按文件名</el-radio-button>
+                    <el-radio-button label="upload">按上传顺序</el-radio-button>
+                  </el-radio-group>
+                </div>
+              </div>
+              <div class="config-row">
+                <div class="config-label">输出文件名</div>
+                <div class="config-content">
+                  <div class="filename-input">
+                    <el-input
+                      v-model="mergeForm.filename"
+                      placeholder="保存的文件名"
+                    />
+                    <div class="filename-extension">.pdf</div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- 结果展示区域 -->
+        <div v-if="processedFile" class="result-section">
+          <div class="section-header">
+            <div class="section-title">处理结果</div>
             <div class="result-actions">
               <el-button type="primary" size="small" @click="handleDownload" class="download-btn">
                 <el-icon><Download /></el-icon>
                 下载
               </el-button>
+              <el-button size="small" @click="handleClear" class="clear-btn">
+                <el-icon><Delete /></el-icon>
+                清空
+              </el-button>
+            </div>
+          </div>
+          <div class="result-content">
+            <div class="result-item">
+              <div class="result-icon">
+                <el-icon><Document /></el-icon>
+              </div>
+              <div class="result-details">
+                <div class="filename">{{ processedFile.name }}</div>
+                <div class="filesize">
+                  <span>{{ formatFileSize(processedFile.size) }}</span>
+                  <span v-if="compressionRatio !== null" class="compression-info">
+                    <el-tag :type="compressionRatio > 0 ? 'success' : 'info'" size="small">
+                      {{ compressionRatio > 0 
+                        ? `节省 ${compressionRatio}%` 
+                        : '无变化' }}
+                    </el-tag>
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="action-section">
+        <!-- 操作按钮区域 -->
+        <div class="action-section" v-if="fileList.length > 0 && !processedFile">
           <el-button
             type="primary"
             @click="handleProcess"
             :loading="processing"
-            :disabled="!canProcess">
+            :disabled="!canProcess"
+            class="process-btn">
             <el-icon>
               <component :is="actionIcon" />
             </el-icon>
             {{ actionText }}
           </el-button>
-          <el-button @click="handleClear">
+          <el-button @click="handleClear" class="clear-btn">
             <el-icon><Delete /></el-icon>
             清空
           </el-button>
@@ -258,11 +318,11 @@ const handleFileChange = (uploadFile: UploadFile) => {
   // 设置默认输出文件名
   const outputFilename = file.name.replace(/\.pdf$/i, '')
   if (mode.value === 'split') {
-    splitForm.filename = `${outputFilename}_split.pdf`
+    splitForm.filename = `${outputFilename}_split`
   } else if (mode.value === 'compress') {
-    compressForm.filename = `${outputFilename}_compressed.pdf`
+    compressForm.filename = `${outputFilename}_compressed`
   } else if (mode.value === 'merge' && fileList.value.length === 1) {
-    mergeForm.filename = `merged_documents.pdf`
+    mergeForm.filename = `merged_documents`
   }
   
   // 重置压缩率显示
@@ -616,10 +676,20 @@ const formatFileSize = (size: number) => {
     height: 100%;
     display: flex;
     flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    
+    .el-card__header {
+      padding: 12px 20px;
+      min-height: 40px;
+      border-bottom: 1px solid var(--el-border-color-lighter);
+      background-color: var(--el-fill-color-light);
+      border-radius: 8px 8px 0 0;
+    }
     
     .el-card__body {
       flex: 1;
-      overflow: auto;
+      overflow: hidden;
       padding: 0;
     }
   }
@@ -627,90 +697,320 @@ const formatFileSize = (size: number) => {
   .card-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 12px 20px;
+    justify-content: flex-start;
 
     h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 16px;
+      font-weight: 600;
       color: var(--el-text-color-primary);
-    }
-    
-    .header-controls {
-      display: flex;
-      gap: 12px;
     }
   }
   
   .pdf-content {
-    padding: 20px;
     height: 100%;
     display: flex;
     flex-direction: column;
+    padding: 16px;
+    overflow-y: auto;
+    gap: 20px;
+    background-color: var(--el-bg-color);
   }
 
+  .upload-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80%;
+    min-height: 300px;
+    width: 100%;
+    transition: all 0.3s ease;
+    
+    &.has-file {
+      height: auto;
+      min-height: auto;
+      max-height: 180px;
+    }
+  }
+  
   .pdf-uploader {
-    margin-bottom: 20px;
+    width: 100%;
+    max-width: 80%;
+    margin: 0 auto;
+    
+    :deep(.el-upload) {
+      width: 100%;
+    }
+    
+    :deep(.el-upload-dragger) {
+      width: 100%;
+      height: auto;
+      min-height: 260px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: all 0.3s ease;
+      border: 2px dashed var(--el-border-color);
+      border-radius: 8px;
+      background-color: var(--el-fill-color-light);
+      
+      &:hover {
+        border-color: var(--el-color-primary);
+        background-color: var(--el-color-primary-light-9);
+      }
+    }
     
     :deep(.el-upload-list) {
-      margin-top: 16px;
+      margin-top: 12px;
+      
+      .el-upload-list__item {
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background-color: var(--el-fill-color-light);
+        }
+      }
     }
-  }
 
-  .operation-options {
-    margin: 10px 0 20px;
-    
-    .el-divider {
+    :deep(.el-icon--upload) {
+      margin: 8px auto 16px;
+      font-size: 48px;
+      color: var(--el-color-primary);
+      transition: all 0.3s ease;
+    }
+
+    :deep(.el-upload__text) {
       margin: 16px 0;
+      font-size: 18px;
+      color: var(--el-text-color-regular);
       
-      &__text {
-        font-size: 15px;
+      em {
+        color: var(--el-color-primary);
+        font-style: normal;
         font-weight: 500;
-        color: var(--el-text-color-primary);
       }
     }
     
-    .quality-slider {
-      display: flex;
-      align-items: center;
-      
-      .el-slider {
-        flex: 1;
-        max-width: 300px;
+    :deep(.el-upload__tip) {
+      font-size: 14px;
+      margin-top: 12px;
+      color: var(--el-text-color-secondary);
+    }
+  }
+  
+  .has-file {
+    .pdf-uploader {
+      :deep(.el-upload-dragger) {
+        min-height: 100px;
+        padding: 16px;
+        border-width: 1px;
+        background-color: var(--el-fill-color-light);
       }
       
-      .quality-value {
-        margin-left: 16px;
+      :deep(.el-icon--upload) {
+        margin: 4px auto;
+        font-size: 24px;
+      }
+      
+      :deep(.el-upload__text) {
+        margin: 4px 0;
         font-size: 14px;
-        color: var(--el-text-color-secondary);
-        width: 40px;
+      }
+      
+      :deep(.el-upload__tip) {
+        font-size: 12px;
+        margin-top: 4px;
       }
     }
   }
 
-  .result-section {
-    margin: 20px 0;
+  .config-section, .result-section {
+    width: 100%;
+    max-width: 90%;
+    margin: 0 auto;
+    border: 1px solid var(--el-border-color-lighter);
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    background-color: var(--el-bg-color);
+    padding: 0;
+  }
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: var(--el-fill-color-light);
+    border-bottom: 1px solid var(--el-border-color-lighter);
     
-    .result-info {
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+      text-align: left;
+    }
+    
+    .result-actions {
+      display: flex;
+      gap: 8px;
+      
+      .el-button {
+        padding: 6px 12px;
+        
+        .el-icon {
+          margin-right: 4px;
+        }
+      }
+    }
+  }
+  
+  .operation-options {
+    padding: 16px;
+    
+    .config-row {
+      display: flex;
+      margin-bottom: 16px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .config-label {
+        width: 100px;
+        flex-shrink: 0;
+        padding-top: 8px;
+        color: var(--el-text-color-primary);
+        font-weight: 500;
+        font-size: 14px;
+      }
+      
+      .config-content {
+        flex: 1;
+        min-width: 0;
+        
+        .config-tip {
+          font-size: 12px;
+          color: var(--el-text-color-secondary);
+          margin-top: 4px;
+        }
+        
+        .filename-input {
+          display: flex;
+          align-items: center;
+          
+          .el-input {
+            flex: 1;
+            min-width: 0;
+          }
+          
+          .filename-extension {
+            margin-left: 8px;
+            font-size: 14px;
+            color: var(--el-text-color-secondary);
+            background-color: var(--el-fill-color);
+            padding: 0 8px;
+            height: 32px;
+            line-height: 32px;
+            border-radius: 4px;
+            border: 1px solid var(--el-border-color);
+          }
+        }
+        
+        .quality-slider {
+          .slider-marks {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            
+            .mark {
+              font-size: 12px;
+              color: var(--el-text-color-secondary);
+            }
+          }
+          
+          .el-slider {
+            margin-top: 8px;
+          }
+        }
+      }
+    }
+    
+    :deep(.el-radio-group) {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      
+      .el-radio-button {
+        .el-radio-button__inner {
+          border-radius: 4px;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          
+          &:hover {
+            background-color: var(--el-color-primary-light-9);
+            color: var(--el-color-primary);
+          }
+        }
+        
+        &.is-active {
+          .el-radio-button__inner {
+            background-color: var(--el-color-primary);
+            border-color: var(--el-color-primary);
+            box-shadow: 0 2px 6px rgba(var(--el-color-primary-rgb), 0.2);
+          }
+        }
+        
+        .mode-icon {
+          margin-right: 4px;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .result-content {
+    padding: 16px;
+    flex: 1;
+    background-color: var(--el-fill-color-blank);
+    
+    .result-item {
       display: flex;
       align-items: center;
-      padding: 16px;
+      padding: 12px;
       background-color: var(--el-fill-color-light);
-      border-radius: 4px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background-color: var(--el-fill-color);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
       
       .result-icon {
-        font-size: 24px;
+        font-size: 32px;
         margin-right: 16px;
         color: var(--el-color-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       
       .result-details {
         flex: 1;
+        min-width: 0;
         
         .filename {
           font-weight: 500;
-          margin-bottom: 4px;
+          margin-bottom: 8px;
           color: var(--el-text-color-primary);
+          font-size: 14px;
+          word-break: break-all;
         }
         
         .filesize {
@@ -718,22 +1018,17 @@ const formatFileSize = (size: number) => {
           color: var(--el-text-color-secondary);
           display: flex;
           align-items: center;
+          flex-wrap: wrap;
+          gap: 8px;
           
           .compression-info {
-            margin-left: 8px;
-            
             .el-tag {
-              margin-left: 6px;
               font-size: 12px;
+              border-radius: 4px;
+              padding: 0 8px;
+              height: 20px;
+              line-height: 18px;
             }
-          }
-        }
-      }
-      
-      .result-actions {
-        .download-btn {
-          .el-icon {
-            margin-right: 4px;
           }
         }
       }
@@ -741,16 +1036,30 @@ const formatFileSize = (size: number) => {
   }
 
   .action-section {
-    margin-top: auto;
-    padding-top: 20px;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 16px;
+    padding-top: 16px;
+    flex-shrink: 0;
     border-top: 1px solid var(--el-border-color-light);
     
     .el-button {
-      margin: 0 6px;
+      padding: 10px 20px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(var(--el-color-primary-rgb), 0.2);
+      }
       
       .el-icon {
-        margin-right: 4px;
+        margin-right: 8px;
+      }
+      
+      &.process-btn {
+        min-width: 120px;
       }
     }
   }
