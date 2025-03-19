@@ -54,10 +54,6 @@ const menuConfig: MenuItem[] = [
       },
       {
         path: '/file/compare',
-        name: '文件比较'
-      },
-      {
-        path: '/file/diff',
         name: '文本对比'
       },
       {

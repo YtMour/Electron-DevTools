@@ -47,7 +47,7 @@
           </template>
           <el-menu-item index="/file/image">图片转换</el-menu-item>
           <el-menu-item index="/file/pdf">PDF 处理</el-menu-item>
-          <el-menu-item index="/file/diff">文本对比</el-menu-item>
+          <el-menu-item index="/file/compare">文本对比</el-menu-item>
         </el-sub-menu>
       </el-menu>
 

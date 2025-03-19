@@ -115,14 +115,6 @@ const routes: RouteRecordRaw[] = [
         name: 'file-compare',
         component: () => import('../views/file/compare/index.vue'),
         meta: {
-          title: '文件比较'
-        }
-      },
-      {
-        path: 'diff',
-        name: 'file-diff',
-        component: () => import('../views/file/diff/index.vue'),
-        meta: {
           title: '文本对比'
         }
       },
