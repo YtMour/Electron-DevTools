@@ -92,6 +92,11 @@
   --el-alert-description-color: var(--el-text-color-regular);
   --el-alert-icon-color: var(--el-text-color-regular);
   --el-alert-close-color: var(--el-text-color-regular);
+  
+  // 信息框相关
+  --el-bg-color-overlay: #1d1e1f; // 弹出层和卡片背景
+  --el-border-color-darker: #434343; // 深色边框色
+  --el-overlay-color-lighter: rgba(0, 0, 0, 0.5); // 遮罩层颜色
 
   // 操作按钮颜色 - 暗色模式
   --custom-action-info-color: #a6a9ad;
@@ -229,6 +234,14 @@ body {
   
   .el-alert__close-btn {
     color: var(--el-alert-close-color, var(--el-text-color-regular));
+  }
+}
+
+// 暗黑模式下的 el-alert 特殊处理
+:root.dark {
+  .el-alert {
+    background-color: var(--el-bg-color-overlay) !important; 
+    border-color: var(--el-border-color-darker) !important;
   }
 }
 

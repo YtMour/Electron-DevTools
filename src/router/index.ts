@@ -49,6 +49,14 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'RSA 加密'
         }
+      },
+      {
+        path: 'password',
+        name: 'Password',
+        component: () => import('../views/crypto/tools/PasswordGenerator.vue'),
+        meta: {
+          title: '密码生成器'
+        }
       }
     ]
   },

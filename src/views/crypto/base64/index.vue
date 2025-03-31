@@ -19,6 +19,8 @@
           <el-radio-button label="decode">解码</el-radio-button>
         </el-radio-group>
 
+        <el-checkbox v-model="urlSafe" v-if="mode === 'encode'">URL 安全编码</el-checkbox>
+
         <div class="upload-btn">
           <el-upload
             ref="upload"
@@ -104,6 +106,7 @@ import * as DiffLib from 'diff'
 
 const { copy } = useClipboard()
 const mode = ref<'encode' | 'decode'>('encode')
+const urlSafe = ref(false)
 
 const form = reactive({
   input: '',
@@ -160,9 +163,17 @@ const handleConvert = () => {
 
   try {
     if (mode.value === 'encode') {
-      form.output = btoa(unescape(encodeURIComponent(form.input)))
+      const encoded = btoa(unescape(encodeURIComponent(form.input)))
+      form.output = urlSafe.value ? encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') : encoded
     } else {
-      form.output = decodeURIComponent(escape(atob(form.input)))
+      let base64 = form.input
+      if (urlSafe.value) {
+        base64 = base64.replace(/-/g, '+').replace(/_/g, '/')
+        while (base64.length % 4 !== 0) {
+          base64 += '='
+        }
+      }
+      form.output = decodeURIComponent(escape(atob(base64)))
     }
   } catch (error) {
     ElMessage.error('转换失败，请检查输入是否正确')
