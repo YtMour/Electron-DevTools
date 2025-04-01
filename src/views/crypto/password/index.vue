@@ -1,7 +1,13 @@
 <template>
   <div class="password-generator">
     <div class="header">
-      <h2>密码生成器</h2>
+      <div class="header-content">
+        <h2>密码生成器</h2>
+        <el-button @click="showHistory = true" class="history-btn">
+          <el-icon><Timer /></el-icon>
+          历史记录
+        </el-button>
+      </div>
       <el-alert
         title="密码生成说明"
         type="info"
@@ -53,20 +59,6 @@
           />
         </el-form-item>
 
-        <el-form-item label="操作">
-          <el-button-group>
-            <el-button type="primary" @click="handleGenerate" :disabled="!isValid">
-              <el-icon><Refresh /></el-icon>
-              生成密码
-            </el-button>
-            <el-button @click="handleClear">清空</el-button>
-          </el-button-group>
-          <el-button @click="showHistory = true" class="history-btn">
-            <el-icon><Timer /></el-icon>
-            历史记录
-          </el-button>
-        </el-form-item>
-
         <el-form-item label="生成的密码">
           <el-input
             v-model="form.output"
@@ -90,22 +82,31 @@
             </div>
           </div>
 
-          <div class="output-controls">
-            <div class="output-stats" v-if="form.output">
-              <span>密码长度：{{ form.output.length }}</span>
-              <span>字符类型：{{ getPasswordTypes(form.output) }}</span>
-            </div>
-            <div class="output-actions">
-              <el-button-group>
-                <el-button type="primary" @click="handleCopy" :disabled="!form.output">
-                  <el-icon><DocumentCopy /></el-icon> 复制
-                </el-button>
-                <el-button type="primary" @click="handleDownload" :disabled="!form.output">
-                  <el-icon><Download /></el-icon> 下载
-                </el-button>
-              </el-button-group>
-            </div>
+          <div class="output-stats" v-if="form.output">
+            <span>密码长度：{{ form.output.length }}</span>
+            <span>字符类型：{{ getPasswordTypes(form.output) }}</span>
           </div>
+        </el-form-item>
+
+        <el-form-item label="操作">
+          <el-button-group>
+            <el-button type="primary" @click="handleGenerate" :disabled="!isValid">
+              <el-icon><Refresh /></el-icon>
+              生成密码
+            </el-button>
+            <el-button @click="handleClear">清空</el-button>
+          </el-button-group>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button-group>
+            <el-button type="primary" @click="handleCopy" :disabled="!form.output">
+              <el-icon><DocumentCopy /></el-icon> 复制
+            </el-button>
+            <el-button type="primary" @click="handleDownload" :disabled="!form.output">
+              <el-icon><Download /></el-icon> 下载
+            </el-button>
+          </el-button-group>
         </el-form-item>
       </el-form>
     </div>
@@ -417,11 +418,22 @@ onMounted(() => {
 
   .header {
     margin-bottom: 20px;
-
-    h2 {
-      margin-bottom: 12px;
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      h2 {
+        margin: 0;
+      }
+      
+      .history-btn {
+        margin-left: auto;
+      }
     }
-
+    
     .password-info {
       margin-bottom: 16px;
       font-size: 13px;
@@ -483,23 +495,12 @@ onMounted(() => {
       margin-left: 12px;
     }
 
-    .output-controls {
+    .output-stats {
       margin-top: 8px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      gap: 16px;
       color: var(--el-text-color-secondary);
       font-size: 12px;
-
-      .output-stats {
-        display: flex;
-        gap: 16px;
-      }
-
-      .output-actions {
-        display: flex;
-        gap: 8px;
-      }
     }
 
     .password-strength {
