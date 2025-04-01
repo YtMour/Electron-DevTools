@@ -92,6 +92,11 @@
           </el-button-group>
         </el-form-item>
       </el-form>
+
+      <div v-if="processing" class="processing-info">
+        <el-progress :percentage="progress" :status="progress === 100 ? 'success' : ''" />
+        <div class="processing-text">正在处理文件...</div>
+      </div>
     </div>
   </div>
 </template>
@@ -116,7 +121,45 @@ const form = reactive({
 const leftText = ref('')
 const rightText = ref('')
 
-// 处理文件上传
+const currentFileType = ref('')
+
+const processing = ref(false)
+const progress = ref(0)
+const chunkSize = 1024 * 1024 // 1MB chunks
+
+// 添加文件处理工具函数
+const processFileInChunks = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    const chunks: string[] = []
+    let offset = 0
+
+    reader.onload = (e) => {
+      const chunk = e.target?.result as string
+      chunks.push(chunk.split(',')[1])
+      offset += chunkSize
+
+      if (offset < file.size) {
+        // 继续读取下一块
+        readNextChunk()
+      } else {
+        // 所有块读取完成，合并结果
+        resolve(chunks.join(''))
+      }
+    }
+
+    reader.onerror = reject
+
+    const readNextChunk = () => {
+      const slice = file.slice(offset, offset + chunkSize)
+      reader.readAsDataURL(slice)
+    }
+
+    readNextChunk()
+  })
+}
+
+// 修改文件处理函数
 const handleFileChange = async (uploadFile: UploadFile) => {
   try {
     const file = uploadFile.raw
@@ -125,16 +168,42 @@ const handleFileChange = async (uploadFile: UploadFile) => {
       return
     }
 
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        form.input = e.target.result as string
-        handleConvert() // 文件内容加载后自动进行转换
+    processing.value = true
+    progress.value = 0
+    currentFileType.value = file.type || 'application/octet-stream'
+    ElMessage.success(`文件类型: ${currentFileType.value}`)
+
+    if (mode.value === 'encode') {
+      if (file.type.startsWith('text/') || file.type === 'application/json') {
+        // 文本文件使用标准方式
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            form.input = e.target.result as string
+            handleConvert()
+          }
+        }
+        reader.readAsText(file)
+      } else {
+        // 大文件使用分块处理
+        form.input = await processFileInChunks(file)
+        handleConvert()
       }
+    } else {
+      // 解码模式
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          form.input = e.target.result as string
+          handleConvert()
+        }
+      }
+      reader.readAsText(file)
     }
-    reader.readAsText(file)
   } catch (error) {
     ElMessage.error('文件处理失败')
+  } finally {
+    processing.value = false
   }
 }
 
@@ -155,6 +224,7 @@ const handleInput = () => {
   }
 }
 
+// 修改转换函数
 const handleConvert = () => {
   if (!form.input) {
     form.output = ''
@@ -163,7 +233,14 @@ const handleConvert = () => {
 
   try {
     if (mode.value === 'encode') {
-      const encoded = btoa(unescape(encodeURIComponent(form.input)))
+      let encoded: string
+      if (currentFileType.value.startsWith('text/') || currentFileType.value === 'application/json') {
+        // 文本文件使用标准编码
+        encoded = btoa(unescape(encodeURIComponent(form.input)))
+      } else {
+        // 二进制文件直接使用 base64 部分
+        encoded = form.input
+      }
       form.output = urlSafe.value ? encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') : encoded
     } else {
       let base64 = form.input
@@ -199,11 +276,29 @@ const handleCopy = async () => {
 // 下载结果
 const handleDownload = () => {
   try {
-    const blob = new Blob([form.output], { type: 'text/plain' })
+    let blob: Blob
+    let filename: string
+
+    if (mode.value === 'encode') {
+      // 编码模式：下载 base64 文本
+      blob = new Blob([form.output], { type: 'text/plain' })
+      filename = `base64_encoded_${Date.now()}.txt`
+    } else {
+      // 解码模式：根据原始文件类型下载
+      const mimeType = currentFileType.value || 'application/octet-stream'
+      const binary = atob(form.output)
+      const bytes = new Uint8Array(binary.length)
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i)
+      }
+      blob = new Blob([bytes], { type: mimeType })
+      filename = `decoded_${Date.now()}.${mimeType.split('/')[1] || 'bin'}`
+    }
+
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `base64_${mode.value === 'encode' ? 'encoded' : 'decoded'}_${Date.now()}.txt`
+    a.download = filename
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -387,6 +482,28 @@ const diffResult = computed(() => {
       align-items: center;
       color: var(--el-text-color-secondary);
       font-size: 12px;
+    }
+
+    .processing-info {
+      margin-top: 16px;
+      text-align: center;
+
+      .processing-text {
+        margin-top: 8px;
+        color: var(--el-text-color-secondary);
+        font-size: 14px;
+      }
+    }
+  }
+
+  .processing-info {
+    margin-top: 16px;
+    text-align: center;
+
+    .processing-text {
+      margin-top: 8px;
+      color: var(--el-text-color-secondary);
+      font-size: 14px;
     }
   }
 }
