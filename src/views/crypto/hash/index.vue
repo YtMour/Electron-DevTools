@@ -41,6 +41,11 @@
             </el-button>
           </el-upload>
         </div>
+
+        <el-button @click="showHistory = true">
+          <el-icon><Timer /></el-icon>
+          历史记录
+        </el-button>
       </div>
     </div>
 
@@ -117,16 +122,77 @@
         </el-form-item>
       </el-form>
     </div>
+
+    <!-- 历史记录对话框 -->
+    <el-dialog
+      v-model="showHistory"
+      title="历史记录"
+      width="60%"
+      :close-on-click-modal="false">
+      <div class="history-header">
+        <el-input
+          v-model="historySearch"
+          placeholder="搜索历史记录"
+          clearable
+          class="history-search">
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+        <el-button type="danger" @click="clearHistory" :disabled="!history.length">
+          清空历史
+        </el-button>
+      </div>
+
+      <div class="history-list">
+        <el-empty v-if="!history.length" description="暂无历史记录" />
+        <div v-else class="history-items">
+          <div
+            v-for="item in filteredHistory"
+            :key="item.id"
+            class="history-item">
+            <div class="history-content">
+              <div class="history-mode">
+                <el-tag type="success">Hash 计算</el-tag>
+                <el-tag type="info" size="small">{{ item.algorithm }}</el-tag>
+              </div>
+              <div class="history-time">
+                {{ new Date(item.timestamp).toLocaleString() }}
+              </div>
+              <div class="history-preview">
+                <div class="preview-input">
+                  <span class="preview-label">输入：</span>
+                  <span class="preview-text">{{ item.input.slice(0, 50) }}{{ item.input.length > 50 ? '...' : '' }}</span>
+                </div>
+                <div class="preview-output">
+                  <span class="preview-label">输出：</span>
+                  <span class="preview-text">{{ item.output.slice(0, 50) }}{{ item.output.length > 50 ? '...' : '' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="history-actions">
+              <el-button type="primary" link @click="useHistory(item)">
+                使用
+              </el-button>
+              <el-button type="danger" link @click="deleteHistory(item.id)">
+                删除
+              </el-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Upload, Download, DocumentCopy } from '@element-plus/icons-vue'
+import { Upload, Download, DocumentCopy, Timer, Search } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
 import type { UploadFile, UploadRawFile } from 'element-plus'
 import CryptoJS from 'crypto-js'
+import { cryptoDB, type CryptoHistory } from '@/utils/db'
 
 const { copy } = useClipboard()
 const mode = ref<'calculate' | 'verify'>('calculate')
@@ -135,7 +201,8 @@ const algorithm = ref<'md5' | 'sha1' | 'sha256' | 'sha512'>('md5')
 const form = reactive({
   input: '',
   hash: '',
-  output: ''
+  output: '',
+  algorithm: 'MD5'
 })
 
 const verifyResult = computed(() => {
@@ -222,6 +289,9 @@ const handleCalculate = () => {
     ElMessage.error('计算失败')
     form.output = ''
   }
+
+  // 保存历史记录
+  saveHistory()
 }
 
 const handleClear = () => {
@@ -257,6 +327,79 @@ const handleDownload = () => {
     ElMessage.error('下载失败')
   }
 }
+
+// 历史记录相关的响应式变量
+const history = ref<CryptoHistory[]>([])
+const showHistory = ref(false)
+const historySearch = ref('')
+
+// 计算属性
+const filteredHistory = computed(() => {
+  if (!historySearch.value) return history.value
+  const search = historySearch.value.toLowerCase()
+  return history.value.filter(item => 
+    item.input.toLowerCase().includes(search) ||
+    item.output.toLowerCase().includes(search)
+  )
+})
+
+// 历史记录相关的方法
+const loadHistory = async () => {
+  try {
+    history.value = await cryptoDB.getHistory('hash')
+  } catch (error) {
+    console.error('加载历史记录失败:', error)
+  }
+}
+
+const saveHistory = async () => {
+  if (!form.input || !form.output) return
+  
+  try {
+    await cryptoDB.addHistory({
+      tool: 'hash',
+      mode: 'hash',
+      input: form.input,
+      output: form.output,
+      algorithm: algorithm.value,
+      timestamp: Date.now()
+    })
+    await loadHistory()
+  } catch (error) {
+    console.error('保存历史记录失败:', error)
+  }
+}
+
+const useHistory = (item: CryptoHistory) => {
+  form.input = item.input
+  form.output = item.output
+  algorithm.value = item.algorithm as 'md5' | 'sha1' | 'sha256' | 'sha512' || 'md5'
+  showHistory.value = false
+  handleCalculate()
+}
+
+const deleteHistory = async (id: number) => {
+  try {
+    await cryptoDB.deleteHistory(id)
+    await loadHistory()
+  } catch (error) {
+    console.error('删除历史记录失败:', error)
+  }
+}
+
+const clearHistory = async () => {
+  try {
+    await cryptoDB.clearHistory('hash')
+    history.value = []
+  } catch (error) {
+    console.error('清空历史记录失败:', error)
+  }
+}
+
+// 在组件挂载时加载历史记录
+onMounted(() => {
+  loadHistory()
+})
 </script>
 
 <style lang="scss" scoped>
@@ -425,6 +568,82 @@ const handleDownload = () => {
     
     :deep(.el-upload) {
       display: block;
+    }
+  }
+}
+
+// 历史记录样式
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  .history-search {
+    width: 300px;
+  }
+}
+
+.history-list {
+  max-height: 500px;
+  overflow-y: auto;
+
+  .history-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 12px;
+    border: 1px solid var(--el-border-color-light);
+    border-radius: 4px;
+    background-color: var(--el-fill-color-blank);
+
+    &:hover {
+      background-color: var(--el-fill-color-light);
+    }
+
+    .history-content {
+      flex: 1;
+      margin-right: 16px;
+
+      .history-mode {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .history-time {
+        font-size: 12px;
+        color: var(--el-text-color-secondary);
+        margin-bottom: 8px;
+      }
+
+      .history-preview {
+        .preview-input,
+        .preview-output {
+          margin-bottom: 4px;
+          font-size: 13px;
+
+          .preview-label {
+            color: var(--el-text-color-secondary);
+            margin-right: 8px;
+          }
+
+          .preview-text {
+            color: var(--el-text-color-primary);
+          }
+        }
+      }
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 8px;
     }
   }
 }

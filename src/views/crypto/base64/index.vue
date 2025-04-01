@@ -34,6 +34,11 @@
             </el-button>
           </el-upload>
         </div>
+
+        <el-button @click="showHistory = true">
+          <el-icon><Timer /></el-icon>
+          历史记录
+        </el-button>
       </div>
     </div>
 
@@ -98,16 +103,79 @@
         <div class="processing-text">正在处理文件...</div>
       </div>
     </div>
+
+    <!-- 历史记录对话框 -->
+    <el-dialog
+      v-model="showHistory"
+      title="历史记录"
+      width="60%"
+      :close-on-click-modal="false">
+      <div class="history-header">
+        <el-input
+          v-model="historySearch"
+          placeholder="搜索历史记录"
+          clearable
+          class="history-search">
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+        <el-button type="danger" @click="clearHistory" :disabled="!history.length">
+          清空历史
+        </el-button>
+      </div>
+
+      <div class="history-list">
+        <el-empty v-if="!history.length" description="暂无历史记录" />
+        <div v-else class="history-items">
+          <div
+            v-for="item in filteredHistory"
+            :key="item.id"
+            class="history-item">
+            <div class="history-content">
+              <div class="history-mode">
+                <el-tag :type="item.mode === 'encode' ? 'success' : 'warning'">
+                  {{ item.mode === 'encode' ? '编码' : '解码' }}
+                </el-tag>
+                <el-tag v-if="item.urlSafe" type="info" size="small">URL安全</el-tag>
+              </div>
+              <div class="history-time">
+                {{ new Date(item.timestamp).toLocaleString() }}
+              </div>
+              <div class="history-preview">
+                <div class="preview-input">
+                  <span class="preview-label">输入：</span>
+                  <span class="preview-text">{{ item.input.slice(0, 50) }}{{ item.input.length > 50 ? '...' : '' }}</span>
+                </div>
+                <div class="preview-output">
+                  <span class="preview-label">输出：</span>
+                  <span class="preview-text">{{ item.output.slice(0, 50) }}{{ item.output.length > 50 ? '...' : '' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="history-actions">
+              <el-button type="primary" link @click="useHistory(item)">
+                使用
+              </el-button>
+              <el-button type="danger" link @click="deleteHistory(item.id!)">
+                删除
+              </el-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Upload, Download, DocumentCopy, Delete } from '@element-plus/icons-vue'
+import { Upload, Download, DocumentCopy, Delete, Timer, Search } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
 import type { UploadFile, UploadRawFile } from 'element-plus'
 import * as DiffLib from 'diff'
+import { base64DB, type Base64History } from '@/utils/db'
 
 const { copy } = useClipboard()
 const mode = ref<'encode' | 'decode'>('encode')
@@ -120,14 +188,82 @@ const form = reactive({
 
 const leftText = ref('')
 const rightText = ref('')
-
 const currentFileType = ref('')
-
 const processing = ref(false)
 const progress = ref(0)
 const chunkSize = 1024 * 1024 // 1MB chunks
 
-// 添加文件处理工具函数
+// 历史记录相关的响应式变量
+const history = ref<Base64History[]>([])
+const showHistory = ref(false)
+const historySearch = ref('')
+
+// 计算属性
+const filteredHistory = computed(() => {
+  if (!historySearch.value) return history.value
+  const search = historySearch.value.toLowerCase()
+  return history.value.filter(item => 
+    item.input.toLowerCase().includes(search) ||
+    item.output.toLowerCase().includes(search)
+  )
+})
+
+// 历史记录相关的方法
+const loadHistory = async () => {
+  try {
+    history.value = await base64DB.getHistory()
+  } catch (error) {
+    console.error('加载历史记录失败:', error)
+  }
+}
+
+const saveHistory = async () => {
+  if (!form.input || !form.output) return
+  
+  try {
+    await base64DB.addHistory({
+      mode: mode.value,
+      input: form.input,
+      output: form.output,
+      fileType: currentFileType.value,
+      timestamp: Date.now(),
+      urlSafe: urlSafe.value
+    })
+    await loadHistory()
+  } catch (error) {
+    console.error('保存历史记录失败:', error)
+  }
+}
+
+const useHistory = (item: Base64History) => {
+  mode.value = item.mode
+  form.input = item.input
+  form.output = item.output
+  currentFileType.value = item.fileType || ''
+  urlSafe.value = item.urlSafe
+  showHistory.value = false
+  handleConvert()
+}
+
+const deleteHistory = async (id: number) => {
+  try {
+    await base64DB.deleteHistory(id)
+    await loadHistory()
+  } catch (error) {
+    console.error('删除历史记录失败:', error)
+  }
+}
+
+const clearHistory = async () => {
+  try {
+    await base64DB.clearHistory()
+    history.value = []
+  } catch (error) {
+    console.error('清空历史记录失败:', error)
+  }
+}
+
+// 文件处理相关的方法
 const processFileInChunks = async (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -140,10 +276,8 @@ const processFileInChunks = async (file: File): Promise<string> => {
       offset += chunkSize
 
       if (offset < file.size) {
-        // 继续读取下一块
         readNextChunk()
       } else {
-        // 所有块读取完成，合并结果
         resolve(chunks.join(''))
       }
     }
@@ -159,7 +293,6 @@ const processFileInChunks = async (file: File): Promise<string> => {
   })
 }
 
-// 修改文件处理函数
 const handleFileChange = async (uploadFile: UploadFile) => {
   try {
     const file = uploadFile.raw
@@ -175,7 +308,6 @@ const handleFileChange = async (uploadFile: UploadFile) => {
 
     if (mode.value === 'encode') {
       if (file.type.startsWith('text/') || file.type === 'application/json') {
-        // 文本文件使用标准方式
         const reader = new FileReader()
         reader.onload = (e) => {
           if (e.target?.result) {
@@ -185,12 +317,10 @@ const handleFileChange = async (uploadFile: UploadFile) => {
         }
         reader.readAsText(file)
       } else {
-        // 大文件使用分块处理
         form.input = await processFileInChunks(file)
         handleConvert()
       }
     } else {
-      // 解码模式
       const reader = new FileReader()
       reader.onload = (e) => {
         if (e.target?.result) {
@@ -207,7 +337,6 @@ const handleFileChange = async (uploadFile: UploadFile) => {
   }
 }
 
-// 处理文件拖放
 const handleDrop = async (e: DragEvent) => {
   e.preventDefault()
   const files = e.dataTransfer?.files
@@ -224,7 +353,6 @@ const handleInput = () => {
   }
 }
 
-// 修改转换函数
 const handleConvert = () => {
   if (!form.input) {
     form.output = ''
@@ -235,10 +363,8 @@ const handleConvert = () => {
     if (mode.value === 'encode') {
       let encoded: string
       if (currentFileType.value.startsWith('text/') || currentFileType.value === 'application/json') {
-        // 文本文件使用标准编码
         encoded = btoa(unescape(encodeURIComponent(form.input)))
       } else {
-        // 二进制文件直接使用 base64 部分
         encoded = form.input
       }
       form.output = urlSafe.value ? encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') : encoded
@@ -252,6 +378,9 @@ const handleConvert = () => {
       }
       form.output = decodeURIComponent(escape(atob(base64)))
     }
+    
+    // 保存历史记录
+    saveHistory()
   } catch (error) {
     ElMessage.error('转换失败，请检查输入是否正确')
     form.output = ''
@@ -263,7 +392,6 @@ const handleClear = () => {
   form.output = ''
 }
 
-// 复制结果
 const handleCopy = async () => {
   try {
     await copy(form.output)
@@ -273,18 +401,15 @@ const handleCopy = async () => {
   }
 }
 
-// 下载结果
 const handleDownload = () => {
   try {
     let blob: Blob
     let filename: string
 
     if (mode.value === 'encode') {
-      // 编码模式：下载 base64 文本
       blob = new Blob([form.output], { type: 'text/plain' })
       filename = `base64_encoded_${Date.now()}.txt`
     } else {
-      // 解码模式：根据原始文件类型下载
       const mimeType = currentFileType.value || 'application/octet-stream'
       const binary = atob(form.output)
       const bytes = new Uint8Array(binary.length)
@@ -308,19 +433,9 @@ const handleDownload = () => {
   }
 }
 
-// 计算差异结果
-const diffResult = computed(() => {
-  if (!leftText.value && !rightText.value) {
-    return []
-  }
-
-  try {
-    const diff = DiffLib.diffLines(leftText.value, rightText.value)
-    return diff
-  } catch (error) {
-    console.error('Diff error:', error)
-    return []
-  }
+// 在组件挂载时加载历史记录
+onMounted(() => {
+  loadHistory()
 })
 </script>
 
@@ -496,14 +611,79 @@ const diffResult = computed(() => {
     }
   }
 
-  .processing-info {
-    margin-top: 16px;
-    text-align: center;
+  // 历史记录样式
+  .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
 
-    .processing-text {
-      margin-top: 8px;
-      color: var(--el-text-color-secondary);
-      font-size: 14px;
+    .history-search {
+      width: 300px;
+    }
+  }
+
+  .history-list {
+    max-height: 500px;
+    overflow-y: auto;
+
+    .history-items {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 12px;
+      border: 1px solid var(--el-border-color-light);
+      border-radius: 4px;
+      background-color: var(--el-fill-color-blank);
+
+      &:hover {
+        background-color: var(--el-fill-color-light);
+      }
+
+      .history-content {
+        flex: 1;
+        margin-right: 16px;
+
+        .history-mode {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 8px;
+        }
+
+        .history-time {
+          font-size: 12px;
+          color: var(--el-text-color-secondary);
+          margin-bottom: 8px;
+        }
+
+        .history-preview {
+          .preview-input,
+          .preview-output {
+            margin-bottom: 4px;
+            font-size: 13px;
+
+            .preview-label {
+              color: var(--el-text-color-secondary);
+              margin-right: 8px;
+            }
+
+            .preview-text {
+              color: var(--el-text-color-primary);
+            }
+          }
+        }
+      }
+
+      .history-actions {
+        display: flex;
+        gap: 8px;
+      }
     }
   }
 }

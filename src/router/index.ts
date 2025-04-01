@@ -53,7 +53,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'password',
         name: 'Password',
-        component: () => import('../views/crypto/tools/PasswordGenerator.vue'),
+        component: () => import('../views/crypto/password/index.vue'),
         meta: {
           title: '密码生成器'
         }
