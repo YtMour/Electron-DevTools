@@ -17,6 +17,10 @@ const menuConfig: MenuItem[] = [
       {
         path: '/crypto/aes',
         name: 'AES'
+      },
+      {
+        path: '/crypto/des',
+        name: 'DES/3DES'
       }
     ]
   },

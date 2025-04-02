@@ -57,6 +57,14 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '密码生成器'
         }
+      },
+      {
+        path: 'des',
+        name: 'DES',
+        component: () => import('../views/crypto/des/index.vue'),
+        meta: {
+          title: 'DES/3DES 加密'
+        }
       }
     ]
   },

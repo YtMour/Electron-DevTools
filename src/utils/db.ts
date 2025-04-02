@@ -10,7 +10,7 @@ export interface Base64History {
 
 export interface CryptoHistory {
   id?: number
-  tool: 'aes' | 'rsa' | 'hash' | 'password'
+  tool: 'aes' | 'rsa' | 'hash' | 'password' | 'des' | 'triple-des'
   mode: 'encrypt' | 'decrypt' | 'hash' | 'generate'
   input: string
   output: string
@@ -22,6 +22,7 @@ export interface CryptoHistory {
   privateKey?: string
   length?: number
   timestamp: number
+  options?: string
 }
 
 class CryptoDB {
