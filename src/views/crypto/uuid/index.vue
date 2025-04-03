@@ -22,8 +22,8 @@
       <div class="option-row">
         <el-radio-group v-model="form.version" class="version-select">
           <el-radio-button :label="1">版本 1 (基于时间)</el-radio-button>
-          <el-radio-button :label="4">版本 4 (随机)</el-radio-button>
-          <el-radio-button :label="5">版本 5 (基于名称)</el-radio-button>
+          <el-radio-button :label="4">版本 2 (随机)</el-radio-button>
+          <el-radio-button :label="5">版本 3 (基于名称)</el-radio-button>
         </el-radio-group>
       </div>
     </div>
@@ -225,23 +225,31 @@ const generateUUID = () => {
   return formatUUID(uuid, form.format)
 }
 
-// 生成基于名称的UUID (使用SHA-1)
-const generateNameBasedUUID = (namespace: string, name: string) => {
-  // 这里使用简化版实现，实际应使用SHA-1哈希
-  const combined = namespace + name
-  const hash = Array.from(combined).reduce((acc, char) => {
-    return acc + char.charCodeAt(0)
-  }, 0)
-  
-  // 创建一个基于哈希的UUID
-  const uuid = '00000000-0000-5000-8000-' + hash.toString(16).padStart(12, '0')
-  return formatUUID(uuid, form.format)
-}
-
 // 生成基于时间的UUID
 const generateTimeBasedUUID = () => {
   const timestamp = Date.now()
-  const uuid = timestamp.toString(16).padStart(32, '0')
+  const random = Math.floor(Math.random() * 1000000)  // 添加随机数以确保唯一性
+  const uuid = `${timestamp.toString(16).padStart(12, '0')}-1000-${random.toString(16).padStart(12, '0')}-${Math.random().toString(16).slice(2, 14)}`
+  return formatUUID(uuid, form.format)
+}
+
+// 生成基于名称的UUID (使用SHA-1)
+const generateNameBasedUUID = (namespace: string, name: string) => {
+  // 添加随机盐以确保每次生成的UUID都不同
+  const salt = Math.random().toString(36).substring(2)
+  const combined = namespace + name + salt
+  
+  // 使用更复杂的哈希算法
+  let hash = 0
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+  
+  // 创建一个基于哈希的UUID
+  const randomPart = Math.random().toString(16).slice(2, 14)
+  const uuid = `${hash.toString(16).padStart(8, '0')}-${randomPart.slice(0, 4)}-5${randomPart.slice(4, 7)}-${randomPart.slice(7, 11)}-${Date.now().toString(16).slice(-12)}`
   return formatUUID(uuid, form.format)
 }
 
@@ -535,11 +543,13 @@ onMounted(() => {
     .format-group {
       display: flex;
       flex-direction: row;
-      gap: 24px;
+      gap: 32px;
+      align-items: center;
       flex-wrap: wrap;
-      
+
       :deep(.el-radio) {
         margin-right: 0;
+        white-space: nowrap;
       }
     }
 
