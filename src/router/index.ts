@@ -63,7 +63,15 @@ const routes: RouteRecordRaw[] = [
         name: 'DES',
         component: () => import('../views/crypto/des/index.vue'),
         meta: {
-          title: 'DES/3DES 加密'
+          title: 'DES / 3DES 加密'
+        }
+      },
+      {
+        path: 'blowfish',
+        name: 'Blowfish',
+        component: () => import('../views/crypto/blowfish/index.vue'),
+        meta: {
+          title: 'Blowfish 加密'
         }
       }
     ]

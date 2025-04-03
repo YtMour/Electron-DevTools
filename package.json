@@ -25,6 +25,7 @@
     "browser-image-compression": "^2.0.2",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.0",
+    "dexie": "^4.0.11",
     "diff": "^7.0.0",
     "element-plus": "^2.5.0",
     "fast-xml-parser": "^5.0.9",

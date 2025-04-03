@@ -13,4 +13,20 @@ export interface TripleDESOptions extends DESOptions {
   keySize: 128 | 192;
 }
 
-export interface TripleDESResult extends DESResult {} 
+export interface TripleDESResult extends DESResult {}
+
+export interface CryptoHistory {
+  id?: number;
+  type: 'aes' | 'des' | 'blowfish' | 'rsa';
+  mode: 'encrypt' | 'decrypt';
+  input: string;
+  output: string;
+  timestamp: number;
+  config?: {
+    keySize?: number;
+    mode?: string;
+    padding?: string;
+    key?: string;
+    iv?: string;
+  };
+} 

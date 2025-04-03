@@ -28,6 +28,7 @@
           <el-menu-item index="/crypto/aes">AES 加密</el-menu-item>
           <el-menu-item index="/crypto/rsa">RSA 加密</el-menu-item>
           <el-menu-item index="/crypto/des">DES / 3DES 加密</el-menu-item>
+          <el-menu-item index="/crypto/blowfish">Blowfish 加密</el-menu-item>
           <el-menu-item index="/crypto/password">密码生成器</el-menu-item>
         </el-sub-menu>
 
