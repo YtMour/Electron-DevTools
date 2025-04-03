@@ -1,5 +1,6 @@
 import CryptoJS from 'crypto-js'
 import JSEncrypt from 'jsencrypt'
+import { DESUtil } from './crypto/des'
 
 /**
  * Base64相关操作
@@ -304,11 +305,11 @@ export const RSA = {
     try {
       const sign = new JSEncrypt()
       sign.setPrivateKey(privateKey)
-      const signature = sign.sign(message, hashAlgorithm, 'sha256')
-      return signature
+      const signature = sign.sign(message, (str: string) => str, 'sha256')
+      return signature || ''
     } catch (error) {
-      console.error('RSA签名错误:', error)
-      throw new Error('RSA签名失败')
+      console.error('签名失败:', error)
+      return ''
     }
   },
 
@@ -329,9 +330,9 @@ export const RSA = {
     try {
       const verify = new JSEncrypt()
       verify.setPublicKey(publicKey)
-      return verify.verify(message, signature, hashAlgorithm)
+      return verify.verify(message, signature, (str: string) => str)
     } catch (error) {
-      console.error('RSA签名验证错误:', error)
+      console.error('验证失败:', error)
       return false
     }
   }
@@ -422,6 +423,113 @@ export const PasswordGenerator = {
     else if (score >= 50) level = 'medium'
     
     return { score, level }
+  }
+}
+
+export const generatePassword = (
+  length: number,
+  includeUppercase: boolean,
+  includeLowercase: boolean,
+  includeNumbers: boolean,
+  includeSymbols: boolean
+): string => {
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz'
+  const numbers = '0123456789'
+  const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?'
+
+  let charset = ''
+  if (includeUppercase) charset += uppercase
+  if (includeLowercase) charset += lowercase
+  if (includeNumbers) charset += numbers
+  if (includeSymbols) charset += symbols
+
+  if (!charset) {
+    throw new Error('请至少选择一种字符类型')
+  }
+
+  let password = ''
+  const array = new Uint32Array(length)
+  crypto.getRandomValues(array)
+
+  for (let i = 0; i < length; i++) {
+    password += charset[array[i] % charset.length]
+  }
+
+  return password
+}
+
+export const encrypt = async (
+  input: string,
+  key: string,
+  algorithm: string,
+  mode: string,
+  padding: string
+): Promise<string> => {
+  try {
+    switch (algorithm) {
+      case 'AES':
+        return AES.encrypt(input, key, undefined, mode as any)
+      case 'DES':
+        return DESUtil.encrypt(input, key, {
+          mode: mode as any,
+          padding: padding as any
+        }).encrypted
+      case 'RSA':
+        return RSA.encrypt(input, key)
+      default:
+        throw new Error('不支持的加密算法')
+    }
+  } catch (error) {
+    console.error('加密失败:', error)
+    throw error
+  }
+}
+
+export const decrypt = async (
+  input: string,
+  key: string,
+  algorithm: string,
+  mode: string,
+  padding: string
+): Promise<string> => {
+  try {
+    switch (algorithm) {
+      case 'AES':
+        return AES.decrypt(input, key, undefined, mode as any)
+      case 'DES':
+        return DESUtil.decrypt(input, key, {
+          mode: mode as any,
+          padding: padding as any
+        }).decrypted
+      case 'RSA':
+        return RSA.decrypt(input, key)
+      default:
+        throw new Error('不支持的解密算法')
+    }
+  } catch (error) {
+    console.error('解密失败:', error)
+    throw error
+  }
+}
+
+export const hash = async (input: string, algorithm: string): Promise<string> => {
+  try {
+    switch (algorithm.toLowerCase()) {
+      case 'md5':
+        return Hash.md5(input)
+      case 'sha1':
+        return Hash.sha1(input)
+      case 'sha256':
+        return Hash.sha256(input)
+      case 'sha512':
+        return Hash.sha512(input)
+      default:
+        throw new Error('不支持的哈希算法')
+    }
+  } catch (error) {
+    console.error('哈希计算失败:', error)
+    throw error
   }
 }
 

@@ -223,7 +223,7 @@ const saveHistory = async () => {
   
   try {
     await cryptoDB.addHistory({
-      type: 'base64',
+      tool: 'base64',
       mode: mode.value,
       input: form.input,
       output: form.output,

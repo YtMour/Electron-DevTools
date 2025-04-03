@@ -314,7 +314,7 @@ const saveHistory = async () => {
   
   try {
     await cryptoDB.addHistory({
-      type: 'uuid',
+      tool: 'uuid',
       mode: 'generate',
       input: '',
       output: form.output,

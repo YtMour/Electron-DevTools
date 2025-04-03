@@ -192,7 +192,8 @@ import { Upload, Download, DocumentCopy, Timer, Search } from '@element-plus/ico
 import { useClipboard } from '@vueuse/core'
 import type { UploadFile, UploadRawFile } from 'element-plus'
 import CryptoJS from 'crypto-js'
-import { cryptoDB, type CryptoHistory } from '@/utils/db'
+import { cryptoDB, type CryptoHistory, addHistory } from '@/utils/db'
+import { hash } from '@/utils/crypto'
 
 const { copy } = useClipboard()
 const mode = ref<'calculate' | 'verify'>('calculate')
@@ -268,7 +269,7 @@ const handleInput = () => {
   }
 }
 
-const handleCalculate = () => {
+const handleCalculate = async () => {
   if (!form.input) {
     form.output = ''
     return
@@ -276,7 +277,18 @@ const handleCalculate = () => {
 
   try {
     if (mode.value === 'calculate') {
-      form.output = calculateHash(form.input)
+      const result = await hash(form.input, form.algorithm)
+      form.output = result
+      await addHistory({
+        tool: 'hash',
+        mode: 'generate',
+        input: form.input,
+        output: result,
+        timestamp: Date.now(),
+        params: {
+          algorithm: form.algorithm
+        }
+      })
     } else {
       if (!form.hash) {
         ElMessage.warning('请输入要验证的哈希值')
@@ -286,6 +298,7 @@ const handleCalculate = () => {
       form.output = calculatedHash
     }
   } catch (error) {
+    console.error('计算失败:', error)
     ElMessage.error('计算失败')
     form.output = ''
   }
@@ -378,12 +391,16 @@ const useHistory = (item: CryptoHistory) => {
   handleCalculate()
 }
 
-const deleteHistory = async (id: number) => {
+const deleteHistory = async (id: number | undefined) => {
+  if (id === undefined) return;
+  
   try {
-    await cryptoDB.deleteHistory(id)
-    await loadHistory()
+    await cryptoDB.history.delete(id);
+    await loadHistory();
+    ElMessage.success('删除成功');
   } catch (error) {
-    console.error('删除历史记录失败:', error)
+    console.error('删除历史记录失败:', error);
+    ElMessage.error('删除失败');
   }
 }
 

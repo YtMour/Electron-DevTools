@@ -184,7 +184,8 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Refresh, Timer, Search, DocumentCopy, Download, Lock, Warning, InfoFilled, CircleCheckFilled } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
-import { cryptoDB, type CryptoHistory } from '@/utils/db'
+import { cryptoDB, type CryptoHistory, addHistory } from '@/utils/db'
+import { generatePassword } from '@/utils/crypto'
 
 const { copy } = useClipboard()
 
@@ -345,26 +346,26 @@ const handleGenerate = async () => {
   if (!isValid.value) return
   
   try {
-    const charset = getCharset()
-    if (!charset) {
-      ElMessage.warning('请至少选择一种字符类型')
-      return
-    }
-
-    let password = ''
-    const array = new Uint32Array(form.length)
-    crypto.getRandomValues(array)
-    
-    for (let i = 0; i < form.length; i++) {
-      password += charset[array[i] % charset.length]
-    }
-
-    form.output = password
-    await saveHistory()
+    const result = await generatePassword(form.length, form.options.includes('uppercase'), form.options.includes('lowercase'), form.options.includes('numbers'), form.options.includes('symbols'))
+    form.output = result
+    await addHistory({
+      tool: 'password',
+      mode: 'generate',
+      input: '',
+      output: result,
+      timestamp: Date.now(),
+      params: {
+        length: form.length,
+        includeUppercase: form.options.includes('uppercase'),
+        includeLowercase: form.options.includes('lowercase'),
+        includeNumbers: form.options.includes('numbers'),
+        includeSymbols: form.options.includes('symbols')
+      }
+    })
     ElMessage.success('密码生成成功')
   } catch (error) {
-    console.error('生成密码失败:', error)
-    ElMessage.error('生成密码失败')
+    console.error('密码生成失败:', error)
+    ElMessage.error('密码生成失败')
   }
 }
 

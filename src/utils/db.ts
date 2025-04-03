@@ -1,13 +1,15 @@
 import Dexie from 'dexie';
 import type { CryptoHistory } from '../types/crypto';
 
+export type { CryptoHistory };
+
 class CryptoDB extends Dexie {
   history!: Dexie.Table<CryptoHistory, number>;
 
   constructor() {
     super('CryptoDB');
     this.version(1).stores({
-      history: '++id, type, mode, timestamp'
+      history: '++id, tool, mode, timestamp'
     });
   }
 
@@ -18,22 +20,23 @@ class CryptoDB extends Dexie {
     });
   }
 
-  async getHistory(type: string) {
+  async getHistory(tool: string, limit: number = 20) {
     return await this.history
-      .where('type')
-      .equals(type)
+      .where('tool')
+      .equals(tool)
       .reverse()
-      .sortBy('timestamp');
+      .sortBy('timestamp')
+      .then(records => records.slice(0, limit));
   }
 
   async deleteHistory(id: number) {
     return await this.history.delete(id);
   }
 
-  async clearHistory(type: string) {
+  async clearHistory(tool: string) {
     return await this.history
-      .where('type')
-      .equals(type)
+      .where('tool')
+      .equals(tool)
       .delete();
   }
 }
@@ -42,4 +45,21 @@ class CryptoDB extends Dexie {
 const cryptoDB = new CryptoDB();
 
 // 导出实例
-export { cryptoDB }; 
+export { cryptoDB };
+
+export const getHistory = async (tool: string, limit: number = 20): Promise<CryptoHistory[]> => {
+  return await cryptoDB.history
+    .where('tool')
+    .equals(tool)
+    .reverse()
+    .sortBy('timestamp')
+    .then(records => records.slice(0, limit));
+};
+
+export const addHistory = async (record: Omit<CryptoHistory, 'id'>): Promise<number> => {
+  return await cryptoDB.history.add(record);
+};
+
+export const clearHistory = async (tool: string): Promise<void> => {
+  await cryptoDB.history.where('tool').equals(tool).delete();
+}; 

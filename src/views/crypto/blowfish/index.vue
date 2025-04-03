@@ -292,10 +292,10 @@ const handleEncrypt = async () => {
 
     // 保存到历史记录
     await cryptoDB.addHistory({
-      type: 'blowfish',
+      tool: 'blowfish',
       mode: 'encrypt',
       input: form.input,
-      output,
+      output: form.output,
       timestamp: Date.now(),
       config: {
         mode: form.mode,
@@ -335,10 +335,10 @@ const handleDecrypt = async () => {
 
     // 保存到历史记录
     await cryptoDB.addHistory({
-      type: 'blowfish',
+      tool: 'blowfish',
       mode: 'decrypt',
       input: form.input,
-      output,
+      output: form.output,
       timestamp: Date.now(),
       config: {
         mode: form.mode,

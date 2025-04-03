@@ -207,7 +207,8 @@ import { Upload, DocumentCopy, Download, Timer, Search } from '@element-plus/ico
 import { useClipboard } from '@vueuse/core'
 import type { UploadFile, UploadRawFile } from 'element-plus'
 import CryptoJS from 'crypto-js'
-import { cryptoDB, type CryptoHistory } from '@/utils/db'
+import { cryptoDB, type CryptoHistory, addHistory } from '@/utils/db'
+import { encrypt, decrypt } from '@/utils/crypto'
 
 const { copy } = useClipboard()
 const mode = ref<'encrypt' | 'decrypt'>('encrypt')
@@ -385,7 +386,7 @@ const saveHistory = async () => {
   if (!form.input || !form.output) return
   
   try {
-    await cryptoDB.addHistory({
+    await addHistory({
       tool: 'aes',
       mode: mode.value,
       input: form.input,
@@ -412,12 +413,16 @@ const useHistory = (item: CryptoHistory) => {
   handleProcess()
 }
 
-const deleteHistory = async (id: number) => {
+const deleteHistory = async (id: number | undefined) => {
+  if (id === undefined) return;
+  
   try {
-    await cryptoDB.deleteHistory(id)
-    await loadHistory()
+    await cryptoDB.history.delete(id);
+    await loadHistory();
+    ElMessage.success('删除成功');
   } catch (error) {
-    console.error('删除历史记录失败:', error)
+    console.error('删除历史记录失败:', error);
+    ElMessage.error('删除失败');
   }
 }
 

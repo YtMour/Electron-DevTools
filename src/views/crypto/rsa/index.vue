@@ -249,7 +249,8 @@ import { Upload, Download, DocumentCopy, Timer, Search } from '@element-plus/ico
 import { useClipboard } from '@vueuse/core'
 import type { UploadFile, UploadRawFile } from 'element-plus'
 import JSEncrypt from 'jsencrypt'
-import { cryptoDB, type CryptoHistory } from '@/utils/db'
+import { cryptoDB, type CryptoHistory, addHistory } from '@/utils/db'
+import { encrypt, decrypt } from '@/utils/crypto'
 
 const { copy } = useClipboard()
 const mode = ref<'encrypt' | 'decrypt' | 'generate'>('encrypt')
@@ -323,12 +324,15 @@ const useHistory = (item: CryptoHistory) => {
   handleConvert()
 }
 
-const deleteHistory = async (id: number) => {
+const deleteHistory = async (id: number | undefined) => {
+  if (id === undefined) return
   try {
-    await cryptoDB.deleteHistory(id)
+    await cryptoDB.history.delete(id)
     await loadHistory()
+    ElMessage.success('删除成功')
   } catch (error) {
-    console.error('删除历史记录失败:', error)
+    console.error('删除失败:', error)
+    ElMessage.error('删除失败')
   }
 }
 
@@ -524,6 +528,60 @@ const handleDownloadPrivate = () => {
     URL.revokeObjectURL(url)
   } catch (error) {
     ElMessage.error('下载失败')
+  }
+}
+
+const handleConvert = () => {
+  if (mode.value === 'encrypt') {
+    handleEncrypt()
+  } else {
+    handleDecrypt()
+  }
+}
+
+const handleEncrypt = async () => {
+  try {
+    const result = await encrypt(form.input, form.publicKey, 'RSA', '', '')
+    form.output = result
+    await addHistory({
+      tool: 'rsa',
+      mode: 'encrypt',
+      input: form.input,
+      output: result,
+      timestamp: Date.now(),
+      params: {
+        keySize: form.keySize,
+        publicKey: form.publicKey,
+        privateKey: form.privateKey
+      }
+    })
+    ElMessage.success('加密成功')
+  } catch (error) {
+    console.error('加密失败:', error)
+    ElMessage.error('加密失败')
+  }
+}
+
+const handleDecrypt = async () => {
+  try {
+    const result = await decrypt(form.input, form.privateKey, 'RSA', '', '')
+    form.output = result
+    await addHistory({
+      tool: 'rsa',
+      mode: 'decrypt',
+      input: form.input,
+      output: result,
+      timestamp: Date.now(),
+      params: {
+        keySize: form.keySize,
+        publicKey: form.publicKey,
+        privateKey: form.privateKey
+      }
+    })
+    ElMessage.success('解密成功')
+  } catch (error) {
+    console.error('解密失败:', error)
+    ElMessage.error('解密失败')
   }
 }
 
