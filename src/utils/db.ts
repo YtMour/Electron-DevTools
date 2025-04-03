@@ -38,4 +38,8 @@ class CryptoDB extends Dexie {
   }
 }
 
-export const cryptoDB = new CryptoDB(); 
+// 创建单例实例
+const cryptoDB = new CryptoDB();
+
+// 导出实例
+export { cryptoDB }; 

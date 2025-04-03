@@ -17,16 +17,21 @@ export interface TripleDESResult extends DESResult {}
 
 export interface CryptoHistory {
   id?: number;
-  type: 'aes' | 'des' | 'blowfish' | 'rsa';
-  mode: 'encrypt' | 'decrypt';
+  type: 'aes' | 'des' | 'blowfish' | 'rsa' | 'uuid' | 'password' | 'base64';
+  mode: 'encrypt' | 'decrypt' | 'generate' | 'encode' | 'decode';
   input: string;
   output: string;
   timestamp: number;
+  fileType?: string;
+  urlSafe?: boolean;
   config?: {
     keySize?: number;
     mode?: string;
     padding?: string;
     key?: string;
     iv?: string;
+    length?: number;
+    version?: number;
+    format?: string;
   };
 } 

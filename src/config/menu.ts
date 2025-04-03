@@ -19,8 +19,24 @@ const menuConfig: MenuItem[] = [
         name: 'AES'
       },
       {
+        path: '/crypto/rsa',
+        name: 'RSA'
+      },
+      {
         path: '/crypto/des',
         name: 'DES/3DES'
+      },
+      {
+        path: '/crypto/blowfish',
+        name: 'Blowfish'
+      },
+      {
+        path: '/crypto/uuid',
+        name: 'UUID'
+      },
+      {
+        path: '/crypto/password',
+        name: '密码生成器'
       }
     ]
   },

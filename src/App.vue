@@ -18,39 +18,21 @@
           <template #title>首页</template>
         </el-menu-item>
 
-        <el-sub-menu index="/crypto">
-          <template #title>
-            <el-icon><Lock /></el-icon>
-            <span>加密解密工具</span>
-          </template>
-          <el-menu-item index="/crypto/base64">Base64 编解码</el-menu-item>
-          <el-menu-item index="/crypto/hash">Hash 计算器</el-menu-item>
-          <el-menu-item index="/crypto/aes">AES 加密</el-menu-item>
-          <el-menu-item index="/crypto/rsa">RSA 加密</el-menu-item>
-          <el-menu-item index="/crypto/des">DES / 3DES 加密</el-menu-item>
-          <el-menu-item index="/crypto/blowfish">Blowfish 加密</el-menu-item>
-          <el-menu-item index="/crypto/password">密码生成器</el-menu-item>
-        </el-sub-menu>
-
-        <el-sub-menu index="/format">
-          <template #title>
-            <el-icon><Document /></el-icon>
-            <span>格式转换工具</span>
-          </template>
-          <el-menu-item index="/format/json">JSON 格式化</el-menu-item>
-          <el-menu-item index="/format/xml">XML/JSON 转换</el-menu-item>
-          <el-menu-item index="/format/yaml">YAML/JSON 转换</el-menu-item>
-          <el-menu-item index="/format/csv">CSV/JSON 转换</el-menu-item>
-        </el-sub-menu>
-
-        <el-sub-menu index="/file">
-          <template #title>
-            <el-icon><Folder /></el-icon>
-            <span>文件处理工具</span>
-          </template>
-          <el-menu-item index="/file/image">图片转换</el-menu-item>
-          <el-menu-item index="/file/pdf">PDF 处理</el-menu-item>
-        </el-sub-menu>
+        <template v-for="menu in menuConfig" :key="menu.path">
+          <el-sub-menu :index="menu.path">
+            <template #title>
+              <el-icon><component :is="menu.icon" /></el-icon>
+              <span>{{ menu.name }}</span>
+            </template>
+            <el-menu-item 
+              v-for="item in menu.children" 
+              :key="item.path" 
+              :index="item.path"
+            >
+              {{ item.name }}
+            </el-menu-item>
+          </el-sub-menu>
+        </template>
       </el-menu>
 
       <div class="app-footer" :class="{ 'collapsed': isCollapse }">
@@ -124,6 +106,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import menuConfig from '@/config/menu'
 import {
   HomeFilled,
   Lock,

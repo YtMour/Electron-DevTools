@@ -157,7 +157,7 @@
               <el-button type="primary" link @click="useHistory(item)">
                 使用
               </el-button>
-              <el-button type="danger" link @click="deleteHistory(item.id!)">
+              <el-button type="danger" link @click="deleteHistory(item.id)">
                 删除
               </el-button>
             </div>
@@ -175,7 +175,8 @@ import { Upload, Download, DocumentCopy, Delete, Timer, Search } from '@element-
 import { useClipboard } from '@vueuse/core'
 import type { UploadFile, UploadRawFile } from 'element-plus'
 import * as DiffLib from 'diff'
-import { base64DB, type Base64History } from '@/utils/db'
+import { cryptoDB } from '@/utils/db'
+import type { CryptoHistory } from '@/types/crypto'
 
 const { copy } = useClipboard()
 const mode = ref<'encode' | 'decode'>('encode')
@@ -194,7 +195,7 @@ const progress = ref(0)
 const chunkSize = 1024 * 1024 // 1MB chunks
 
 // 历史记录相关的响应式变量
-const history = ref<Base64History[]>([])
+const history = ref<CryptoHistory[]>([])
 const showHistory = ref(false)
 const historySearch = ref('')
 
@@ -211,7 +212,7 @@ const filteredHistory = computed(() => {
 // 历史记录相关的方法
 const loadHistory = async () => {
   try {
-    history.value = await base64DB.getHistory()
+    history.value = await cryptoDB.getHistory('base64')
   } catch (error) {
     console.error('加载历史记录失败:', error)
   }
@@ -221,7 +222,8 @@ const saveHistory = async () => {
   if (!form.input || !form.output) return
   
   try {
-    await base64DB.addHistory({
+    await cryptoDB.addHistory({
+      type: 'base64',
       mode: mode.value,
       input: form.input,
       output: form.output,
@@ -235,31 +237,42 @@ const saveHistory = async () => {
   }
 }
 
-const useHistory = (item: Base64History) => {
-  mode.value = item.mode
+const useHistory = (item: CryptoHistory) => {
+  if (item.mode === 'encode' || item.mode === 'decode') {
+    mode.value = item.mode
+  }
   form.input = item.input
   form.output = item.output
   currentFileType.value = item.fileType || ''
-  urlSafe.value = item.urlSafe
+  urlSafe.value = item.urlSafe || false
   showHistory.value = false
   handleConvert()
 }
 
-const deleteHistory = async (id: number) => {
+const deleteHistory = async (id: number | undefined) => {
+  if (id === undefined) {
+    ElMessage.error('无效的记录ID')
+    return
+  }
+  
   try {
-    await base64DB.deleteHistory(id)
+    await cryptoDB.deleteHistory(id)
     await loadHistory()
+    ElMessage.success('删除成功')
   } catch (error) {
     console.error('删除历史记录失败:', error)
+    ElMessage.error('删除失败')
   }
 }
 
 const clearHistory = async () => {
   try {
-    await base64DB.clearHistory()
+    await cryptoDB.clearHistory('base64')
     history.value = []
+    ElMessage.success('清空成功')
   } catch (error) {
     console.error('清空历史记录失败:', error)
+    ElMessage.error('清空失败')
   }
 }
 

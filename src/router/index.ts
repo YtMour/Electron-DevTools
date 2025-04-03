@@ -59,6 +59,14 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'uuid',
+        name: 'UUID',
+        component: () => import('../views/crypto/uuid/index.vue'),
+        meta: {
+          title: 'UUID 生成器'
+        }
+      },
+      {
         path: 'des',
         name: 'DES',
         component: () => import('../views/crypto/des/index.vue'),
