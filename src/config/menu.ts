@@ -60,6 +60,10 @@ const menuConfig: MenuItem[] = [
       {
         path: '/format/csv',
         name: 'CSV'
+      },
+      {
+        path: '/format/toml',
+        name: 'TOML'
       }
     ]
   },

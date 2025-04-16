@@ -1,3 +1,6 @@
+// 导入Node.js polyfill
+import './polyfills/global'
+
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
