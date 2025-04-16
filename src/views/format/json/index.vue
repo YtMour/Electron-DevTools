@@ -68,14 +68,14 @@
               <el-icon class="drop-icon"><Upload /></el-icon>
               <span>释放文件以上传</span>
             </div>
-            <el-input
-              v-model="input"
-              type="textarea"
-              :rows="15"
-              :placeholder="'请输入要处理的 JSON 文本，或拖放文件到此处'"
-              @input="handleInput"
-              resize="none"
-            />
+            <div class="monaco-wrapper">
+              <MonacoEditor
+                v-model:value="input"
+                language="json"
+                theme="vs-dark"
+                @change="handleInput"
+              />
+            </div>
           </div>
           <div class="editor-footer">
             <span>字符数：{{ input.length }}</span>
@@ -121,14 +121,14 @@
             </div>
           </div>
           <div class="editor-area output-area">
-            <el-input
-              v-model="output"
-              type="textarea"
-              :rows="15"
-              readonly
-              resize="none"
-              :placeholder="'处理结果将显示在这里'"
-            />
+            <div class="monaco-wrapper">
+              <MonacoEditor
+                v-model:value="output"
+                language="json"
+                theme="vs-dark"
+                :options="{ readOnly: true }"
+              />
+            </div>
           </div>
           <div class="editor-footer">
             <span>字符数：{{ output.length }}</span>
@@ -208,6 +208,7 @@ import {
 import { useClipboard } from '@vueuse/core'
 import type { UploadFile, UploadRawFile } from 'element-plus'
 import { formattedJsonExample, compressedJsonExample } from '@/utils/json-example'
+import MonacoEditor from '@/components/MonacoEditor.vue'
 
 const { copy } = useClipboard()
 const mode = ref<'format' | 'compress'>('format')
@@ -388,18 +389,54 @@ const handleDownload = () => {
 }
 </script>
 
-<style lang="scss">
-// 应用公共样式，添加特定于JSON页面的样式
+<style lang="scss" scoped>
 .json-page {
   // 编辑器容器样式优化
   .editor-container {
+    display: flex;
+    align-items: stretch;
+    flex: 1;
+    height: calc(100vh - 220px);
+
     .editor-section {
       max-width: 48%;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
     
     .editor-actions {
       padding: 0 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
+
+  .page-content {
+    display: flex;
+    height: calc(100vh - 160px);
+  }
+}
+
+.monaco-wrapper {
+  height: 100%;
+  width: 100%;
+  min-height: 400px;
+  overflow: hidden;
+  border-radius: 4px;
+  border: 1px solid var(--el-border-color-light);
+  flex: 1;
+}
+
+.editor-area {
+  flex: 1;
+  display: flex;
+  height: 100%;
+}
+
+.editor-header,
+.editor-footer {
+  flex-shrink: 0;
 }
 </style> 

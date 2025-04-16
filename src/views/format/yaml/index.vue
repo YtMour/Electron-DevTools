@@ -76,14 +76,14 @@
               <el-icon class="drop-icon"><Upload /></el-icon>
               <span>释放文件以上传</span>
             </div>
-            <el-input
-              v-model="input"
-              type="textarea"
-              :rows="15"
-              :placeholder="getInputPlaceholder()"
-              @input="handleInputChange"
-              resize="none"
-            />
+            <div class="monaco-wrapper">
+              <MonacoEditor
+                v-model:value="input"
+                :language="getInputLanguage()"
+                theme="vs-dark"
+                @change="handleInput"
+              />
+            </div>
           </div>
           <div class="editor-footer">
             <span>字符数：{{ input.length }}</span>
@@ -129,14 +129,14 @@
             </div>
           </div>
           <div class="editor-area output-area">
-            <el-input
-              v-model="output"
-              type="textarea"
-              :rows="15"
-              readonly
-              resize="none"
-              :placeholder="getOutputPlaceholder()"
-            />
+            <div class="monaco-wrapper">
+              <MonacoEditor
+                v-model:value="output"
+                :language="getOutputLanguage()"
+                theme="vs-dark"
+                :options="{ readOnly: true }"
+              />
+            </div>
           </div>
           <div class="editor-footer">
             <span>字符数：{{ output.length }}</span>
@@ -210,6 +210,7 @@ import { useClipboard } from '@vueuse/core'
 import type { UploadFile } from 'element-plus'
 import { yaml2json, json2yaml, isValidYaml, isValidJson } from '@/utils/yaml'
 import { yamlExample, compressedYamlExample, jsonForYamlExample } from '@/utils/yaml-example'
+import MonacoEditor from '@/components/MonacoEditor.vue'
 
 const { copy } = useClipboard()
 const mode = ref<'format' | 'compress' | 'yaml2json' | 'json2yaml'>('format')
@@ -309,6 +310,35 @@ const getOutputPlaceholder = () => {
   }
 }
 
+// 获取输入语言
+const getInputLanguage = () => {
+  switch (mode.value) {
+    case 'format':
+    case 'compress':
+    case 'yaml2json':
+      return 'yaml'
+    case 'json2yaml':
+      return 'json'
+    default:
+      return 'yaml'
+  }
+}
+
+// 获取输出语言
+const getOutputLanguage = () => {
+  switch (mode.value) {
+    case 'format':
+    case 'compress':
+      return 'yaml'
+    case 'yaml2json':
+      return 'json'
+    case 'json2yaml':
+      return 'yaml'
+    default:
+      return 'yaml'
+  }
+}
+
 // 获取操作按钮文本
 const getActionButtonText = () => {
   switch (mode.value) {
@@ -342,7 +372,7 @@ const getActionTooltip = () => {
 }
 
 // 处理输入变化
-const handleInputChange = () => {
+const handleInput = () => {
   if (options.liveConversion) {
     handleProcess()
   }
@@ -513,18 +543,54 @@ const handleDownloadOutput = () => {
 }
 </script>
 
-<style lang="scss">
-// 应用公共样式，添加特定于YAML页面的样式
+<style lang="scss" scoped>
 .yaml-page {
   // 编辑器容器样式优化
   .editor-container {
+    display: flex;
+    align-items: stretch;
+    flex: 1;
+    height: calc(100vh - 220px);
+
     .editor-section {
       max-width: 48%;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
     
     .editor-actions {
       padding: 0 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
+
+  .page-content {
+    display: flex;
+    height: calc(100vh - 160px);
+  }
+}
+
+.monaco-wrapper {
+  height: 100%;
+  width: 100%;
+  min-height: 400px;
+  overflow: hidden;
+  border-radius: 4px;
+  border: 1px solid var(--el-border-color-light);
+  flex: 1;
+}
+
+.editor-area {
+  flex: 1;
+  display: flex;
+  height: 100%;
+}
+
+.editor-header,
+.editor-footer {
+  flex-shrink: 0;
 }
 </style> 

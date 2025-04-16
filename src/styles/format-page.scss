@@ -66,21 +66,21 @@
 
   .page-content {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     flex: 1;
     overflow: hidden;
   }
   
   .editor-container {
     display: flex;
-    flex: 1;
-    gap: 10px;
+    flex: 1 1 auto;
+    gap: 8px;
     min-width: 0;
     overflow: hidden;
   }
   
   .editor-section {
-    flex: 1;
+    flex: 1 1 0%;
     display: flex;
     flex-direction: column;
     background-color: var(--el-bg-color-page);
@@ -194,6 +194,7 @@
     overflow: hidden;
     padding: 0;
     display: flex;
+    min-height: 400px;
   
     &.drag-over {
       background-color: var(--el-fill-color-light);
@@ -278,9 +279,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 0 6px;
+    padding: 0 4px;
     flex-shrink: 0;
-    min-width: 36px;
+    min-width: 32px;
     
     .el-button {
       transition: all 0.3s ease;
@@ -292,25 +293,21 @@
   }
   
   .options-panel {
-    min-width: 250px;
-    padding: 12px 10px;
+    flex: 0 0 170px;
+    padding: 10px 8px;
     border-left: 1px solid var(--el-border-color-light);
     background-color: var(--el-bg-color-page);
     overflow-y: auto;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
     border-radius: 8px;
   
-    .panel-section {
-      &:not(:last-child) {
-        margin-bottom: 12px;
-        padding-bottom: 12px;
-        border-bottom: 1px solid var(--el-border-color-lighter);
-      }
+    .el-form-item {
+      margin-bottom: 8px;
     }
   
     .section-title {
-      font-size: 13px;
-      margin-bottom: 8px;
+      font-size: 12px;
+      margin-bottom: 6px;
       color: var(--el-text-color-regular);
       font-weight: 500;
       display: flex;
@@ -335,7 +332,7 @@
     }
     
     .el-form {
-      padding: 12px;
+      padding: 10px 8px;
       flex: 1;
       overflow-y: auto;
       
@@ -352,7 +349,7 @@
         }
         
         span {
-          font-size: 13px;
+          font-size: 12px;
         }
       }
     }
@@ -362,13 +359,13 @@
       border-top: 1px solid var(--el-border-color-light);
       
       .help-header {
-        padding: 10px 12px;
+        padding: 8px 10px;
         font-weight: 600;
         display: flex;
         align-items: center;
         gap: 6px;
         color: var(--el-text-color-primary);
-        font-size: 13px;
+        font-size: 12px;
         
         .el-icon {
           color: var(--el-color-info);
@@ -377,19 +374,19 @@
       }
       
       .help-content {
-        padding: 0 12px 12px;
+        padding: 0 6px 6px;
         
         p {
-          margin: 6px 0;
+          margin: 4px 0;
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 4px;
           color: var(--el-text-color-secondary);
-          font-size: 13px;
+          font-size: 12px;
           
           .el-icon {
             color: var(--el-color-success);
-            font-size: 14px;
+            font-size: 12px;
           }
         }
       }
@@ -493,6 +490,50 @@
     &:not(.is-disabled):hover {
       background-color: var(--el-color-primary-light-3) !important;
       border-color: var(--el-color-primary-light-3) !important;
+    }
+  }
+}
+
+.monaco-wrapper {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  
+  /* 确保Monaco编辑器正确填充容器 */
+  :deep(.monaco-editor-container) {
+    flex: 1;
+    height: 100% !important;
+    width: 100% !important;
+  }
+  
+  /* 确保编辑器实例填充整个容器 */
+  :deep(.monaco-editor) {
+    width: 100% !important;
+    height: 100% !important;
+    
+    /* 减小行号区域宽度 */
+    :deep(.margin-view-overlays) {
+      width: auto !important;
+    }
+    
+    /* 减小行号间距 */
+    :deep(.line-numbers) {
+      font-size: 12px !important;
+      padding-right: 2px !important;
+      min-width: 2ch !important;
+    }
+    
+    /* 优化编辑区域内边距 */
+    :deep(.monaco-scrollable-element) {
+      left: 0 !important;
+    }
+    
+    /* 调整编辑区域 */
+    :deep(.lines-content) {
+      padding-left: 16px !important;
     }
   }
 } 

@@ -87,8 +87,24 @@ export default defineConfig({
               id.includes('node_modules/diff')) {
             return 'format'
           }
+          // monaco-editor相关
+          if (id.includes('node_modules/monaco-editor')) {
+            return 'monaco-editor'
+          }
         }
       }
     }
   },
+  // 添加Monaco Editor worker文件处理配置
+  optimizeDeps: {
+    include: ['monaco-editor'],
+    exclude: []
+  },
+  server: {
+    // 解决开发环境下的CORS问题
+    headers: {
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Opener-Policy': 'same-origin',
+    },
+  }
 })

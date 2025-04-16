@@ -76,14 +76,14 @@
               <el-icon class="drop-icon"><Upload /></el-icon>
               <span>释放文件以上传</span>
             </div>
-            <el-input
-              v-model="input"
-              type="textarea"
-              :rows="15"
-              :placeholder="getInputPlaceholder()"
-              @input="handleInputChange"
-              resize="none"
-            />
+            <div class="monaco-wrapper">
+              <MonacoEditor
+                v-model:value="input"
+                :language="getInputLanguage()"
+                theme="vs-dark"
+                @change="handleInput"
+              />
+            </div>
           </div>
           <div class="editor-footer">
             <span>字符数：{{ input.length }}</span>
@@ -129,14 +129,14 @@
             </div>
           </div>
           <div class="editor-area output-area">
-            <el-input
-              v-model="output"
-              type="textarea"
-              :rows="15"
-              readonly
-              resize="none"
-              :placeholder="getOutputPlaceholder()"
-            />
+            <div class="monaco-wrapper">
+              <MonacoEditor
+                v-model:value="output"
+                :language="getOutputLanguage()"
+                theme="vs-dark"
+                :options="{ readOnly: true }"
+              />
+            </div>
           </div>
           <div class="editor-footer">
             <span>字符数：{{ output.length }}</span>
@@ -252,6 +252,7 @@ import { csv2json, json2csv, isValidCsv, isValidJson } from '@/utils/csv'
 import { formatJson, compressJson } from '@/utils/json'
 // 导入示例数据
 import { csvExample, jsonExample } from '@/utils/csv-example'
+import MonacoEditor from '@/components/MonacoEditor.vue'
 
 const { copy } = useClipboard()
 const mode = ref<'format' | 'compress' | 'csv2json' | 'json2csv'>('format')
@@ -349,40 +350,37 @@ const getOutputPlaceholder = () => {
   }
 }
 
-// 获取操作按钮文本
-const getActionButtonText = () => {
+// 获取输入语言
+const getInputLanguage = () => {
   switch (mode.value) {
     case 'format':
-      return '格式化'
     case 'compress':
-      return '压缩'
-    case 'csv2json':
-      return 'CSV 转 JSON'
     case 'json2csv':
-      return 'JSON 转 CSV'
+      return 'json'
+    case 'csv2json':
+      return 'csv'
     default:
-      return '处理'
+      return 'plaintext'
   }
 }
 
-// 获取操作提示文本
-const getActionTooltip = () => {
+// 获取输出语言
+const getOutputLanguage = () => {
   switch (mode.value) {
     case 'format':
-      return '格式化'
     case 'compress':
-      return '压缩'
+      return 'plaintext'
     case 'csv2json':
-      return 'CSV 转 JSON'
+      return 'json'
     case 'json2csv':
-      return 'JSON 转 CSV'
+      return 'csv'
     default:
-      return '处理'
+      return 'plaintext'
   }
 }
 
 // 处理输入变化
-const handleInputChange = () => {
+const handleInput = () => {
   if (options.liveConversion) {
     handleProcess()
   }
@@ -593,20 +591,88 @@ function detectDelimiter(csvStr: string): string {
   
   return bestDelimiter
 }
+
+// 获取操作按钮文本
+const getActionButtonText = () => {
+  switch (mode.value) {
+    case 'format':
+      return '格式化'
+    case 'compress':
+      return '压缩'
+    case 'csv2json':
+      return 'CSV 转 JSON'
+    case 'json2csv':
+      return 'JSON 转 CSV'
+    default:
+      return '处理'
+  }
+}
+
+// 获取操作提示文本
+const getActionTooltip = () => {
+  switch (mode.value) {
+    case 'format':
+      return '格式化'
+    case 'compress':
+      return '压缩'
+    case 'csv2json':
+      return 'CSV 转 JSON'
+    case 'json2csv':
+      return 'JSON 转 CSV'
+    default:
+      return '处理'
+  }
+}
 </script>
 
-<style lang="scss">
-// 应用公共样式，添加特定于CSV页面的样式
+<style lang="scss" scoped>
 .csv-page {
   // 编辑器容器样式优化
   .editor-container {
+    display: flex;
+    align-items: stretch;
+    flex: 1;
+    height: calc(100vh - 220px);
+
     .editor-section {
       max-width: 48%;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
     
     .editor-actions {
       padding: 0 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
+
+  .page-content {
+    display: flex;
+    height: calc(100vh - 160px);
+  }
+}
+
+.monaco-wrapper {
+  height: 100%;
+  width: 100%;
+  min-height: 400px;
+  overflow: hidden;
+  border-radius: 4px;
+  border: 1px solid var(--el-border-color-light);
+  flex: 1;
+}
+
+.editor-area {
+  flex: 1;
+  display: flex;
+  height: 100%;
+}
+
+.editor-header,
+.editor-footer {
+  flex-shrink: 0;
 }
 </style> 
