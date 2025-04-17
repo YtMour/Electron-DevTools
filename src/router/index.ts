@@ -129,7 +129,7 @@ const routes: RouteRecordRaw[] = [
         name: 'TOML',
         component: () => import('../views/format/toml/index.vue'),
         meta: {
-          title: 'TOML 格式转换'
+          title: 'TOML 转换工具'
         }
       }
     ]

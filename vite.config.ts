@@ -39,7 +39,13 @@ export default defineConfig({
       '@shared': resolve(__dirname, 'src/shared'),
       '@assets': resolve(__dirname, 'src/assets'),
       '@styles': resolve(__dirname, 'src/styles'),
+      'stream': resolve(__dirname, 'src/polyfills/stream.ts'),
+      'events': resolve(__dirname, 'src/polyfills/events.ts'),
     },
+  },
+  // 添加Node.js变量的polyfill
+  define: {
+    global: 'window',
   },
   css: {
     preprocessorOptions: {
@@ -84,7 +90,9 @@ export default defineConfig({
           }
           // 格式化相关
           if (id.includes('node_modules/fast-xml-parser') ||
-              id.includes('node_modules/diff')) {
+              id.includes('node_modules/diff') ||
+              id.includes('node_modules/@iarna/toml') ||
+              id.includes('node_modules/js-yaml')) {
             return 'format'
           }
           // monaco-editor相关
@@ -106,5 +114,10 @@ export default defineConfig({
       'Cross-Origin-Embedder-Policy': 'require-corp',
       'Cross-Origin-Opener-Policy': 'same-origin',
     },
+  },
+  // Node.js API polyfill设置
+  ssr: {
+    // 声明哪些模块是外部的，不需要打包
+    noExternal: [/@iarna\/toml/, /js-yaml/]
   }
 })
