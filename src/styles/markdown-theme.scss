@@ -1,0 +1,26 @@
+// Markdown主题样式（包括暗色模式）
+
+// 暗色模式全局样式
+.dark-mode {
+  .markdown-page {
+    .preview-area .preview-content {
+      pre, code {
+        background-color: #2d2d2d;
+      }
+      
+      blockquote {
+        border-left-color: #555;
+      }
+      
+      table {
+        th {
+          background-color: #2d2d2d;
+        }
+        
+        tr:nth-child(even) {
+          background-color: #333;
+        }
+      }
+    }
+  }
+} 

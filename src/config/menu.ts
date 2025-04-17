@@ -64,6 +64,10 @@ const menuConfig: MenuItem[] = [
       {
         path: '/format/toml',
         name: 'TOML'
+      },
+      {
+        path: '/format/markdown',
+        name: 'Markdown'
       }
     ]
   },

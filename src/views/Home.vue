@@ -39,7 +39,7 @@
             </div>
           </template>
           <div class="card-content">
-            <p>支持 JSON、XML、YAML 等格式的转换和格式化</p>
+            <p>支持 JSON、XML、YAML、CSV、TOML 和 Markdown 等格式的转换和格式化</p>
           </div>
         </el-card>
       </el-col>
