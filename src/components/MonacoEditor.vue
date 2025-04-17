@@ -119,6 +119,40 @@ onMounted(() => {
       }
     });
   }
+  
+  // 注册TOML语言支持
+  if (!monaco.languages.getLanguages().some(lang => lang.id === 'toml')) {
+    monaco.languages.register({ id: 'toml' });
+    monaco.languages.setMonarchTokensProvider('toml', {
+      tokenizer: {
+        root: [
+          // 键值对
+          [/^[\t ]*[A-Za-z_\-0-9.]+\s*=/, 'keyword'],
+          // 段落标题 [section] 或 [[array]]
+          [/^\s*\[\[?[^\]]+\]\]?/, 'keyword.section'],
+          // 字符串
+          [/"(?:\\.|[^"\\])*"/, 'string'],
+          [/'(?:\\.|[^'\\])*'/, 'string'],
+          [/"""[\s\S]*?"""/, 'string.multiline'],
+          [/'''[\s\S]*?'''/, 'string.multiline'],
+          // 数值
+          [/(?:true|false)/, 'keyword.constant'],
+          [/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})/, 'number.date'],
+          [/\d{4}-\d{2}-\d{2}/, 'number.date'],
+          [/\d{2}:\d{2}:\d{2}(?:\.\d+)?/, 'number.date'],
+          [/[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/, 'number'],
+          [/0x[0-9a-fA-F]+/, 'number.hex'],
+          [/0o[0-7]+/, 'number.octal'],
+          [/0b[01]+/, 'number.binary'],
+          // 数组
+          [/\[/, 'delimiter.array'],
+          [/\]/, 'delimiter.array'],
+          // 注释
+          [/#.*$/, 'comment'],
+        ]
+      }
+    });
+  }
 
   // 设置默认选项
   const defaultOptions = {
