@@ -14,7 +14,8 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "setup:toml": "npm i && npm run dev"
   },
   "dependencies": {
     "@codemirror/basic-setup": "^0.20.0",
@@ -40,6 +41,7 @@
     "element-plus": "^2.5.0",
     "fast-xml-parser": "^5.0.9",
     "highlight.js": "^11.11.1",
+    "js-yaml": "^4.1.0",
     "jsencrypt": "^3.3.2",
     "lodash-es": "^4.17.0",
     "monaco-editor": "^0.52.2",

@@ -123,6 +123,14 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'CSV/JSON 转换'
         }
+      },
+      {
+        path: 'toml',
+        name: 'TOML',
+        component: () => import('../views/format/toml/index.vue'),
+        meta: {
+          title: 'TOML 格式转换'
+        }
       }
     ]
   },
