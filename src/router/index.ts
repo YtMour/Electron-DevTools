@@ -131,6 +131,14 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'TOML 转换工具'
         }
+      },
+      {
+        path: 'markdown',
+        name: 'Markdown',
+        component: () => import('../views/format/markdown/index.vue'),
+        meta: {
+          title: 'Markdown 转换'
+        }
       }
     ]
   },

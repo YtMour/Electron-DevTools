@@ -77,6 +77,7 @@
     gap: 8px;
     min-width: 0;
     overflow: hidden;
+    max-height: 100%;
   }
   
   .editor-section {
@@ -89,6 +90,7 @@
     overflow: hidden;
     transition: all 0.3s;
     min-width: 0;
+    max-height: 100%;
   
     &.input-section {
       border-left: 4px solid var(--el-color-primary);
@@ -106,6 +108,9 @@
     padding: 10px 12px;
     background-color: var(--el-bg-color);
     border-bottom: 1px solid var(--el-border-color-light);
+    flex-shrink: 0;
+    min-height: 42px;
+    z-index: 2;
   
     .editor-title {
       font-weight: 600;
@@ -194,7 +199,8 @@
     overflow: hidden;
     padding: 0;
     display: flex;
-    min-height: 400px;
+    min-height: 0;
+    max-height: calc(100% - 78px);
   
     &.drag-over {
       background-color: var(--el-fill-color-light);
@@ -272,6 +278,10 @@
     font-size: 12px;
     display: flex;
     justify-content: flex-end;
+    flex-shrink: 0;
+    min-height: 30px;
+    z-index: 2;
+    background-color: var(--el-bg-color);
   }
   
   .editor-actions {
@@ -495,45 +505,243 @@
 }
 
 .monaco-wrapper {
-  height: 100%;
   width: 100%;
+  height: 100%;
   overflow: hidden;
   flex: 1;
   display: flex;
+  border-radius: 0;
+  border: none;
+}
+
+.editor-footer {
+  padding: 6px 12px;
+  border-top: 1px solid var(--el-border-color-light);
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  min-height: 30px;
+  z-index: 2;
+  background-color: var(--el-bg-color);
+}
+
+.editor-actions {
+  display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 4px;
+  flex-shrink: 0;
+  min-width: 32px;
   
-  /* 确保Monaco编辑器正确填充容器 */
-  :deep(.monaco-editor-container) {
-    flex: 1;
-    height: 100% !important;
-    width: 100% !important;
+  .el-button {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.options-panel {
+  flex: 0 0 170px;
+  padding: 10px 8px;
+  border-left: 1px solid var(--el-border-color-light);
+  background-color: var(--el-bg-color-page);
+  overflow-y: auto;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+
+  .el-form-item {
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 12px;
+    margin-bottom: 6px;
+    color: var(--el-text-color-regular);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .form-item {
+    margin-bottom: 8px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    :deep(.el-input__inner) {
+      height: 32px;
+    }
+    
+    :deep(.el-select) {
+      width: 100%;
+    }
   }
   
-  /* 确保编辑器实例填充整个容器 */
-  :deep(.monaco-editor) {
-    width: 100% !important;
-    height: 100% !important;
+  .el-form {
+    padding: 10px 8px;
+    flex: 1;
+    overflow-y: auto;
     
-    /* 减小行号区域宽度 */
-    :deep(.margin-view-overlays) {
-      width: auto !important;
+    .el-button {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      
+      .el-icon {
+        margin-right: 4px;
+        font-size: 14px;
+      }
+      
+      span {
+        font-size: 12px;
+      }
+    }
+  }
+  
+  .help-section {
+    margin-top: auto;
+    border-top: 1px solid var(--el-border-color-light);
+    
+    .help-header {
+      padding: 8px 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--el-text-color-primary);
+      font-size: 12px;
+      
+      .el-icon {
+        color: var(--el-color-info);
+        font-size: 14px;
+      }
     }
     
-    /* 减小行号间距 */
-    :deep(.line-numbers) {
-      font-size: 12px !important;
-      padding-right: 2px !important;
-      min-width: 2ch !important;
+    .help-content {
+      padding: 0 6px 6px;
+      
+      p {
+        margin: 4px 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--el-text-color-secondary);
+        font-size: 12px;
+        
+        .el-icon {
+          color: var(--el-color-success);
+          font-size: 12px;
+        }
+      }
+    }
+  }
+}
+
+.el-divider {
+  margin: 16px 0;
+}
+
+// 统一按钮文字和图标风格
+.el-button {
+  &.convert-btn,
+  &.upload-btn {
+    .el-icon {
+      margin-right: 4px;
+      font-size: 14px;
+      vertical-align: middle;
     }
     
-    /* 优化编辑区域内边距 */
-    :deep(.monaco-scrollable-element) {
-      left: 0 !important;
+    span {
+      font-size: 13px;
+      vertical-align: middle;
     }
     
-    /* 调整编辑区域 */
-    :deep(.lines-content) {
-      padding-left: 16px !important;
+    // 确保按钮颜色正确
+    &.el-button--primary {
+      background-color: var(--el-color-primary) !important;
+      border-color: var(--el-color-primary) !important;
+      color: var(--el-color-white) !important;
+      
+      .el-icon, span {
+        color: var(--el-color-white) !important;
+      }
+      
+      &:not(.is-disabled):hover {
+        background-color: var(--el-color-primary-light-3) !important;
+        border-color: var(--el-color-primary-light-3) !important;
+      }
     }
+    
+    &:not(.el-button--primary) {
+      .el-icon, span {
+        color: var(--el-text-color-regular) !important;
+      }
+      
+      &:not(.is-disabled):hover {
+        color: var(--el-color-primary) !important;
+        border-color: var(--el-color-primary) !important;
+        background-color: var(--el-button-hover-bg-color) !important;
+        
+        .el-icon, span {
+          color: var(--el-color-primary) !important;
+        }
+      }
+    }
+  }
+}
+
+// 单独处理上传按钮
+.upload-btn .el-button--primary {
+  background-color: var(--el-color-primary) !important;
+  border-color: var(--el-color-primary) !important;
+  color: var(--el-color-white) !important;
+  
+  .el-icon, span {
+    color: var(--el-color-white) !important;
+  }
+}
+
+// 模式选择按钮样式
+.mode-controls {
+  .el-radio-button {
+    &.el-radio-button--default {
+      .el-radio-button__inner {
+        height: 32px;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+        
+        .mode-icon {
+          margin-right: 4px;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
+
+// 中间转换按钮特殊样式
+.editor-actions .convert-btn {
+  background-color: var(--el-color-primary) !important;
+  border-color: var(--el-color-primary) !important;
+  
+  .el-icon {
+    color: var(--el-color-white) !important;
+    font-size: 16px !important;
+  }
+  
+  &:not(.is-disabled):hover {
+    background-color: var(--el-color-primary-light-3) !important;
+    border-color: var(--el-color-primary-light-3) !important;
   }
 } 
