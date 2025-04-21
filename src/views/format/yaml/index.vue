@@ -576,21 +576,20 @@ const handleDownloadOutput = () => {
 .monaco-wrapper {
   height: 100%;
   width: 100%;
-  min-height: 400px;
   overflow: hidden;
   border-radius: 4px;
-  border: 1px solid var(--el-border-color-light);
   flex: 1;
 }
 
 .editor-area {
   flex: 1;
   display: flex;
-  height: 100%;
+  max-height: calc(100% - 72px); /* 为底部留出空间 */
 }
 
 .editor-header,
 .editor-footer {
   flex-shrink: 0;
+  min-height: 30px; /* 确保底部高度固定 */
 }
 </style> 
