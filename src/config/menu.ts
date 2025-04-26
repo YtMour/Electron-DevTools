@@ -89,6 +89,53 @@ const menuConfig: MenuItem[] = [
         name: 'PDF处理'
       }
     ]
+  },
+  {
+    path: '/network',
+    name: '网络工具',
+    icon: 'Connection',
+    children: [
+      {
+        path: '/network/ipv4-subnet',
+        name: 'IPv4子网计算器'
+      },
+      {
+        path: '/network/ipv4-converter',
+        name: 'IPv4地址转换器'
+      },
+      {
+        path: '/network/ipv4-range',
+        name: 'IPv4范围扩展器'
+      },
+      {
+        path: '/network/ip-lookup',
+        name: 'IP地址查询'
+      },
+      {
+        path: '/network/ping',
+        name: 'Ping测试'
+      },
+      {
+        path: '/network/port-scanner',
+        name: '端口扫描器'
+      },
+      {
+        path: '/network/domain-lookup',
+        name: '域名查询'
+      },
+      {
+        path: '/network/mac-lookup',
+        name: 'MAC地址查找'
+      },
+      {
+        path: '/network/mac-generator',
+        name: 'MAC地址生成器'
+      },
+      {
+        path: '/network/ipv6-ula',
+        name: 'IPv6 ULA生成器'
+      }
+    ]
   }
 ]
 

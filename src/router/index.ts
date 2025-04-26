@@ -175,6 +175,96 @@ const routes: RouteRecordRaw[] = [
         }
       }
     ]
+  },
+  {
+    path: '/network',
+    name: 'network',
+    component: () => import('../views/network/index.vue'),
+    meta: {
+      title: '网络工具'
+    },
+    children: [
+      {
+        path: 'ipv4-subnet',
+        name: 'ipv4-subnet',
+        component: () => import('../views/network/ipv4-subnet/index.vue'),
+        meta: {
+          title: 'IPv4子网计算器'
+        }
+      },
+      {
+        path: 'ipv4-converter',
+        name: 'ipv4-converter',
+        component: () => import('../views/network/ipv4-converter/index.vue'),
+        meta: {
+          title: 'IPv4地址转换器'
+        }
+      },
+      {
+        path: 'ipv4-range',
+        name: 'ipv4-range',
+        component: () => import('../views/network/ipv4-range/index.vue'),
+        meta: {
+          title: 'IPv4范围扩展器'
+        }
+      },
+      {
+        path: 'mac-lookup',
+        name: 'mac-lookup',
+        component: () => import('../views/network/mac-lookup/index.vue'),
+        meta: {
+          title: 'MAC地址查找'
+        }
+      },
+      {
+        path: 'mac-generator',
+        name: 'mac-generator',
+        component: () => import('../views/network/mac-generator/index.vue'),
+        meta: {
+          title: 'MAC地址生成器'
+        }
+      },
+      {
+        path: 'ipv6-ula',
+        name: 'ipv6-ula',
+        component: () => import('../views/network/ipv6-ula/index.vue'),
+        meta: {
+          title: 'IPv6 ULA生成器'
+        }
+      },
+      {
+        path: 'ip-lookup',
+        name: 'ip-lookup',
+        component: () => import('../views/network/ip-lookup/index.vue'),
+        meta: {
+          title: 'IP地址查询'
+        }
+      },
+      {
+        path: 'port-scanner',
+        name: 'port-scanner',
+        component: () => import('../views/network/port-scanner/index.vue'),
+        meta: {
+          title: '端口扫描器'
+        }
+      },
+      {
+        path: 'domain-lookup',
+        name: 'domain-lookup',
+        component: () => import('../views/network/domain-lookup/index.vue'),
+        meta: {
+          title: '域名查询'
+        }
+      },
+      {
+        path: 'ping',
+        name: 'ping',
+        component: () => import('../views/network/ping/index.vue'),
+        meta: {
+          title: 'Ping测试'
+        }
+      }
+    ]
   }
 ]
 

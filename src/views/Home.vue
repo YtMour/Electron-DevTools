@@ -58,11 +58,27 @@
         </el-card>
       </el-col>
     </el-row>
+
+    <el-row :gutter="20" class="tool-categories" style="margin-top: 20px;">
+      <el-col :span="8">
+        <el-card class="tool-card" @click="$router.push('/network/ipv4-subnet')">
+          <template #header>
+            <div class="card-header">
+              <el-icon><Connection /></el-icon>
+              <span>网络工具</span>
+            </div>
+          </template>
+          <div class="card-content">
+            <p>提供 IPv4 子网计算、MAC 地址查找、IPv6 ULA 生成等网络功能</p>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Lock, Document, Folder } from '@element-plus/icons-vue'
+import { Lock, Document, Folder, Connection } from '@element-plus/icons-vue'
 </script>
 
 <style lang="scss" scoped>
