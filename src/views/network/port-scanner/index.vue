@@ -100,9 +100,9 @@
             </div>
             
             <div v-if="scanning" class="scanning-progress">
-              <div class="progress-info">
+              <div class="progress-title">
                 <span>正在扫描端口: {{ currentPort }}/{{ totalPorts }}</span>
-                <span>{{ Math.round(scanProgress) }}%</span>
+                <span class="progress-percentage">{{ Math.round(scanProgress) }}%</span>
               </div>
               <el-progress :percentage="scanProgress" :stroke-width="10" />
             </div>
@@ -470,7 +470,7 @@ const formatTooltip = (value: number): string => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  color: #333;
+  color: var(--el-text-color-primary);
 }
 
 .header {
@@ -482,7 +482,7 @@ const formatTooltip = (value: number): string => {
   font-size: 28px;
   font-weight: 600;
   margin: 0 0 8px 0;
-  background: linear-gradient(90deg, #409eff, #79bbff);
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
@@ -490,7 +490,7 @@ const formatTooltip = (value: number): string => {
 
 .header p {
   font-size: 16px;
-  color: #606266;
+  color: var(--el-text-color-regular);
   margin: 0;
 }
 
@@ -507,11 +507,11 @@ const formatTooltip = (value: number): string => {
 }
 
 .panel {
-  background-color: #fff;
+  background-color: var(--el-bg-color);
   border-radius: 12px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
   transition: all 0.3s;
 }
 
@@ -521,29 +521,28 @@ const formatTooltip = (value: number): string => {
 }
 
 .panel-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
   display: flex;
   align-items: center;
-  padding: 15px 20px;
-  border-bottom: 1px solid #ebeef5;
-  position: relative;
 }
 
 .panel-header .icon {
   margin-right: 10px;
   width: 24px;
   height: 24px;
-  background-color: #ecf5ff;
+  background-color: var(--el-color-primary-light-9);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #409eff;
+  color: var(--el-color-primary);
 }
 
 .panel-header .title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color-primary);
   flex: 1;
 }
 
@@ -564,13 +563,13 @@ const formatTooltip = (value: number): string => {
 .form-group label {
   display: block;
   font-size: 14px;
-  color: #606266;
+  color: var(--el-text-color-regular);
   margin-bottom: 8px;
   font-weight: 500;
 }
 
 .error-message {
-  color: #f56c6c;
+  color: var(--el-color-danger);
   font-size: 12px;
   margin-top: 5px;
 }
@@ -582,7 +581,7 @@ const formatTooltip = (value: number): string => {
 }
 
 .port-range-separator {
-  color: #909399;
+  color: var(--el-text-color-secondary);
   font-size: 14px;
 }
 
@@ -596,8 +595,8 @@ const formatTooltip = (value: number): string => {
 
 .action-buttons {
   display: flex;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: 30px;
 }
 
 .scan-button {
@@ -612,18 +611,29 @@ const formatTooltip = (value: number): string => {
 
 .scanning-progress {
   margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: var(--el-fill-color-light);
 }
 
-.progress-info {
+.progress-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  margin-bottom: 10px;
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 13px;
-  color: #909399;
+  align-items: center;
+}
+
+.progress-percentage {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--el-color-primary);
+  margin-left: 10px;
 }
 
 .scan-info {
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 20px;
@@ -637,14 +647,14 @@ const formatTooltip = (value: number): string => {
 
 .info-item .label {
   font-size: 13px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   margin-bottom: 4px;
 }
 
 .info-item .value {
   font-size: 14px;
   font-family: monospace;
-  color: #303133;
+  color: var(--el-text-color-primary);
   font-weight: 500;
 }
 
@@ -653,23 +663,23 @@ const formatTooltip = (value: number): string => {
 }
 
 .port-status-open {
-  color: #67c23a;
+  color: var(--custom-action-success-color, #67c23a);
   font-weight: 600;
 }
 
 .port-status-closed {
-  color: #f56c6c;
+  color: var(--custom-action-danger-color, #f56c6c);
 }
 
 .port-status-filtered {
-  color: #e6a23c;
+  color: var(--custom-action-warning-color, #e6a23c);
 }
 
 .help-content h3 {
   font-size: 16px;
   font-weight: 600;
   margin: 16px 0 10px;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .help-content h3:first-child {
@@ -679,7 +689,7 @@ const formatTooltip = (value: number): string => {
 .help-content p {
   margin: 0 0 12px;
   line-height: 1.6;
-  color: #606266;
+  color: var(--el-text-color-regular);
 }
 
 .help-content ul, .help-content ol {
@@ -689,25 +699,25 @@ const formatTooltip = (value: number): string => {
 
 .help-content li {
   margin-bottom: 8px;
-  color: #606266;
+  color: var(--el-text-color-regular);
   line-height: 1.6;
 }
 
 .help-content strong {
-  color: #303133;
+  color: var(--el-text-color-primary);
   font-weight: 600;
 }
 
 .help-content .status-open {
-  color: #67c23a;
+  color: var(--custom-action-success-color, #67c23a);
 }
 
 .help-content .status-closed {
-  color: #f56c6c;
+  color: var(--custom-action-danger-color, #f56c6c);
 }
 
 .help-content .status-filtered {
-  color: #e6a23c;
+  color: var(--custom-action-warning-color, #e6a23c);
 }
 
 @media (max-width: 1200px) {

@@ -438,11 +438,32 @@ generateMac();
             background: var(--el-color-primary-light-9);
             color: var(--el-color-primary);
             font-weight: 500;
+            box-shadow: 0 0 0 1px var(--el-color-primary-light-5);
           }
           
           &:hover:not(.active) {
             border-color: var(--el-color-primary-light-5);
             background: var(--el-fill-color);
+          }
+          
+          :root.dark & {
+            background-color: #2a2b2f;
+            border-color: #444;
+            color: #e0e0e0;
+            
+            &.active {
+              background-color: rgba(64, 158, 255, 0.25);
+              border-color: var(--el-color-primary, #409eff);
+              color: var(--el-color-primary-light-3, #79bbff);
+              box-shadow: 0 0 0 1px var(--el-color-primary-dark-2, #0a60bd), 
+                        0 0 8px 0 rgba(64, 158, 255, 0.6);
+            }
+            
+            &:hover:not(.active) {
+              background-color: #32353a;
+              border-color: var(--el-color-primary-light-5, #a0cfff);
+              color: var(--el-color-primary-light-5, #a0cfff);
+            }
           }
         }
       }
@@ -453,6 +474,61 @@ generateMac();
         
         .el-button {
           flex: 1;
+          
+          &.is-plain:not(.is-disabled) {
+            &:hover {
+              color: var(--el-color-primary);
+              border-color: var(--el-color-primary-light-5);
+              background-color: var(--el-color-primary-light-9);
+            }
+          }
+          
+          &.el-button--primary.is-plain {
+            background-color: var(--custom-action-primary-bg, var(--el-color-primary-light-9));
+            border-color: var(--custom-action-primary-color, var(--el-color-primary));
+            color: var(--custom-action-primary-color, var(--el-color-primary));
+            
+            &:hover {
+              background-color: var(--el-color-primary-light-8);
+            }
+          }
+          
+          // 深色模式下专门的样式
+          :root.dark & {
+            &.el-button--primary.is-plain {
+              background-color: rgba(64, 158, 255, 0.15);
+              border-color: var(--el-color-primary, #409eff);
+              color: var(--el-color-primary-light-3, #79bbff);
+              
+              &:hover {
+                background-color: var(--el-color-primary-dark-2, #0a60bd);
+                border-color: var(--el-color-primary, #409eff);
+                color: #ffffff;
+              }
+            }
+            
+            &.el-button--default {
+              background-color: #2a2b2f;
+              border-color: #444;
+              color: #e0e0e0;
+              
+              &:hover {
+                border-color: var(--el-color-primary, #409eff);
+                color: var(--el-color-primary-light-3, #79bbff);
+              }
+              
+              &.is-plain {
+                background-color: transparent;
+                border-color: #555;
+                color: #bbb;
+                
+                &:hover {
+                  border-color: var(--el-color-primary, #409eff);
+                  color: var(--el-color-primary-light-3, #79bbff);
+                }
+              }
+            }
+          }
         }
       }
     }

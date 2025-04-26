@@ -2,6 +2,10 @@
 
 // 按钮样式优化（提高主题适配性）
 .el-button {
+  // 默认按钮文字颜色加深，提高对比度
+  color: var(--el-text-color-primary);
+  font-weight: 500;
+  
   &.is-plain {
     // 信息按钮
     &.el-button--info {
@@ -68,6 +72,21 @@
       }
     }
   }
+}
+
+// 主要按钮文字颜色
+.el-button--primary {
+  color: #fff;
+  font-weight: 500;
+  
+  &.is-plain {
+    color: var(--el-color-primary);
+  }
+}
+
+// 默认按钮悬停时文字颜色
+.el-button:hover {
+  color: var(--el-color-primary);
 }
 
 // 文本域样式优化

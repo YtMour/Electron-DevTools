@@ -228,7 +228,8 @@ onMounted(() => {
     try {
       recentSearches.value = JSON.parse(savedSearches);
     } catch (error) {
-      console.error('Failed to parse saved searches:', error);
+      // 静默处理解析错误，重置为空数组
+      recentSearches.value = [];
     }
   }
 });
@@ -263,9 +264,20 @@ const selectRecentIP = (ip: string) => {
 
 // 验证IP地址
 const validateIPAddress = (ip: string): boolean => {
-  // 简单验证，仅检查非空
+  // 检查非空
   if (!ip.trim()) {
     validationError.value = '请输入 IP 地址或域名';
+    return false;
+  }
+  
+  // IP地址和域名的正则表达式验证
+  const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+  const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+  
+  // 如果输入不符合IP地址或域名格式，则显示错误
+  if (!ipv4Regex.test(ip) && !ipv6Regex.test(ip) && !domainRegex.test(ip)) {
+    validationError.value = '请输入有效的IP地址或域名';
     return false;
   }
   
@@ -313,7 +325,7 @@ const lookupIP = async () => {
     }
   } catch (error) {
     ElMessage.error('查询失败: ' + (error as Error).message);
-    console.error('IP查询失败:', error);
+    // 不输出到控制台
   } finally {
     loading.value = false;
   }
@@ -343,7 +355,6 @@ const useMyIP = async () => {
 // 初始化地图 (示例函数)
 const initMap = (lat: number, lon: number) => {
   // 实际项目中，这里应该是地图API的调用
-  console.log(`初始化地图，位置: ${lat}, ${lon}`);
   
   // 例如，如果使用Leaflet:
   // const map = L.map('ip-map').setView([lat, lon], 13);
@@ -381,7 +392,7 @@ AS号码: ${ipResult.value.as || '未知'}
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  color: #333;
+  color: var(--el-text-color-primary);
 }
 
 .header {
@@ -393,7 +404,7 @@ AS号码: ${ipResult.value.as || '未知'}
   font-size: 28px;
   font-weight: 600;
   margin: 0 0 8px 0;
-  background: linear-gradient(90deg, #409eff, #79bbff);
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
@@ -401,7 +412,7 @@ AS号码: ${ipResult.value.as || '未知'}
 
 .header p {
   font-size: 16px;
-  color: #606266;
+  color: var(--el-text-color-secondary);
   margin: 0;
 }
 
@@ -418,11 +429,11 @@ AS号码: ${ipResult.value.as || '未知'}
 }
 
 .panel {
-  background-color: #fff;
+  background-color: var(--el-bg-color);
   border-radius: 12px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
   transition: all 0.3s;
 }
 
@@ -435,7 +446,7 @@ AS号码: ${ipResult.value.as || '未知'}
   display: flex;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--el-border-color-light);
   position: relative;
 }
 
@@ -443,18 +454,18 @@ AS号码: ${ipResult.value.as || '未知'}
   margin-right: 10px;
   width: 24px;
   height: 24px;
-  background-color: #ecf5ff;
+  background-color: var(--el-color-primary-light-9);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #409eff;
+  color: var(--el-color-primary);
 }
 
 .panel-header .title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color-primary);
   flex: 1;
 }
 
@@ -475,13 +486,13 @@ AS号码: ${ipResult.value.as || '未知'}
 .form-group label {
   display: block;
   font-size: 14px;
-  color: #606266;
+  color: var(--el-text-color-secondary);
   margin-bottom: 8px;
   font-weight: 500;
 }
 
 .error-message {
-  color: #f56c6c;
+  color: var(--el-color-danger);
   font-size: 12px;
   margin-top: 5px;
 }
@@ -505,12 +516,12 @@ AS号码: ${ipResult.value.as || '未知'}
 .recent-searches {
   margin-top: 20px;
   padding-top: 15px;
-  border-top: 1px dashed #ebeef5;
+  border-top: 1px dashed var(--el-border-color-light);
 }
 
 .recent-title {
   font-size: 14px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   margin-bottom: 8px;
 }
 
@@ -528,12 +539,12 @@ AS号码: ${ipResult.value.as || '未知'}
 .section-title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color-primary);
   margin-bottom: 12px;
 }
 
 .detail-list {
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 20px;
@@ -541,7 +552,7 @@ AS号码: ${ipResult.value.as || '未知'}
 
 .detail-item {
   display: flex;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--el-border-color-light);
 }
 
 .detail-item:last-child {
@@ -551,10 +562,10 @@ AS号码: ${ipResult.value.as || '未知'}
 .detail-label {
   width: 30%;
   padding: 12px 16px;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   font-weight: 500;
-  color: #606266;
-  border-right: 1px solid #ebeef5;
+  color: var(--el-text-color-secondary);
+  border-right: 1px solid var(--el-border-color-light);
 }
 
 .detail-value {
@@ -564,13 +575,13 @@ AS号码: ${ipResult.value.as || '未知'}
 }
 
 .detail-value.empty {
-  color: #c0c4cc;
+  color: var(--el-text-color-placeholder);
   font-style: italic;
 }
 
 .map-container {
   height: 300px;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 16px;
@@ -592,7 +603,7 @@ AS号码: ${ipResult.value.as || '未知'}
   font-size: 16px;
   font-weight: 600;
   margin: 16px 0 10px;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .help-content h3:first-child {
@@ -602,7 +613,7 @@ AS号码: ${ipResult.value.as || '未知'}
 .help-content p {
   margin: 0 0 12px;
   line-height: 1.6;
-  color: #606266;
+  color: var(--el-text-color-secondary);
 }
 
 .help-content ul, .help-content ol {
@@ -612,12 +623,12 @@ AS号码: ${ipResult.value.as || '未知'}
 
 .help-content li {
   margin-bottom: 8px;
-  color: #606266;
+  color: var(--el-text-color-secondary);
   line-height: 1.6;
 }
 
 .help-content strong {
-  color: #303133;
+  color: var(--el-text-color-primary);
   font-weight: 600;
 }
 
@@ -669,7 +680,7 @@ AS号码: ${ipResult.value.as || '未知'}
   }
   
   .detail-label {
-    border-bottom: 1px solid #ebeef5;
+    border-bottom: 1px solid var(--el-border-color-light);
     padding-bottom: 8px;
   }
   

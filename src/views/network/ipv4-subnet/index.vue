@@ -53,38 +53,40 @@
           <div class="panel-body">
             <div class="result-table-container">
               <table class="result-table">
-                <tr>
-                  <th>IP地址</th>
-                  <td>{{ form.ipAddress }}</td>
-                </tr>
-                <tr>
-                  <th>子网掩码</th>
-                  <td>{{ form.subnetMask }} ({{ form.cidr ? '/' + form.cidr : '' }})</td>
-                </tr>
-                <tr>
-                  <th>网络地址</th>
-                  <td>{{ result.networkAddress }}</td>
-                </tr>
-                <tr>
-                  <th>广播地址</th>
-                  <td>{{ result.broadcastAddress }}</td>
-                </tr>
-                <tr>
-                  <th>可用主机范围</th>
-                  <td>{{ result.firstHost }} - {{ result.lastHost }}</td>
-                </tr>
-                <tr>
-                  <th>可用主机数</th>
-                  <td>{{ result.usableHosts.toLocaleString() }}</td>
-                </tr>
-                <tr>
-                  <th>总主机数</th>
-                  <td>{{ result.totalHosts.toLocaleString() }}</td>
-                </tr>
-                <tr>
-                  <th>网络类型</th>
-                  <td>{{ getNetworkClass() }}</td>
-                </tr>
+                <tbody>
+                  <tr>
+                    <th>IP地址</th>
+                    <td>{{ form.ipAddress }}</td>
+                  </tr>
+                  <tr>
+                    <th>子网掩码</th>
+                    <td>{{ form.subnetMask }} ({{ form.cidr ? '/' + form.cidr : '' }})</td>
+                  </tr>
+                  <tr>
+                    <th>网络地址</th>
+                    <td>{{ result.networkAddress }}</td>
+                  </tr>
+                  <tr>
+                    <th>广播地址</th>
+                    <td>{{ result.broadcastAddress }}</td>
+                  </tr>
+                  <tr>
+                    <th>可用主机范围</th>
+                    <td>{{ result.firstHost }} - {{ result.lastHost }}</td>
+                  </tr>
+                  <tr>
+                    <th>可用主机数</th>
+                    <td>{{ result.usableHosts.toLocaleString() }}</td>
+                  </tr>
+                  <tr>
+                    <th>总主机数</th>
+                    <td>{{ result.totalHosts.toLocaleString() }}</td>
+                  </tr>
+                  <tr>
+                    <th>网络类型</th>
+                    <td>{{ getNetworkClass() }}</td>
+                  </tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -229,15 +231,15 @@ const calculateSubnet = () => {
 
     // 确保结果数值格式化
     if (result.value) {
-      result.value.usableHosts = parseInt(result.value.usableHosts.toString(), 10);
-      result.value.totalHosts = parseInt(result.value.totalHosts.toString(), 10);
+      result.value.usableHosts = Number(result.value.usableHosts);
+      result.value.totalHosts = Number(result.value.totalHosts);
       
-      // 防止数值太大导致布局问题
+      // 对于非常大的网络，使用toFixed(0)确保不出现科学计数法
       if (result.value.usableHosts > 1000000) {
-        result.value.usableHosts = Math.floor(result.value.usableHosts);
+        result.value.usableHosts = Number(result.value.usableHosts.toFixed(0));
       }
       if (result.value.totalHosts > 1000000) {
-        result.value.totalHosts = Math.floor(result.value.totalHosts);
+        result.value.totalHosts = Number(result.value.totalHosts.toFixed(0));
       }
     }
     
@@ -325,7 +327,6 @@ handleCidrChange();
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  color: #333;
 }
 
 .header {
@@ -337,7 +338,7 @@ handleCidrChange();
   font-size: 28px;
   font-weight: 600;
   margin: 0 0 8px 0;
-  background: linear-gradient(90deg, #409eff, #79bbff);
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
@@ -345,7 +346,6 @@ handleCidrChange();
 
 .header p {
   font-size: 16px;
-  color: #606266;
   margin: 0;
 }
 
@@ -362,11 +362,11 @@ handleCidrChange();
 }
 
 .panel {
-  background-color: #fff;
+  background-color: var(--el-bg-color);
   border-radius: 12px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
   transition: all 0.3s;
 }
 
@@ -379,7 +379,7 @@ handleCidrChange();
   display: flex;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--el-border-color-lighter);
   position: relative;
 }
 
@@ -387,18 +387,17 @@ handleCidrChange();
   margin-right: 10px;
   width: 24px;
   height: 24px;
-  background-color: #ecf5ff;
+  background-color: var(--el-color-primary-light-9);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #409eff;
+  color: var(--el-color-primary);
 }
 
 .panel-header .title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
   flex: 1;
 }
 
@@ -419,7 +418,6 @@ handleCidrChange();
 .form-group label {
   display: block;
   font-size: 14px;
-  color: #606266;
   margin-bottom: 8px;
   font-weight: 500;
 }
@@ -430,7 +428,6 @@ handleCidrChange();
 }
 
 .error-message {
-  color: #f56c6c;
   font-size: 12px;
   margin-top: 5px;
 }
@@ -450,37 +447,35 @@ handleCidrChange();
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
 }
 
 .result-table th, .result-table td {
   padding: 12px 15px;
   text-align: left;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
 }
 
 .result-table th {
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   font-weight: 600;
   width: 30%;
-  color: #606266;
 }
 
 .result-table td {
-  background-color: #fff;
+  background-color: var(--el-bg-color);
   font-family: monospace;
   word-break: break-all;
 }
 
 .result-table tr:hover td {
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
 }
 
 .help-content h3 {
   font-size: 16px;
   font-weight: 600;
   margin: 16px 0 10px;
-  color: #303133;
 }
 
 .help-content h3:first-child {
@@ -490,34 +485,32 @@ handleCidrChange();
 .help-content p {
   margin: 0 0 12px;
   line-height: 1.6;
-  color: #606266;
 }
 
 .subnet-table {
   width: 100%;
   border-collapse: collapse;
   margin: 12px 0;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
 }
 
 .subnet-table th, .subnet-table td {
   padding: 10px;
   text-align: left;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
 }
 
 .subnet-table th {
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   font-weight: 600;
-  color: #606266;
 }
 
 .subnet-table td {
-  background-color: #fff;
+  background-color: var(--el-bg-color);
 }
 
 .subnet-table tr:hover td {
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
 }
 
 .help-content ul {
@@ -527,12 +520,10 @@ handleCidrChange();
 
 .help-content li {
   margin-bottom: 8px;
-  color: #606266;
   line-height: 1.6;
 }
 
 .help-content strong {
-  color: #303133;
   font-weight: 600;
 }
 

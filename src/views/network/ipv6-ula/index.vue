@@ -309,7 +309,6 @@ IPv6 ULA地址: ${ulaAddress.value}
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  color: #333;
 }
 
 .header {
@@ -321,7 +320,7 @@ IPv6 ULA地址: ${ulaAddress.value}
   font-size: 28px;
   font-weight: 600;
   margin: 0 0 8px 0;
-  background: linear-gradient(90deg, #409eff, #79bbff);
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
@@ -329,7 +328,6 @@ IPv6 ULA地址: ${ulaAddress.value}
 
 .header p {
   font-size: 16px;
-  color: #606266;
   margin: 0;
 }
 
@@ -346,11 +344,11 @@ IPv6 ULA地址: ${ulaAddress.value}
 }
 
 .panel {
-  background-color: #fff;
+  background-color: var(--el-bg-color);
   border-radius: 12px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
   transition: all 0.3s;
 }
 
@@ -363,7 +361,7 @@ IPv6 ULA地址: ${ulaAddress.value}
   display: flex;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--el-border-color-light);
   position: relative;
 }
 
@@ -371,18 +369,17 @@ IPv6 ULA地址: ${ulaAddress.value}
   margin-right: 10px;
   width: 24px;
   height: 24px;
-  background-color: #ecf5ff;
+  background-color: var(--el-color-primary-light-9);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #409eff;
+  color: var(--el-color-primary);
 }
 
 .panel-header .title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
   flex: 1;
 }
 
@@ -397,13 +394,11 @@ IPv6 ULA地址: ${ulaAddress.value}
 .form-group label {
   display: block;
   font-size: 14px;
-  color: #606266;
   margin-bottom: 8px;
   font-weight: 500;
 }
 
 .error-message {
-  color: #f56c6c;
   font-size: 12px;
   margin-top: 5px;
 }
@@ -417,8 +412,8 @@ IPv6 ULA地址: ${ulaAddress.value}
 .prefix-option {
   flex: 1;
   padding: 10px 16px;
-  background-color: #f5f7fa;
-  border: 1px solid #dcdfe6;
+  background-color: var(--el-fill-color-light);
+  border: 1px solid var(--el-border-color);
   border-radius: 6px;
   cursor: pointer;
   text-align: center;
@@ -428,15 +423,37 @@ IPv6 ULA地址: ${ulaAddress.value}
 }
 
 .prefix-option.active {
-  background-color: #ecf5ff;
-  border-color: #409eff;
-  color: #409eff;
+  background-color: var(--el-color-primary-light-9);
+  border-color: var(--el-color-primary);
+  color: var(--el-color-primary);
   font-weight: 500;
+  box-shadow: 0 0 0 1px var(--el-color-primary-light-5);
 }
 
 .prefix-option:hover:not(.active) {
-  border-color: #c0c4cc;
-  background-color: #ebeef5;
+  border-color: var(--el-color-primary-light-5);
+  background-color: var(--el-fill-color);
+}
+
+/* 深色模式样式加强 */
+:root.dark .prefix-option {
+  background-color: #2a2b2f;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+:root.dark .prefix-option.active {
+  background-color: rgba(64, 158, 255, 0.25);
+  border-color: var(--el-color-primary, #409eff);
+  color: var(--el-color-primary-light-3, #79bbff);
+  box-shadow: 0 0 0 1px var(--el-color-primary-dark-2, #0a60bd), 
+            0 0 8px 0 rgba(64, 158, 255, 0.6);
+}
+
+:root.dark .prefix-option:hover:not(.active) {
+  background-color: #32353a;
+  border-color: var(--el-color-primary-light-5, #a0cfff);
+  color: var(--el-color-primary-light-5, #a0cfff);
 }
 
 .action-buttons {
@@ -453,26 +470,25 @@ IPv6 ULA地址: ${ulaAddress.value}
 .result-container {
   margin-top: 24px;
   padding: 16px;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   border-radius: 8px;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
 }
 
 .result-title {
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 10px;
-  color: #606266;
 }
 
 .ipv6-address {
   padding: 12px 16px;
-  background-color: #fff;
+  background-color: var(--el-bg-color);
   border-radius: 6px;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
   font-family: monospace;
   font-size: 16px;
-  color: #409eff;
+  color: var(--el-color-primary);
   word-break: break-all;
   text-align: center;
 }
@@ -489,7 +505,7 @@ IPv6 ULA地址: ${ulaAddress.value}
 .structure-row {
   display: flex;
   width: 100%;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -498,7 +514,7 @@ IPv6 ULA地址: ${ulaAddress.value}
   flex: 1;
   text-align: center;
   padding: 0;
-  border-right: 1px solid #ebeef5;
+  border-right: 1px solid var(--el-border-color-light);
 }
 
 .structure-cell:last-child {
@@ -507,28 +523,25 @@ IPv6 ULA地址: ${ulaAddress.value}
 
 .cell-title {
   padding: 10px;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   font-weight: 600;
   font-size: 14px;
-  color: #606266;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--el-border-color-light);
 }
 
 .cell-value {
   padding: 16px 8px;
-  background-color: #fff;
+  background-color: var(--el-bg-color);
   font-family: monospace;
   word-break: break-all;
   min-height: 25px;
   font-size: 14px;
-  color: #303133;
 }
 
 .help-content h3 {
   font-size: 16px;
   font-weight: 600;
   margin: 16px 0 10px;
-  color: #303133;
 }
 
 .help-content h3:first-child {
@@ -538,7 +551,6 @@ IPv6 ULA地址: ${ulaAddress.value}
 .help-content p {
   margin: 0 0 12px;
   line-height: 1.6;
-  color: #606266;
 }
 
 .help-content ul {
@@ -548,22 +560,20 @@ IPv6 ULA地址: ${ulaAddress.value}
 
 .help-content li {
   margin-bottom: 8px;
-  color: #606266;
   line-height: 1.6;
 }
 
 .help-content strong {
-  color: #303133;
   font-weight: 600;
 }
 
 .help-content code {
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: monospace;
   font-size: 0.9em;
-  color: #409eff;
+  color: var(--el-color-primary);
 }
 
 @media (max-width: 1200px) {

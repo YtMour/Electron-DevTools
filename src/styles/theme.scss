@@ -69,9 +69,12 @@
   --el-card-bg-color: #1d1e1f;
   
   // 按钮相关
-  --el-button-bg-color: #1d1e1f;
-  --el-button-hover-bg-color: #262727;
-  --el-button-active-bg-color: #2b2b2c;
+  --el-button-bg-color: #2a2b2f;
+  --el-button-hover-bg-color: #32353a;
+  --el-button-active-bg-color: #3a3d42;
+  --el-button-text-color: #e0e0e0;
+  --el-button-border-color: #444;
+  --el-button-hover-border-color: #555;
   
   // 下拉菜单相关
   --el-dropdown-menu-bg-color: #1d1e1f;
@@ -98,7 +101,7 @@
   --el-border-color-darker: #434343; // 深色边框色
   --el-overlay-color-lighter: rgba(0, 0, 0, 0.5); // 遮罩层颜色
 
-  // 操作按钮颜色 - 暗色模式
+  // 操作按钮颜色 - 暗色模式增强
   --custom-action-info-color: #a6a9ad;
   --custom-action-info-bg: #2c2d30;
   --custom-action-success-color: #85ce61;
@@ -109,6 +112,26 @@
   --custom-action-danger-bg: #3d2323;
   --custom-action-warning-color: #eebe77;
   --custom-action-warning-bg: #3d321e;
+  
+  // 操作按钮悬停颜色 - 暗色模式
+  --custom-action-hover-text-color: #ffffff;
+  --custom-action-primary-hover-bg: #0a60bd; // 深蓝色
+  --custom-action-success-hover-bg: #529b2e; // 深绿色
+  --custom-action-info-hover-bg: #73767a; // 深灰色
+  --custom-action-warning-hover-bg: #b88230; // 深橙色
+  --custom-action-danger-hover-bg: #c45656; // 深红色
+  
+  // 按钮选择器颜色 - 暗色模式
+  --custom-selector-bg: #2a2b2f;
+  --custom-selector-text: #e0e0e0;
+  --custom-selector-border: #444;
+  --custom-selector-active-bg: rgba(64, 158, 255, 0.25);
+  --custom-selector-active-text: #79bbff;
+  --custom-selector-active-border: #409eff;
+  --custom-selector-active-shadow: 0 0 0 1px #0a60bd, 0 0 8px 0 rgba(64, 158, 255, 0.6);
+  --custom-selector-hover-bg: #32353a;
+  --custom-selector-hover-text: #a0cfff;
+  --custom-selector-hover-border: #a0cfff;
 }
 
 // 应用主题变量

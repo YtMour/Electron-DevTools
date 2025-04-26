@@ -804,7 +804,7 @@ const selectFavorite = (favorite: string) => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  color: #333;
+  color: var(--el-text-color-primary);
 }
 
 .header {
@@ -821,7 +821,7 @@ const selectFavorite = (favorite: string) => {
   top: 10px;
   height: 28px;
   width: 4px;
-  background: linear-gradient(180deg, #409eff, #79bbff);
+  background: linear-gradient(180deg, var(--el-color-primary), var(--el-color-primary-light-3));
   border-radius: 4px;
 }
 
@@ -829,7 +829,7 @@ const selectFavorite = (favorite: string) => {
   font-size: 28px;
   font-weight: 600;
   margin: 0 0 12px 0;
-  background: linear-gradient(90deg, #409eff, #79bbff);
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
@@ -838,7 +838,7 @@ const selectFavorite = (favorite: string) => {
 
 .header p {
   font-size: 16px;
-  color: #606266;
+  color: var(--el-text-color-secondary);
   margin: 0;
   opacity: 0.85;
 }
@@ -856,11 +856,11 @@ const selectFavorite = (favorite: string) => {
 }
 
 .panel {
-  background-color: #fff;
+  background-color: var(--el-bg-color);
   border-radius: 16px;
   box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
   overflow: hidden;
-  border: 1px solid rgba(235, 238, 245, 0.8);
+  border: 1px solid var(--el-border-color-light);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -873,21 +873,21 @@ const selectFavorite = (favorite: string) => {
   display: flex;
   align-items: center;
   padding: 18px 24px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--el-border-color-lighter);
   position: relative;
-  background-color: #fafafa;
+  background-color: var(--el-fill-color-light);
 }
 
 .panel-header .icon {
   margin-right: 12px;
   width: 32px;
   height: 32px;
-  background-color: rgba(64, 158, 255, 0.1);
+  background-color: var(--el-color-primary-light-9);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #409eff;
+  color: var(--el-color-primary);
   transition: transform 0.3s;
 }
 
@@ -898,9 +898,9 @@ const selectFavorite = (favorite: string) => {
 .panel-header .title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--el-text-color-primary);
   flex: 1;
-  background: linear-gradient(90deg, #303133, #606266);
+  background: linear-gradient(90deg, var(--el-text-color-primary), var(--el-text-color-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -927,7 +927,7 @@ const selectFavorite = (favorite: string) => {
 .form-group label {
   display: block;
   font-size: 14px;
-  color: #606266;
+  color: var(--el-text-color-secondary);
   margin-bottom: 10px;
   font-weight: 500;
   position: relative;
@@ -948,7 +948,7 @@ const selectFavorite = (favorite: string) => {
 }
 
 .error-message {
-  color: #f56c6c;
+  color: var(--el-color-danger);
   font-size: 12px;
   margin-top: 6px;
   padding-left: 4px;
@@ -961,11 +961,11 @@ const selectFavorite = (favorite: string) => {
 }
 
 .advanced-options {
-  background-color: #f9f9fa;
+  background-color: var(--el-fill-color-light);
   border-radius: 12px;
   padding: 20px;
   margin-top: 16px;
-  border: 1px dashed #dcdfe6;
+  border: 1px dashed var(--el-border-color);
   animation: fadeIn 0.3s;
   transition: all 0.3s;
 }
@@ -983,7 +983,7 @@ const selectFavorite = (favorite: string) => {
 
 .option-label {
   font-size: 13px;
-  color: #606266;
+  color: var(--el-text-color-secondary);
   margin-bottom: 8px;
   display: block;
 }
@@ -1014,14 +1014,14 @@ const selectFavorite = (favorite: string) => {
 
 .favorites-section {
   margin-top: 20px;
-  border-top: 1px dashed #ebeef5;
+  border-top: 1px dashed var(--el-border-color-light);
   padding-top: 20px;
   animation: fadeIn 0.3s;
 }
 
 .favorites-header {
   font-size: 14px;
-  color: #606266;
+  color: var(--el-text-color-secondary);
   margin-bottom: 12px;
   font-weight: 500;
 }
@@ -1052,7 +1052,7 @@ const selectFavorite = (favorite: string) => {
   font-weight: 500;
   text-align: center;
   margin-bottom: 20px;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .chart {
@@ -1067,7 +1067,7 @@ const selectFavorite = (favorite: string) => {
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
   margin-bottom: 28px;
-  background-color: #f9fafc;
+  background-color: var(--el-fill-color-light);
   border-radius: 12px;
   padding: 20px;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
@@ -1079,7 +1079,7 @@ const selectFavorite = (favorite: string) => {
   gap: 8px;
   position: relative;
   padding: 16px;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--el-bg-color);
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   transition: all 0.3s;
@@ -1092,25 +1092,42 @@ const selectFavorite = (favorite: string) => {
 
 .stats-label {
   font-size: 13px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   font-weight: 500;
 }
 
 .stats-value {
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  color: var(--el-text-color-primary);
+}
+
+.stats-value.success {
+  color: var(--el-color-success);
+}
+
+.stats-value.warning {
+  color: var(--el-color-warning);
+}
+
+.stats-value.danger {
+  color: var(--el-color-danger);
+}
+
+.stats-secondary {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  opacity: 0.8;
 }
 
 .stats-error {
-  color: #f56c6c;
+  color: var(--el-color-danger);
 }
 
 .ping-terminal {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  background-color: #1a1a1a;
-  color: #d4d4d4;
+  background-color: var(--el-bg-color-darker, #1a1a1a);
+  color: var(--el-text-color-primary, #d4d4d4);
   border-radius: 12px;
   padding: 20px;
   min-height: 320px;
@@ -1121,7 +1138,7 @@ const selectFavorite = (favorite: string) => {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.5s;
   scrollbar-width: thin;
-  scrollbar-color: #4e4e4e #1a1a1a;
+  scrollbar-color: var(--el-border-color) var(--el-bg-color-darker, #1a1a1a);
 }
 
 .ping-terminal::-webkit-scrollbar {
@@ -1129,14 +1146,14 @@ const selectFavorite = (favorite: string) => {
 }
 
 .ping-terminal::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: var(--el-bg-color-darker, #1a1a1a);
   border-radius: 8px;
 }
 
 .ping-terminal::-webkit-scrollbar-thumb {
-  background-color: #4e4e4e;
+  background-color: var(--el-border-color);
   border-radius: 8px;
-  border: 2px solid #1a1a1a;
+  border: 2px solid var(--el-bg-color-darker, #1a1a1a);
 }
 
 .terminal-line {
@@ -1151,18 +1168,18 @@ const selectFavorite = (favorite: string) => {
 }
 
 .success-line {
-  color: #98c379;
+  color: var(--el-color-success);
 }
 
 .error-line {
-  color: #e06c75;
+  color: var(--el-color-danger);
 }
 
 .terminal-cursor {
   display: inline-block;
   width: 8px;
   height: 18px;
-  background-color: rgba(212, 212, 212, 0.8);
+  background-color: var(--el-text-color-primary, rgba(212, 212, 212, 0.8));
   animation: blink 1s step-end infinite;
   margin-left: 4px;
   vertical-align: middle;
@@ -1182,7 +1199,7 @@ const selectFavorite = (favorite: string) => {
   font-size: 16px;
   font-weight: 600;
   margin: 20px 0 12px;
-  color: #303133;
+  color: var(--el-text-color-primary);
   position: relative;
   padding-left: 16px;
 }
@@ -1195,7 +1212,7 @@ const selectFavorite = (favorite: string) => {
   transform: translateY(-50%);
   width: 4px;
   height: 16px;
-  background-color: #409eff;
+  background-color: var(--el-color-primary);
   border-radius: 2px;
 }
 
@@ -1206,7 +1223,7 @@ const selectFavorite = (favorite: string) => {
 .help-content p {
   margin: 0 0 14px;
   line-height: 1.7;
-  color: #606266;
+  color: var(--el-text-color-secondary);
 }
 
 .help-content ul, .help-content ol {
@@ -1216,16 +1233,16 @@ const selectFavorite = (favorite: string) => {
 
 .help-content li {
   margin-bottom: 10px;
-  color: #606266;
+  color: var(--el-text-color-secondary);
   line-height: 1.7;
   position: relative;
   padding-left: 5px;
 }
 
 .help-content strong {
-  color: #303133;
+  color: var(--el-text-color-primary);
   font-weight: 600;
-  background-color: rgba(64, 158, 255, 0.1);
+  background-color: var(--el-color-primary-light-9);
   padding: 0 5px;
   border-radius: 3px;
 }
@@ -1310,5 +1327,90 @@ const selectFavorite = (favorite: string) => {
   .chart-container {
     height: 300px;
   }
+}
+
+.stat-card {
+  padding: 16px;
+  border-radius: 10px;
+  background-color: var(--el-bg-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--el-text-color-secondary);
+}
+
+.stat-card-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  text-align: center;
+  color: var(--el-text-color-secondary);
+  background-color: var(--el-fill-color-blank);
+  border-radius: 8px;
+  border: 1px dashed var(--el-border-color);
+  margin: 20px 0;
+}
+
+.empty-text {
+  font-size: 15px;
+  margin-top: 12px;
+  color: var(--el-text-color-secondary);
+}
+
+.ping-table-wrapper {
+  background-color: var(--el-bg-color);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--el-border-color-light);
+  margin-top: 20px;
+}
+
+.ping-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ping-table th {
+  background-color: var(--el-fill-color-light);
+  padding: 12px 15px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--el-text-color-primary);
+  border-bottom: 1px solid var(--el-border-color-light);
+}
+
+.ping-table td {
+  padding: 12px 15px;
+  font-size: 14px;
+  color: var(--el-text-color-regular);
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  transition: background-color 0.2s;
+}
+
+.ping-table tr:hover td {
+  background-color: var(--el-fill-color-lighter);
 }
 </style> 

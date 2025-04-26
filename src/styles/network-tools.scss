@@ -200,12 +200,80 @@
     .el-button {
       flex: 1;
       transition: all 0.3s ease;
+      font-weight: 500;
+      color: var(--el-text-color-primary);
       
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(var(--el-color-primary-rgb), 0.3);
       }
+      
+      &.el-button--primary {
+        color: #fff;
+        
+        // 深色模式下确保文本可见
+        :root.dark & {
+          color: rgba(255, 255, 255, 0.95);
+        }
+      }
+      
+      // 优化普通按钮在深色模式下的样式
+      &.el-button--default {
+        :root.dark & {
+          background-color: var(--el-fill-color-light);
+          border-color: var(--el-border-color-lighter);
+          
+          &:hover {
+            border-color: var(--el-color-primary-light-5);
+            color: var(--el-color-primary-light-3);
+          }
+        }
+      }
+      
+      // 优化plain样式的按钮 
+      &.is-plain {
+        :root.dark & {
+          &.el-button--primary {
+            background-color: var(--custom-action-primary-bg, rgba(64, 158, 255, 0.1));
+            border-color: var(--custom-action-primary-color, var(--el-color-primary-light-3));
+            color: var(--custom-action-primary-color, var(--el-color-primary-light-3));
+          }
+          
+          &.el-button--success {
+            background-color: var(--custom-action-success-bg, rgba(103, 194, 58, 0.1));
+            border-color: var(--custom-action-success-color, var(--el-color-success-light-3));
+            color: var(--custom-action-success-color, var(--el-color-success-light-3));
+          }
+          
+          &.el-button--danger {
+            background-color: var(--custom-action-danger-bg, rgba(245, 108, 108, 0.1));
+            border-color: var(--custom-action-danger-color, var(--el-color-danger-light-3));
+            color: var(--custom-action-danger-color, var(--el-color-danger-light-3));
+          }
+          
+          &.el-button--warning {
+            background-color: var(--custom-action-warning-bg, rgba(230, 162, 60, 0.1));
+            border-color: var(--custom-action-warning-color, var(--el-color-warning-light-3));
+            color: var(--custom-action-warning-color, var(--el-color-warning-light-3));
+          }
+          
+          &:hover {
+            background-color: var(--el-color-primary-light-8);
+          }
+        }
+      }
     }
+  }
+  
+  // 单个操作按钮样式
+  .submit-button, 
+  .copy-button, 
+  .generate-button,
+  .lookup-button,
+  .scan-button {
+    height: 40px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
   }
   
   // 单行输入框组合（带标签和按钮）
@@ -352,6 +420,310 @@
     
     :deep(.el-form-item) {
       margin-bottom: 16px;
+    }
+  }
+}
+
+// 全局网络工具颜色主题适配
+// 这些样式会被应用到所有网络工具页面
+.ip-lookup-container,
+.subnet-calculator-container,
+.port-scanner-container,
+.ping-container,
+.domain-lookup-container,
+.ipv6-ula-container,
+.mac-lookup-container,
+.ipv4-range-container,
+.ipv4-converter-container {
+  color: var(--el-text-color-primary);
+  
+  .panel,
+  .el-card {
+    background-color: var(--el-bg-color);
+    border-color: var(--el-border-color-light);
+    
+    &:hover {
+      box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .panel-header,
+  .el-card__header {
+    border-color: var(--el-border-color-light);
+    
+    .icon {
+      background-color: var(--el-color-primary-light-9);
+      color: var(--el-color-primary);
+    }
+    
+    .title {
+      color: var(--el-text-color-primary);
+    }
+  }
+  
+  .panel-body,
+  .el-card__body {
+    background-color: var(--el-bg-color);
+  }
+  
+  // 表单和标签
+  label,
+  .form-label,
+  p {
+    color: var(--el-text-color-secondary);
+  }
+  
+  // 标题文本
+  h1, h2, h3, h4, h5, h6,
+  .section-title,
+  .card-title {
+    color: var(--el-text-color-primary);
+  }
+  
+  // 错误信息
+  .error-message,
+  .validation-error {
+    color: var(--el-color-danger);
+  }
+  
+  // 详情列表
+  .detail-list,
+  .result-table {
+    border-color: var(--el-border-color-light);
+  }
+  
+  .detail-item,
+  tr {
+    border-color: var(--el-border-color-light);
+  }
+  
+  .detail-label,
+  th {
+    background-color: var(--el-fill-color-light);
+    color: var(--el-text-color-secondary);
+    border-color: var(--el-border-color-light);
+  }
+  
+  .detail-value,
+  td {
+    color: var(--el-text-color-primary);
+    background-color: var(--el-bg-color);
+  }
+  
+  .detail-value.empty {
+    color: var(--el-text-color-placeholder);
+  }
+  
+  // 容器背景
+  .map-container,
+  .code-container,
+  .result-container {
+    background-color: var(--el-fill-color-light);
+  }
+  
+  // 次要文本
+  .recent-title,
+  .recent-searches,
+  .help-content {
+    color: var(--el-text-color-secondary);
+  }
+  
+  // 边框和分隔线
+  .recent-searches,
+  .section-divider {
+    border-color: var(--el-border-color-light);
+  }
+  
+  // 代码和预格式化文本区域
+  .ping-output {
+    background-color: var(--el-bg-color-darker, #1a1a1a);
+    color: var(--el-text-color-primary, #d4d4d4);
+    
+    .success {
+      color: var(--el-color-success);
+    }
+    
+    .error {
+      color: var(--el-color-danger);
+    }
+  }
+  
+  // 深色模式下的按钮样式增强
+  :root.dark & {
+    .el-button {
+      &.el-button--primary {
+        background-color: var(--el-color-primary-dark-2, #0a60bd);
+        border-color: var(--el-color-primary-dark-2, #0a60bd);
+        color: #ffffff;
+        
+        &:hover, &:focus {
+          background-color: var(--el-color-primary, #409eff);
+          border-color: var(--el-color-primary, #409eff);
+        }
+      }
+      
+      &.el-button--primary.is-plain {
+        background-color: rgba(64, 158, 255, 0.15);
+        border-color: var(--el-color-primary, #409eff);
+        color: var(--el-color-primary-light-3, #79bbff);
+        
+        &:hover, &:focus {
+          background-color: var(--el-color-primary-dark-2, #0a60bd);
+          border-color: var(--el-color-primary, #409eff);
+          color: #ffffff;
+        }
+      }
+      
+      &.el-button--success.is-plain {
+        background-color: rgba(103, 194, 58, 0.15);
+        border-color: var(--el-color-success, #67c23a);
+        color: var(--el-color-success-light-3, #95d475);
+        
+        &:hover, &:focus {
+          background-color: var(--el-color-success-dark-2, #529b2e);
+          border-color: var(--el-color-success, #67c23a);
+          color: #ffffff;
+        }
+      }
+      
+      &.el-button--warning.is-plain {
+        background-color: rgba(230, 162, 60, 0.15);
+        border-color: var(--el-color-warning, #e6a23c);
+        color: var(--el-color-warning-light-3, #eebe77);
+        
+        &:hover, &:focus {
+          background-color: var(--el-color-warning-dark-2, #b88230);
+          border-color: var(--el-color-warning, #e6a23c);
+          color: #ffffff;
+        }
+      }
+      
+      &.el-button--danger.is-plain {
+        background-color: rgba(245, 108, 108, 0.15);
+        border-color: var(--el-color-danger, #f56c6c);
+        color: var(--el-color-danger-light-3, #f89898);
+        
+        &:hover, &:focus {
+          background-color: var(--el-color-danger-dark-2, #c45656);
+          border-color: var(--el-color-danger, #f56c6c);
+          color: #ffffff;
+        }
+      }
+      
+      &.el-button--default {
+        background-color: #2a2b2f;
+        border-color: #444;
+        color: #e0e0e0;
+        
+        &:hover, &:focus {
+          border-color: var(--el-color-primary, #409eff);
+          color: var(--el-color-primary-light-3, #79bbff);
+        }
+        
+        &.is-plain {
+          background-color: transparent;
+          border-color: #555;
+          color: #bbb;
+          
+          &:hover, &:focus {
+            border-color: var(--el-color-primary, #409eff);
+            color: var(--el-color-primary-light-3, #79bbff);
+          }
+        }
+      }
+    }
+    
+    // 选项选择器样式增强
+    .format-buttons .format-button,
+    .prefix-options .prefix-option,
+    .option-selector .option-item {
+      background-color: #2a2b2f;
+      border-color: #444;
+      color: #e0e0e0;
+      
+      &.active {
+        background-color: rgba(64, 158, 255, 0.25);
+        border-color: var(--el-color-primary, #409eff);
+        color: var(--el-color-primary-light-3, #79bbff);
+        box-shadow: 0 0 0 1px var(--el-color-primary-dark-2, #0a60bd), 
+                    0 0 8px 0 rgba(64, 158, 255, 0.6);
+      }
+      
+      &:hover:not(.active) {
+        background-color: #32353a;
+        border-color: var(--el-color-primary-light-5, #a0cfff);
+        color: var(--el-color-primary-light-5, #a0cfff);
+      }
+    }
+    
+    // 标签样式增强
+    .el-tag {
+      &.el-tag--primary {
+        background-color: rgba(64, 158, 255, 0.15);
+        border-color: var(--el-color-primary-dark-2, #0a60bd);
+        color: var(--el-color-primary-light-3, #79bbff);
+      }
+      
+      &.el-tag--success {
+        background-color: rgba(103, 194, 58, 0.15);
+        border-color: var(--el-color-success-dark-2, #529b2e);
+        color: var(--el-color-success-light-3, #95d475);
+      }
+      
+      &.el-tag--warning {
+        background-color: rgba(230, 162, 60, 0.15);
+        border-color: var(--el-color-warning-dark-2, #b88230);
+        color: var(--el-color-warning-light-3, #eebe77);
+      }
+      
+      &.el-tag--danger {
+        background-color: rgba(245, 108, 108, 0.15);
+        border-color: var(--el-color-danger-dark-2, #c45656);
+        color: var(--el-color-danger-light-3, #f89898);
+      }
+      
+      &.el-tag--info {
+        background-color: rgba(144, 147, 153, 0.15);
+        border-color: var(--el-color-info-dark-2, #73767a);
+        color: var(--el-color-info-light-3, #b1b3b8);
+      }
+    }
+  }
+}
+
+// 类选择器样式优化
+.option-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  
+  .option-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid var(--el-border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--el-fill-color-light);
+    
+    &.active {
+      border-color: var(--el-color-primary);
+      background: var(--el-color-primary-light-9);
+      color: var(--el-color-primary);
+      font-weight: 500;
+      box-shadow: 0 0 0 1px var(--el-color-primary-light-5);
+      
+      // 深色模式下增强选中状态
+      :root.dark & {
+        background-color: var(--el-color-primary-light-8);
+        box-shadow: 0 0 0 1px var(--el-color-primary-light-3);
+      }
+    }
+    
+    &:hover:not(.active) {
+      border-color: var(--el-color-primary-light-5);
+      background: var(--el-fill-color);
     }
   }
 } 

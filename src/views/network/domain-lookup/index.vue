@@ -552,7 +552,6 @@ const copyResults = async () => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  color: #333;
 }
 
 .header {
@@ -564,7 +563,7 @@ const copyResults = async () => {
   font-size: 28px;
   font-weight: 600;
   margin: 0 0 8px 0;
-  background: linear-gradient(90deg, #409eff, #79bbff);
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
@@ -572,7 +571,6 @@ const copyResults = async () => {
 
 .header p {
   font-size: 16px;
-  color: #606266;
   margin: 0;
 }
 
@@ -589,11 +587,11 @@ const copyResults = async () => {
 }
 
 .panel {
-  background-color: #fff;
+  background-color: var(--el-bg-color);
   border-radius: 12px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-light);
   transition: all 0.3s;
 }
 
@@ -606,7 +604,7 @@ const copyResults = async () => {
   display: flex;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--el-border-color-lighter);
   position: relative;
 }
 
@@ -614,18 +612,17 @@ const copyResults = async () => {
   margin-right: 10px;
   width: 24px;
   height: 24px;
-  background-color: #ecf5ff;
+  background-color: var(--el-color-primary-light-9);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #409eff;
+  color: var(--el-color-primary);
 }
 
 .panel-header .title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
   flex: 1;
 }
 
@@ -646,13 +643,11 @@ const copyResults = async () => {
 .form-group label {
   display: block;
   font-size: 14px;
-  color: #606266;
   margin-bottom: 8px;
   font-weight: 500;
 }
 
 .error-message {
-  color: #f56c6c;
   font-size: 12px;
   margin-top: 5px;
 }
@@ -673,7 +668,7 @@ const copyResults = async () => {
 
 .section-divider {
   height: 1px;
-  background-color: #ebeef5;
+  background-color: var(--el-border-color-lighter);
   margin: 20px 0;
 }
 
@@ -683,7 +678,6 @@ const copyResults = async () => {
 
 .recent-title {
   font-size: 14px;
-  color: #606266;
   margin-bottom: 10px;
   font-weight: 500;
 }
@@ -698,19 +692,33 @@ const copyResults = async () => {
   cursor: pointer;
 }
 
+.search-tag:hover {
+  border-color: var(--el-color-primary-light-5);
+}
+
+/* 深色模式样式 */
+:root.dark .search-tag {
+  background-color: var(--el-fill-color-dark, #2a2a2a);
+  border-color: var(--el-border-color-darker);
+}
+
+:root.dark .search-tag:hover {
+  background-color: var(--el-fill-color-darker, #333);
+  border-color: var(--el-color-primary-light-5);
+}
+
 .domain-info {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
   padding: 12px 16px;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   border-radius: 8px;
 }
 
 .domain-title {
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
   flex: 1;
 }
 
@@ -722,13 +730,13 @@ const copyResults = async () => {
 }
 
 .status-valid {
-  background-color: #f0f9eb;
-  color: #67c23a;
+  background-color: var(--el-color-success-light-9);
+  color: var(--el-color-success);
 }
 
 .status-invalid {
-  background-color: #fef0f0;
-  color: #f56c6c;
+  background-color: var(--el-color-danger-light-9);
+  color: var(--el-color-danger);
 }
 
 .error-block {
@@ -742,7 +750,6 @@ const copyResults = async () => {
 .record-type {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
   margin-bottom: 12px;
   display: flex;
   align-items: center;
@@ -753,7 +760,7 @@ const copyResults = async () => {
   display: inline-block;
   width: 4px;
   height: 16px;
-  background-color: #409eff;
+  background-color: var(--el-color-primary);
   margin-right: 8px;
   border-radius: 2px;
 }
@@ -766,7 +773,6 @@ const copyResults = async () => {
   font-size: 16px;
   font-weight: 600;
   margin: 16px 0 10px;
-  color: #303133;
 }
 
 .help-content h3:first-child {
@@ -776,7 +782,6 @@ const copyResults = async () => {
 .help-content p {
   margin: 0 0 12px;
   line-height: 1.6;
-  color: #606266;
 }
 
 .help-content ul, .help-content ol {
@@ -786,12 +791,10 @@ const copyResults = async () => {
 
 .help-content li {
   margin-bottom: 8px;
-  color: #606266;
   line-height: 1.6;
 }
 
 .help-content strong {
-  color: #303133;
   font-weight: 600;
 }
 
