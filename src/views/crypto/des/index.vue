@@ -171,7 +171,7 @@
             <el-icon><Search /></el-icon>
           </template>
         </el-input>
-        <el-button type="danger" @click="clearHistory" :disabled="!history.length">
+        <el-button type="danger" @click="clearHistoryRecords" :disabled="!history.length">
           清空历史
         </el-button>
       </div>
@@ -227,34 +227,25 @@ import { useClipboard } from '@vueuse/core';
 import type { UploadFile, UploadRawFile } from 'element-plus';
 import CryptoJS from 'crypto-js';
 import { DESUtil } from '@/utils/crypto/des';
-import { cryptoDB, type CryptoHistory, addHistory } from '@/utils/db';
+import { cryptoDB, type CryptoHistory, addHistory, getHistory } from '@/utils/db';
 import type { DESOptions, TripleDESOptions } from '@/types/crypto';
 import { encrypt, decrypt } from '@/utils/crypto';
 
 const { copy } = useClipboard();
 
-// 添加正确的类型定义
-interface DESForm {
-  key: string;
-  iv: string;
-  input: string;
-  output: string;
-  algorithm: string;
-  mode: string;
-  padding: string;
-  keySize: number;
-}
+// 添加响应式变量和类型定义
+const algorithm = ref<'DES' | '3DES'>('DES');
+const keySize = ref<number>(128);
+const cipherMode = ref<string>('CBC');
+const padding = ref<string>('Pkcs7');
+const mode = ref<'encrypt' | 'decrypt'>('encrypt');
 
-// 正确定义响应式对象
-const form = reactive<DESForm>({
+// 表单数据
+const form = reactive({
   key: '',
   iv: '',
   input: '',
   output: '',
-  algorithm: 'DES',
-  mode: 'CBC',
-  padding: 'Pkcs7',
-  keySize: 128
 });
 
 // 历史记录
@@ -263,23 +254,23 @@ const showHistory = ref(false);
 const historySearch = ref('');
 
 // 计算属性
-const needIV = computed(() => form.mode !== 'ECB');
+const needIV = computed(() => cipherMode.value !== 'ECB');
 const isKeyValid = computed(() => {
-  if (form.algorithm === 'DES') {
+  if (algorithm.value === 'DES') {
     return form.key.length === 16; // DES 需要 64 位/8字节 密钥
   } else {
     // 3DES
-    return form.keySize === 128 ? form.key.length === 32 : form.key.length === 48;
+    return keySize.value === 128 ? form.key.length === 32 : form.key.length === 48;
   }
 });
 const canProcess = computed(() => {
   return isKeyValid.value && form.input && (!needIV.value || form.iv);
 });
 const getKeyPlaceholder = computed(() => {
-  if (form.algorithm === 'DES') {
+  if (algorithm.value === 'DES') {
     return '请输入密钥（16位十六进制）';
   } else {
-    return `请输入密钥（${form.keySize === 128 ? '32' : '48'}位十六进制）`;
+    return `请输入密钥（${keySize.value === 128 ? '32' : '48'}位十六进制）`;
   }
 });
 const filteredHistory = computed(() => {
@@ -291,12 +282,12 @@ const filteredHistory = computed(() => {
 
 // 生成随机密钥
 const generateKey = () => {
-  if (form.algorithm === 'DES') {
+  if (algorithm.value === 'DES') {
     form.key = DESUtil.generateKey();
   } else {
     // 3DES
-    const keyLength = form.keySize === 128 ? 16 : 24;
-    form.key = CryptoJS.lib.WordArray.random(keyLength).toString();
+    const keyLen = keySize.value === 128 ? 16 : 24;
+    form.key = CryptoJS.lib.WordArray.random(keyLen).toString();
   }
 };
 
@@ -308,7 +299,7 @@ const generateIV = () => {
 // 处理加密/解密
 const handleProcess = () => {
   try {
-    if (form.mode === 'encrypt') {
+    if (mode.value === 'encrypt') {
       handleEncrypt();
     } else {
       handleDecrypt();
@@ -321,7 +312,7 @@ const handleProcess = () => {
 // 加密处理
 const handleEncrypt = async () => {
   try {
-    const result = await encrypt(form.input, form.key, form.algorithm, form.mode, form.padding);
+    const result = await encrypt(form.input, form.key, algorithm.value, cipherMode.value, padding.value);
     form.output = result;
     await addHistory({
       tool: 'des',
@@ -330,10 +321,10 @@ const handleEncrypt = async () => {
       output: result,
       timestamp: Date.now(),
       params: {
-        algorithm: form.algorithm,
-        mode: form.mode,
-        padding: form.padding,
-        keySize: form.keySize
+        algorithm: algorithm.value,
+        mode: cipherMode.value,
+        padding: padding.value,
+        keySize: algorithm.value === '3DES' ? keySize.value : undefined
       }
     });
   } catch (error) {
@@ -345,7 +336,7 @@ const handleEncrypt = async () => {
 // 解密处理
 const handleDecrypt = async () => {
   try {
-    const result = await decrypt(form.input, form.key, form.algorithm, form.mode, form.padding);
+    const result = await decrypt(form.input, form.key, algorithm.value, cipherMode.value, padding.value);
     form.output = result;
     await addHistory({
       tool: 'des',
@@ -354,10 +345,10 @@ const handleDecrypt = async () => {
       output: result,
       timestamp: Date.now(),
       params: {
-        algorithm: form.algorithm,
-        mode: form.mode,
-        padding: form.padding,
-        keySize: form.keySize
+        algorithm: algorithm.value,
+        mode: cipherMode.value,
+        padding: padding.value,
+        keySize: algorithm.value === '3DES' ? keySize.value : undefined
       }
     });
   } catch (error) {
@@ -370,20 +361,20 @@ const handleDecrypt = async () => {
 const saveHistory = async () => {
   try {
     const optionsObj: Record<string, any> = {
-      mode: form.mode,
-      padding: form.padding
+      mode: cipherMode.value,
+      padding: padding.value
     };
     
     // 只有在3DES时才添加keySize属性
-    if (form.algorithm === '3DES') {
-      optionsObj.keySize = form.keySize;
+    if (algorithm.value === '3DES') {
+      optionsObj.keySize = keySize.value;
     }
     
     const historyItem: Omit<CryptoHistory, 'id'> = {
-      tool: form.algorithm === 'DES' ? 'des' : 'triple-des',
+      tool: algorithm.value === 'DES' ? 'des' : 'triple-des',
       timestamp: Date.now(),
-      algorithm: form.algorithm + '-' + form.mode,
-      mode: form.mode,
+      algorithm: algorithm.value + '-' + cipherMode.value,
+      mode: mode.value,
       input: form.input,
       output: form.output,
       key: form.key,
@@ -400,59 +391,37 @@ const saveHistory = async () => {
   }
 };
 
-// 加载历史记录
-const loadHistory = async () => {
-  try {
-    const toolType = form.algorithm === 'DES' ? 'des' : 'triple-des';
-    const items = await cryptoDB.getHistory(toolType, 20);
-    history.value = items;
-  } catch (error) {
-    console.error('加载历史记录失败', error);
-  }
-};
-
-// 使用历史记录
+// 从历史记录中使用
 const useHistory = (item: CryptoHistory) => {
-  try {
-    const options = item.options ? JSON.parse(item.options) : {};
-    
-    // 设置算法类型
-    if (item.algorithm) {
-      form.algorithm = item.algorithm.startsWith('3DES') ? '3DES' : 'DES';
+  form.input = item.input;
+  form.output = item.output;
+  form.key = item.key || '';
+  form.iv = item.iv || '';
+  
+  // 设置算法和选项
+  if (item.algorithm) {
+    const parts = item.algorithm.split('-');
+    if (parts.length >= 2) {
+      algorithm.value = (parts[0] === '3DES' ? '3DES' : 'DES') as 'DES' | '3DES';
+      cipherMode.value = parts[1];
     }
-    
-    // 设置加密模式
-    if (options.mode) {
-      form.mode = options.mode;
-    }
-    
-    // 设置填充方式
-    if (options.padding) {
-      form.padding = options.padding;
-    }
-    
-    // 设置密钥大小（仅3DES）
-    if (form.algorithm === '3DES' && options.keySize) {
-      form.keySize = options.keySize;
-    }
-    
-    // 设置加密/解密模式
-    form.mode = item.mode as 'encrypt' | 'decrypt';
-    
-    // 设置表单数据
-    form.key = item.key || '';
-    form.iv = item.iv || '';
-    form.input = item.input;
-    form.output = item.output;
-    
-    // 关闭历史记录对话框
-    showHistory.value = false;
-    
-    ElMessage.success('已加载历史记录');
-  } catch (error) {
-    console.error('使用历史记录失败', error);
-    ElMessage.error('使用历史记录失败');
   }
+  
+  // 设置模式
+  mode.value = item.mode as 'encrypt' | 'decrypt';
+  
+  // 解析选项
+  if (item.options) {
+    try {
+      const options = JSON.parse(item.options);
+      if (options.padding) padding.value = options.padding;
+      if (options.keySize) keySize.value = options.keySize;
+    } catch (e) {
+      console.error('解析历史记录选项失败', e);
+    }
+  }
+  
+  showHistory.value = false;
 };
 
 // 删除历史记录
@@ -461,40 +430,49 @@ const deleteHistory = async (id: number | undefined) => {
   
   try {
     await cryptoDB.deleteHistory(id);
-    
-    // 刷新历史记录
     loadHistory();
-    
     ElMessage.success('已删除历史记录');
   } catch (error) {
     console.error('删除历史记录失败', error);
+    ElMessage.error('删除历史记录失败');
   }
 };
 
 // 清空历史记录
-const clearHistory = async () => {
+const clearHistoryRecords = async () => {
   try {
-    const toolType = form.algorithm === 'DES' ? 'des' : 'triple-des';
-    await cryptoDB.clearHistory(toolType);
-    
-    // 刷新历史记录
+    const toolType = algorithm.value === 'DES' ? 'des' : 'triple-des';
+    await cryptoDB.history.where('tool').equals(toolType).delete();
     loadHistory();
-    
     ElMessage.success('已清空历史记录');
   } catch (error) {
     console.error('清空历史记录失败', error);
+    ElMessage.error('清空历史记录失败');
   }
 };
 
-// 文件处理
-const handleFileChange = (file: UploadFile) => {
+// 加载历史记录
+const loadHistory = async () => {
+  try {
+    const toolType = algorithm.value === 'DES' ? 'des' : 'triple-des';
+    history.value = await getHistory(toolType);
+  } catch (error) {
+    console.error('加载历史记录失败', error);
+  }
+};
+
+// 文件上传处理
+const handleFileChange = (uploadFile: UploadFile) => {
+  const file = uploadFile.raw;
+  if (!file) return;
+  
   const reader = new FileReader();
   reader.onload = (e) => {
     if (e.target?.result) {
       form.input = e.target.result as string;
     }
   };
-  reader.readAsText(file.raw as Blob);
+  reader.readAsText(file);
 };
 
 // 拖放文件处理
@@ -536,7 +514,7 @@ const handleDownload = () => {
   const blob = new Blob([form.output], { type: 'text/plain' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `${form.algorithm}-${form.mode}-${Date.now()}.txt`;
+  a.download = `${algorithm.value}-${cipherMode.value}-${Date.now()}.txt`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -551,7 +529,7 @@ const handleClear = () => {
 };
 
 // 监听算法变化
-watch(form.algorithm, () => {
+watch(algorithm, () => {
   // 加载对应算法的历史记录
   loadHistory();
 });
