@@ -368,7 +368,7 @@ const isFormValid = computed(() => {
   .page-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 24px;
     
     .recent-searches,
     .help-card {
@@ -376,17 +376,28 @@ const isFormValid = computed(() => {
     }
   }
   
+  .input-card, .result-card, .recent-searches, .help-card {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    overflow: hidden;
+    
+    &:hover {
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
   .card-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
+    gap: 10px;
+    margin-bottom: 20px;
     font-weight: 600;
     color: var(--el-text-color-primary);
     font-size: 16px;
     
     .el-icon {
       color: var(--el-color-primary);
+      font-size: 18px;
     }
     
     .result-actions,
@@ -399,33 +410,64 @@ const isFormValid = computed(() => {
     font-family: monospace;
     font-weight: 600;
     letter-spacing: 0.5px;
+    font-size: 16px;
+    background-color: var(--el-fill-color-light);
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: var(--el-color-primary);
+  }
+  
+  .result-content {
+    :deep(.el-descriptions) {
+      border-radius: 6px;
+      overflow: hidden;
+      
+      .el-descriptions__label {
+        font-weight: 600;
+        background-color: var(--el-fill-color-light);
+        width: 100px;
+      }
+      
+      .el-descriptions__content {
+        line-height: 1.6;
+      }
+    }
   }
   
   .help-content,
   .history-content {
-    margin-top: 10px;
+    margin-top: 12px;
     
     h4 {
-      margin: 16px 0 8px 0;
-      font-size: 14px;
+      margin: 20px 0 10px 0;
+      font-size: 15px;
       font-weight: 600;
       color: var(--el-text-color-primary);
+      
+      &:first-child {
+        margin-top: 0;
+      }
     }
     
     p {
-      margin: 8px 0;
+      margin: 10px 0;
       line-height: 1.6;
       color: var(--el-text-color-regular);
     }
     
     ul {
       padding-left: 20px;
-      margin: 8px 0;
+      margin: 10px 0;
       color: var(--el-text-color-regular);
       
       li {
-        margin-bottom: 6px;
-        line-height: 1.5;
+        margin-bottom: 8px;
+        line-height: 1.6;
+        position: relative;
+        
+        &::marker {
+          color: var(--el-color-primary);
+        }
       }
     }
   }
@@ -435,9 +477,52 @@ const isFormValid = computed(() => {
     font-size: 12px;
     margin-top: 4px;
   }
+  
+  :deep(.el-card__body) {
+    padding: 20px;
+  }
+  
+  :deep(.el-input__wrapper) {
+    border-radius: 6px;
+  }
+  
+  :deep(.el-button--primary) {
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(var(--el-color-primary-rgb), 0.3);
+    }
+  }
+  
+  :deep(.el-button--primary.is-link) {
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: none;
+    }
+  }
+  
+  :deep(.el-form-item__label) {
+    font-weight: 500;
+  }
+  
+  :deep(.el-table) {
+    border-radius: 6px;
+    overflow: hidden;
+    
+    th {
+      background-color: var(--el-fill-color-light);
+      font-weight: 600;
+    }
+    
+    .el-button.el-button--primary.is-link {
+      padding: 4px;
+    }
+  }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .mac-lookup-page {
     .page-content {
       grid-template-columns: 1fr;

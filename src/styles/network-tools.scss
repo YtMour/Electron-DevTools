@@ -1,0 +1,357 @@
+// 网络工具页面通用样式
+
+// 页面基本布局
+.network-tool-page {
+  max-width: 100%;
+  overflow-x: hidden;
+  
+  // 页面标题区域样式
+  .page-header {
+    margin-bottom: 24px;
+    
+    .header-title {
+      h2 {
+        font-size: 26px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+      }
+      
+      .header-desc {
+        font-size: 15px;
+        color: var(--el-text-color-secondary);
+        margin: 0;
+      }
+    }
+  }
+  
+  // 内容区域网格布局
+  .page-content {
+    display: grid;
+    gap: 24px;
+    
+    &.two-columns {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    &.main-sidebar {
+      grid-template-columns: 2fr 1fr;
+    }
+    
+    &.sidebar-main {
+      grid-template-columns: 1fr 2fr;
+    }
+    
+    &.three-columns {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
+  
+  // 卡片通用样式
+  .network-card {
+    height: 100%;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 12px;
+    border: 1px solid transparent;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background-color: var(--el-bg-color);
+    overflow: hidden;
+    
+    &:hover {
+      border-color: var(--el-color-primary-light-5);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+  }
+  
+  // 卡片头部样式
+  .card-header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    border-bottom: 1px dashed var(--el-border-color-light);
+    
+    .card-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--el-color-primary-light-9);
+      margin-right: 12px;
+      
+      .el-icon {
+        font-size: 18px;
+        color: var(--el-color-primary);
+      }
+    }
+    
+    .card-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+      flex: 1;
+    }
+    
+    .header-actions {
+      margin-left: auto;
+    }
+  }
+  
+  // 内容区域通用样式
+  .result-content {
+    background-color: var(--el-fill-color-light);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+  }
+  
+  // 帮助内容样式
+  .help-content {
+    color: var(--el-text-color-regular);
+    font-size: 14px;
+    line-height: 1.6;
+    
+    h4 {
+      color: var(--el-text-color-primary);
+      font-size: 16px;
+      font-weight: 600;
+      margin: 16px 0 10px;
+      
+      &:first-of-type {
+        margin-top: 0;
+      }
+    }
+    
+    p {
+      margin: 0 0 12px;
+    }
+    
+    ul, ol {
+      padding-left: 20px;
+      margin: 12px 0;
+      
+      li {
+        margin-bottom: 8px;
+        position: relative;
+        
+        &::marker {
+          color: var(--el-color-primary);
+        }
+        
+        strong {
+          color: var(--el-text-color-primary);
+          font-weight: 600;
+        }
+      }
+    }
+    
+    code {
+      background-color: var(--el-fill-color-light);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--el-font-family-monospace, monospace);
+      font-size: 13px;
+      color: var(--el-color-danger);
+    }
+  }
+  
+  // 表格样式
+  .table-container {
+    :deep(.el-table) {
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 12px 0;
+      
+      .el-table__header-wrapper {
+        th {
+          background-color: var(--el-fill-color-light);
+          font-weight: 600;
+          color: var(--el-text-color-regular);
+        }
+      }
+      
+      .el-table__row:hover td {
+        background-color: var(--el-fill-color);
+      }
+    }
+  }
+  
+  // 通用错误信息样式
+  .validation-error {
+    color: var(--el-color-danger);
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  
+  // 操作按钮样式
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    
+    .el-button {
+      flex: 1;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(var(--el-color-primary-rgb), 0.3);
+      }
+    }
+  }
+  
+  // 单行输入框组合（带标签和按钮）
+  .input-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    .input-field {
+      flex: 1;
+    }
+    
+    .input-action {
+      flex-shrink: 0;
+    }
+  }
+  
+  // 代码和预格式化文本
+  .code-display {
+    background-color: var(--el-fill-color-light);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: var(--el-font-family-monospace, monospace);
+    font-size: 14px;
+    color: var(--el-color-primary);
+    word-break: break-all;
+    margin-bottom: 16px;
+    
+    &.copyable {
+      display: flex;
+      align-items: center;
+      
+      .code-content {
+        flex: 1;
+        margin-right: 8px;
+      }
+    }
+  }
+  
+  // 深色覆盖
+  :deep(.el-card__body) {
+    padding: 20px;
+  }
+  
+  // 响应式调整
+  @media (max-width: 1200px) {
+    .page-content {
+      &.two-columns,
+      &.main-sidebar,
+      &.sidebar-main,
+      &.three-columns {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .page-header {
+      .header-title {
+        h2 {
+          font-size: 22px;
+        }
+        
+        .header-desc {
+          font-size: 14px;
+        }
+      }
+    }
+    
+    .card-header {
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      
+      .header-actions {
+        margin-left: 0;
+        margin-top: 8px;
+        width: 100%;
+        
+        .el-button {
+          width: 100%;
+        }
+      }
+    }
+    
+    .action-buttons {
+      flex-direction: column;
+    }
+    
+    .input-group {
+      flex-direction: column;
+      align-items: stretch;
+      
+      .input-action .el-button {
+        width: 100%;
+      }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .page-header {
+      .header-title {
+        h2 {
+          font-size: 20px;
+        }
+      }
+    }
+    
+    .card-header {
+      .card-icon {
+        width: 32px;
+        height: 32px;
+        
+        .el-icon {
+          font-size: 16px;
+        }
+      }
+      
+      .card-title {
+        font-size: 16px;
+      }
+    }
+    
+    .code-display {
+      font-size: 13px;
+      padding: 10px 12px;
+    }
+    
+    .help-content {
+      font-size: 13px;
+      
+      h4 {
+        font-size: 15px;
+      }
+    }
+    
+    :deep(.el-card__body) {
+      padding: 16px;
+    }
+    
+    :deep(.el-form-item__label) {
+      padding-bottom: 4px;
+      font-size: 13px;
+    }
+    
+    :deep(.el-form-item) {
+      margin-bottom: 16px;
+    }
+  }
+} 

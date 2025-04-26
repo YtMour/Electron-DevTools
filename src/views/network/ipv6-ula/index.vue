@@ -1,183 +1,172 @@
 <template>
-  <div class="ipv6-ula-page format-page">
-    <div class="page-header">
-      <div class="header-title">
-        <h2>IPv6 ULA 生成器</h2>
-        <p class="header-desc">生成唯一本地地址 (Unique Local Address) 前缀</p>
-      </div>
+  <div class="ula-generator-container">
+    <div class="header">
+      <h1>IPv6 ULA 生成器</h1>
+      <p>生成用于本地网络的IPv6唯一本地地址(ULA)</p>
     </div>
-
-    <div class="page-content">
-      <el-card class="generator-card">
-        <div class="card-header">
-          <el-icon><Setting /></el-icon>
-          <span>生成选项</span>
-        </div>
-
-        <el-form :model="form" label-position="top">
-          <el-form-item label="生成方式">
-            <el-radio-group v-model="form.method">
-              <el-radio-button label="random">随机生成</el-radio-button>
-              <el-radio-button label="custom">自定义</el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-
-          <template v-if="form.method === 'custom'">
-            <el-form-item label="全局ID (40位十六进制数)">
-              <el-input
-                v-model="form.globalId"
-                placeholder="例如: 1a2b3c4d5e"
-                :maxlength="10"
-                @input="validateInput"
-              />
-              <div v-if="validationError" class="error-message">
-                {{ validationError }}
+    
+    <div class="main-content">
+      <div class="generator-section">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="icon">
+              <el-icon><Connection /></el-icon>
+            </span>
+            <span class="title">生成IPv6 ULA</span>
+          </div>
+          
+          <div class="panel-body">
+            <div class="form-group">
+              <label>前缀选项</label>
+              <div class="prefix-options">
+                <div 
+                  class="prefix-option" 
+                  :class="{ active: prefix === 'fd' }"
+                  @click="prefix = 'fd'"
+                >
+                  fd00::/8 (推荐)
+                </div>
+                <div 
+                  class="prefix-option" 
+                  :class="{ active: prefix === 'fc' }"
+                  @click="prefix = 'fc'"
+                >
+                  fc00::/8
+                </div>
               </div>
-            </el-form-item>
-
-            <el-form-item label="子网ID (16位十六进制数)">
-              <el-input
-                v-model="form.subnetId"
-                placeholder="例如: ffff"
-                :maxlength="4"
-                @input="validateInput"
+            </div>
+            
+            <div class="form-group">
+              <label>子网ID (可选)</label>
+              <el-input 
+                v-model="form.subnetId" 
+                placeholder="子网ID (例如: 0001)"
+                maxlength="4"
+                @input="validateSubnetId"
               />
-              <div v-if="subnetError" class="error-message">
-                {{ subnetError }}
+              <div class="error-message" v-if="errors.subnetId">
+                {{ errors.subnetId }}
               </div>
-            </el-form-item>
-          </template>
-
-          <el-form-item label="前缀长度">
-            <el-select 
-              v-model="form.prefixLength" 
-              style="width: 100%"
-            >
-              <el-option label="/48 (推荐站点前缀)" value="48" />
-              <el-option label="/56 (典型家庭分配)" value="56" />
-              <el-option label="/60 (小型子网)" value="60" />
-              <el-option label="/64 (单一子网)" value="64" />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item>
-            <el-button 
-              type="primary" 
-              @click="generateULA" 
-              style="width: 100%"
-              :disabled="form.method === 'custom' && (!!validationError || !!subnetError)"
-            >
-              <el-icon><VideoPlay /></el-icon>
-              生成 ULA 前缀
-            </el-button>
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <el-card class="result-card">
-        <div class="card-header">
-          <el-icon><List /></el-icon>
-          <span>生成结果</span>
-          <div class="result-actions">
-            <el-button type="primary" plain size="small" @click="copyResult" :disabled="!result.ula">
-              <el-icon><CopyDocument /></el-icon>
-              复制结果
-            </el-button>
+            </div>
+            
+            <div class="form-group">
+              <label>接口ID (可选)</label>
+              <el-input 
+                v-model="form.interfaceId" 
+                placeholder="接口ID (例如: 0000:0000:0000:0001)"
+                maxlength="19"
+                @input="validateInterfaceId"
+              />
+              <div class="error-message" v-if="errors.interfaceId">
+                {{ errors.interfaceId }}
+              </div>
+            </div>
+            
+            <div class="action-buttons">
+              <el-button type="primary" @click="generateULA" class="generate-button">
+                <el-icon><Operation /></el-icon>
+                生成ULA地址
+              </el-button>
+              <el-button type="success" @click="copyULA" :disabled="!ulaAddress" class="copy-button">
+                <el-icon><CopyDocument /></el-icon>
+                复制到剪贴板
+              </el-button>
+            </div>
+            
+            <div class="result-container" v-if="ulaAddress">
+              <div class="result-title">生成的ULA地址:</div>
+              <div class="result-value">
+                <div class="ipv6-address">{{ ulaAddress }}</div>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div class="result-content">
-          <el-empty 
-            v-if="!result.ula"
-            description="尚未生成ULA前缀"
-          />
-          <div v-else class="result-details">
-            <el-descriptions :column="1" border>
-              <el-descriptions-item label="ULA 前缀">
-                <span class="ula-value">{{ result.ula }}</span>
-              </el-descriptions-item>
-              <el-descriptions-item label="前缀长度">
-                {{ form.prefixLength }}
-              </el-descriptions-item>
-              <el-descriptions-item label="全局 ID">
-                {{ result.globalId }}
-              </el-descriptions-item>
-              <el-descriptions-item label="子网 ID">
-                {{ result.subnetId }}
-              </el-descriptions-item>
-              <el-descriptions-item label="设备地址示例">
-                {{ result.exampleAddress }}
-              </el-descriptions-item>
-            </el-descriptions>
-
-            <div class="address-structure">
-              <h4>地址结构</h4>
-              <div class="structure-diagram">
-                <div class="diagram-box fc" title="前缀">
-                  <strong>FC00::/7</strong>
-                  <span>ULA前缀</span>
+        
+        <div class="panel ula-structure-panel">
+          <div class="panel-header">
+            <span class="icon">
+              <el-icon><SetUp /></el-icon>
+            </span>
+            <span class="title">ULA地址结构</span>
+          </div>
+          
+          <div class="panel-body">
+            <div class="structure-diagram">
+              <div class="structure-row">
+                <div class="structure-cell">
+                  <div class="cell-title">前缀</div>
+                  <div class="cell-value">{{ prefix === 'fd' ? 'fd' : 'fc' }}</div>
                 </div>
-                <div class="diagram-box l" title="本地位">
-                  <strong>1</strong>
-                  <span>本地</span>
+                <div class="structure-cell">
+                  <div class="cell-title">全局ID</div>
+                  <div class="cell-value">{{ globalId || '随机生成' }}</div>
                 </div>
-                <div class="diagram-box global-id" title="全局ID">
-                  <strong>{{ result.globalId }}</strong>
-                  <span>全局ID</span>
+                <div class="structure-cell">
+                  <div class="cell-title">子网ID</div>
+                  <div class="cell-value">{{ form.subnetId || '0000' }}</div>
                 </div>
-                <div class="diagram-box subnet-id" title="子网ID">
-                  <strong>{{ result.subnetId }}</strong>
-                  <span>子网ID</span>
-                </div>
-                <div class="diagram-box interface-id" title="接口ID">
-                  <strong>::</strong>
-                  <span>接口ID</span>
+                <div class="structure-cell">
+                  <div class="cell-title">接口ID</div>
+                  <div class="cell-value">{{ form.interfaceId || '自动生成' }}</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </el-card>
-
-      <el-card class="info-card">
-        <div class="card-header">
-          <el-icon><InfoFilled /></el-icon>
-          <span>IPv6 ULA 信息</span>
+      </div>
+      
+      <div class="explanation-section">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="icon">
+              <el-icon><InfoFilled /></el-icon>
+            </span>
+            <span class="title">ULA 地址说明</span>
+          </div>
+          
+          <div class="panel-body">
+            <div class="help-content">
+              <h3>什么是ULA?</h3>
+              <p>
+                IPv6唯一本地地址(Unique Local Address, ULA)是用于本地通信的IPv6地址，
+                类似于IPv4中的私有地址(如192.168.x.x)。ULA地址在RFC 4193中定义，
+                它们不可在全球互联网上路由，仅用于本地网络。
+              </p>
+              
+              <h3>ULA地址特点</h3>
+              <ul>
+                <li>前缀为<code>fc00::/7</code>，通常使用<code>fd00::/8</code></li>
+                <li>全局ID部分(40位)能够在站点间提供唯一性</li>
+                <li>子网ID(16位)允许在组织内创建多达65536个子网</li>
+                <li>接口ID(64位)用于标识网络接口</li>
+                <li>在没有互联网连接的情况下也可使用</li>
+                <li>可以在多个站点之间合并网络而不会产生地址冲突</li>
+                <li>不易被意外路由到互联网</li>
+              </ul>
+              
+              <h3>ULA地址格式</h3>
+              <p>
+                ULA地址的格式为: <code>prefix:global-id:subnet-id:interface-id</code>
+              </p>
+              <ul>
+                <li><strong>前缀</strong>: fd或fc (fd更常用，表示本地分配)</li>
+                <li><strong>全局ID</strong>: 随机生成的40位值，算法在RFC 4193中定义</li>
+                <li><strong>子网ID</strong>: 16位值，用于创建子网</li>
+                <li><strong>接口ID</strong>: 64位值，通常使用EUI-64或随机生成</li>
+              </ul>
+              
+              <h3>使用场景</h3>
+              <ul>
+                <li>家庭网络和小型办公室网络</li>
+                <li>没有全球IPv6连接的企业网络</li>
+                <li>测试环境和实验室</li>
+                <li>需要IPv6但不需要全球路由的封闭网络</li>
+                <li>位置之间通过VPN或其他隧道互连的网络</li>
+              </ul>
+            </div>
+          </div>
         </div>
-
-        <div class="info-content">
-          <h4>什么是 IPv6 ULA？</h4>
-          <p>
-            IPv6 唯一本地地址 (Unique Local Address, ULA) 是IPv6地址的一类，相当于IPv4中的私有地址(如192.168.x.x)。
-            ULA地址范围是 fc00::/7，通常看到的格式为 fd00::/8。
-          </p>
-          
-          <h4>ULA 地址结构</h4>
-          <p>ULA地址遵循以下结构：</p>
-          <ul>
-            <li><strong>前缀：</strong> FC00::/7（通常使用FD00::/8）</li>
-            <li><strong>L位：</strong> 1位，设置为1表示本地分配</li>
-            <li><strong>全局ID：</strong> 40位，应随机生成以确保全局唯一性</li>
-            <li><strong>子网ID：</strong> 16位，用于在站点内创建子网</li>
-            <li><strong>接口ID：</strong> 64位，标识网络接口</li>
-          </ul>
-          
-          <h4>ULA 使用场景</h4>
-          <ul>
-            <li>本地网络内部通信</li>
-            <li>无需互联网连接的设备间通信</li>
-            <li>防止路由泄漏和地址冲突</li>
-            <li>VPN和站点间通信</li>
-            <li>不依赖ISP的内部网络地址规划</li>
-          </ul>
-          
-          <h4>RFC参考</h4>
-          <p>
-            IPv6 ULA在<a href="https://tools.ietf.org/html/rfc4193" target="_blank">RFC 4193</a>中定义。
-            根据规范，全局ID应通过随机算法生成以确保唯一性。
-          </p>
-        </div>
-      </el-card>
+      </div>
     </div>
   </div>
 </template>
@@ -185,57 +174,44 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
-import { Setting, VideoPlay, List, InfoFilled, CopyDocument } from '@element-plus/icons-vue';
+import { Connection, Operation, InfoFilled, CopyDocument, SetUp } from '@element-plus/icons-vue';
 import { useClipboard } from '@vueuse/core';
 
 const { copy } = useClipboard();
 
 // 表单数据
 const form = reactive({
-  method: 'random',
-  globalId: '',
-  subnetId: '0000',
-  prefixLength: '48'
+  subnetId: '',
+  interfaceId: ''
 });
 
 // 验证错误
-const validationError = ref('');
-const subnetError = ref('');
-
-// 结果
-const result = reactive({
-  ula: '',
-  globalId: '',
+const errors = reactive({
   subnetId: '',
-  exampleAddress: ''
+  interfaceId: ''
 });
 
-// 验证输入
-const validateInput = () => {
-  // 验证全局ID
-  if (form.method === 'custom' && form.globalId) {
-    if (!/^[0-9a-fA-F]{1,10}$/.test(form.globalId)) {
-      validationError.value = '全局ID必须是10位十六进制数';
-    } else if (form.globalId.length < 10) {
-      validationError.value = '全局ID必须是10位十六进制数';
-    } else {
-      validationError.value = '';
-    }
-  } else {
-    validationError.value = '';
-  }
+// 前缀选项
+const prefix = ref('fd');
 
-  // 验证子网ID
-  if (form.method === 'custom' && form.subnetId) {
-    if (!/^[0-9a-fA-F]{1,4}$/.test(form.subnetId)) {
-      subnetError.value = '子网ID必须是4位十六进制数';
-    } else if (form.subnetId.length < 4) {
-      subnetError.value = '子网ID必须是4位十六进制数';
-    } else {
-      subnetError.value = '';
-    }
+// 生成的地址和相关值
+const ulaAddress = ref('');
+const globalId = ref('');
+
+// 验证输入
+const validateSubnetId = () => {
+  if (form.subnetId && !/^[0-9a-fA-F]{1,4}$/.test(form.subnetId)) {
+    errors.subnetId = '子网ID必须是1-4位十六进制数';
   } else {
-    subnetError.value = '';
+    errors.subnetId = '';
+  }
+};
+
+const validateInterfaceId = () => {
+  if (form.interfaceId && !/^[0-9a-fA-F:]{1,19}$/.test(form.interfaceId)) {
+    errors.interfaceId = '接口ID必须是十六进制数，最长19位(含冒号)';
+  } else {
+    errors.interfaceId = '';
   }
 };
 
@@ -249,69 +225,73 @@ const getRandomBytes = (length: number): string => {
     .join('');
 };
 
-// 生成ULA前缀
+// 生成ULA地址
 const generateULA = () => {
-  let globalId: string;
-  let subnetId: string;
-
-  if (form.method === 'random') {
-    // 生成40位随机全局ID（5字节）
-    globalId = getRandomBytes(5);
-    // 生成16位随机子网ID（2字节）
-    subnetId = form.subnetId === '0000' ? getRandomBytes(2) : form.subnetId.padStart(4, '0');
-  } else {
-    // 使用用户输入的值
-    globalId = form.globalId.toLowerCase().padStart(10, '0');
-    subnetId = form.subnetId.toLowerCase().padStart(4, '0');
+  // 验证输入
+  validateSubnetId();
+  validateInterfaceId();
+  
+  if (errors.subnetId || errors.interfaceId) {
+    ElMessage.warning('请修正表单中的错误');
+    return;
   }
-
-  // 构建ULA前缀
-  // fd + 全局ID（5字节 = 10个十六进制字符）
-  const prefix = 'fd' + globalId;
   
-  // 格式化为标准IPv6格式
-  const formattedPrefix = formatIPv6Address(prefix, subnetId);
-  
-  // 创建示例地址
-  const randomInterfaceId = getRandomBytes(8); // 8字节 = 16个十六进制字符
-  const exampleAddress = formatIPv6Address(
-    prefix + subnetId + randomInterfaceId.substring(0, 4),
-    randomInterfaceId.substring(4)
-  );
-
-  // 设置结果
-  result.ula = formattedPrefix;
-  result.globalId = globalId;
-  result.subnetId = subnetId;
-  result.exampleAddress = exampleAddress;
-
-  ElMessage.success('ULA前缀生成成功');
+  try {
+    // 生成40位随机全局ID（5字节）
+    const randomGlobalId = getRandomBytes(5);
+    globalId.value = randomGlobalId;
+    
+    // 使用提供的子网ID或默认值
+    const subnetId = form.subnetId ? form.subnetId.toLowerCase().padStart(4, '0') : '0000';
+    
+    // 使用提供的接口ID或生成随机的
+    const interfaceId = form.interfaceId ? 
+      form.interfaceId.toLowerCase() : 
+      getRandomBytes(8).replace(/(.{4})/g, '$1:').slice(0, -1);
+    
+    // 构建基本ULA前缀 (fd/fc + globalId)
+    const ulaPrefix = prefix.value + randomGlobalId;
+    
+    // 格式化完整的ULA地址
+    ulaAddress.value = formatIPv6Address(`${ulaPrefix}:${subnetId}:${interfaceId}`);
+    
+    ElMessage.success('ULA地址生成成功');
+  } catch (error) {
+    ElMessage.error(`生成失败: ${(error as Error).message}`);
+  }
 };
 
-// 格式化IPv6地址
-const formatIPv6Address = (prefix: string, suffix: string = ''): string => {
-  // 将整个字符串填充到32个十六进制字符（16字节）
-  const fullAddress = (prefix + suffix).padEnd(32, '0');
+// 格式化IPv6地址为标准形式
+const formatIPv6Address = (address: string): string => {
+  // 分割地址并过滤空字符串
+  const parts = address.split(':').filter(part => part !== '');
   
-  // 每4个字符（2字节）一组，用冒号分隔
-  const groups = [];
-  for (let i = 0; i < 8; i++) {
-    groups.push(fullAddress.substring(i * 4, (i + 1) * 4));
+  // 确保有8个部分
+  if (parts.length > 8) {
+    // 如果超过8个部分，截断
+    parts.splice(8);
+  } else if (parts.length < 8) {
+    // 如果少于8个部分，用0填充
+    const zerosNeeded = 8 - parts.length;
+    for (let i = 0; i < zerosNeeded; i++) {
+      parts.push('0');
+    }
   }
   
   // 返回格式化的地址
-  return groups.join(':');
+  return parts.join(':');
 };
 
-// 复制结果
-const copyResult = async () => {
-  if (!result.ula) return;
+// 复制ULA地址
+const copyULA = async () => {
+  if (!ulaAddress.value) return;
   
   const text = `
-ULA前缀: ${result.ula}/${form.prefixLength}
-全局ID: ${result.globalId}
-子网ID: ${result.subnetId}
-示例地址: ${result.exampleAddress}
+IPv6 ULA地址: ${ulaAddress.value}
+前缀: ${prefix.value}
+全局ID: ${globalId.value}
+子网ID: ${form.subnetId || '0000'}
+接口ID: ${form.interfaceId || '自动生成'}
   `.trim();
   
   try {
@@ -323,158 +303,343 @@ ULA前缀: ${result.ula}/${form.prefixLength}
 };
 </script>
 
-<style lang="scss" scoped>
-.ipv6-ula-page {
-  .page-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    
-    .info-card {
-      grid-column: 1 / -1;
-    }
-  }
-  
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-    font-weight: 600;
-    color: var(--el-text-color-primary);
-    font-size: 16px;
-    
-    .el-icon {
-      color: var(--el-color-primary);
-    }
-    
-    .result-actions {
-      margin-left: auto;
-    }
-  }
-  
-  .error-message {
-    color: var(--el-color-danger);
-    font-size: 12px;
-    margin-top: 4px;
-  }
-  
-  .ula-value {
-    font-family: monospace;
-    font-weight: 600;
-    font-size: 16px;
-  }
-  
-  .result-details {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .address-structure {
-    margin-top: 16px;
-    
-    h4 {
-      margin-bottom: 12px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    
-    .structure-diagram {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1px;
-      background-color: var(--el-border-color-light);
-      border-radius: 4px;
-      overflow: hidden;
-      
-      .diagram-box {
-        padding: 8px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background-color: var(--el-fill-color-light);
-        
-        strong {
-          font-family: monospace;
-          font-size: 14px;
-          margin-bottom: 4px;
-        }
-        
-        span {
-          font-size: 12px;
-          color: var(--el-text-color-secondary);
-        }
-        
-        &.fc {
-          flex: 0 0 30%;
-          background-color: var(--el-color-primary-light-9);
-        }
-        
-        &.l {
-          flex: 0 0 10%;
-          background-color: var(--el-color-success-light-9);
-        }
-        
-        &.global-id {
-          flex: 0 0 25%;
-          background-color: var(--el-color-warning-light-9);
-        }
-        
-        &.subnet-id {
-          flex: 0 0 15%;
-          background-color: var(--el-color-danger-light-9);
-        }
-        
-        &.interface-id {
-          flex: 0 0 20%;
-          background-color: var(--el-color-info-light-9);
-        }
-      }
-    }
-  }
-  
-  .info-content {
-    h4 {
-      margin: 16px 0 8px 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--el-text-color-primary);
-    }
-    
-    p {
-      margin: 8px 0;
-      line-height: 1.5;
-      color: var(--el-text-color-regular);
-    }
-    
-    ul {
-      padding-left: 20px;
-      margin: 8px 0;
-      color: var(--el-text-color-regular);
-      
-      li {
-        margin-bottom: 6px;
-        line-height: 1.5;
-      }
-    }
-    
-    a {
-      color: var(--el-color-primary);
-      text-decoration: none;
-      
-      &:hover {
-        text-decoration: underline;
-      }
-    }
+<style scoped>
+.ula-generator-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: #333;
+}
+
+.header {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  background: linear-gradient(90deg, #409eff, #79bbff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.header p {
+  font-size: 16px;
+  color: #606266;
+  margin: 0;
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 24px;
+}
+
+.generator-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.panel {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid #ebeef5;
+  transition: all 0.3s;
+}
+
+.panel:hover {
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #ebeef5;
+  position: relative;
+}
+
+.panel-header .icon {
+  margin-right: 10px;
+  width: 24px;
+  height: 24px;
+  background-color: #ecf5ff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #409eff;
+}
+
+.panel-header .title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  flex: 1;
+}
+
+.panel-body {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.error-message {
+  color: #f56c6c;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.prefix-options {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.prefix-option {
+  flex: 1;
+  padding: 10px 16px;
+  background-color: #f5f7fa;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.prefix-option.active {
+  background-color: #ecf5ff;
+  border-color: #409eff;
+  color: #409eff;
+  font-weight: 500;
+}
+
+.prefix-option:hover:not(.active) {
+  border-color: #c0c4cc;
+  background-color: #ebeef5;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.generate-button, .copy-button {
+  flex: 1;
+  height: 40px;
+}
+
+.result-container {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  border: 1px solid #ebeef5;
+}
+
+.result-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #606266;
+}
+
+.ipv6-address {
+  padding: 12px 16px;
+  background-color: #fff;
+  border-radius: 6px;
+  border: 1px solid #ebeef5;
+  font-family: monospace;
+  font-size: 16px;
+  color: #409eff;
+  word-break: break-all;
+  text-align: center;
+}
+
+.ula-structure-panel .panel-body {
+  padding: 0;
+}
+
+.structure-diagram {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.structure-row {
+  display: flex;
+  width: 100%;
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.structure-cell {
+  flex: 1;
+  text-align: center;
+  padding: 0;
+  border-right: 1px solid #ebeef5;
+}
+
+.structure-cell:last-child {
+  border-right: none;
+}
+
+.cell-title {
+  padding: 10px;
+  background-color: #f5f7fa;
+  font-weight: 600;
+  font-size: 14px;
+  color: #606266;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.cell-value {
+  padding: 16px 8px;
+  background-color: #fff;
+  font-family: monospace;
+  word-break: break-all;
+  min-height: 25px;
+  font-size: 14px;
+  color: #303133;
+}
+
+.help-content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 16px 0 10px;
+  color: #303133;
+}
+
+.help-content h3:first-child {
+  margin-top: 0;
+}
+
+.help-content p {
+  margin: 0 0 12px;
+  line-height: 1.6;
+  color: #606266;
+}
+
+.help-content ul {
+  padding-left: 20px;
+  margin: 12px 0;
+}
+
+.help-content li {
+  margin-bottom: 8px;
+  color: #606266;
+  line-height: 1.6;
+}
+
+.help-content strong {
+  color: #303133;
+  font-weight: 600;
+}
+
+.help-content code {
+  background-color: #f5f7fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9em;
+  color: #409eff;
+}
+
+@media (max-width: 1200px) {
+  .main-content {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .ipv6-ula-page {
-    .page-content {
-      grid-template-columns: 1fr;
-    }
+  .ula-generator-container {
+    padding: 15px;
+  }
+  
+  .header h1 {
+    font-size: 24px;
+  }
+  
+  .header p {
+    font-size: 14px;
+  }
+  
+  .panel-header {
+    padding: 12px 15px;
+  }
+  
+  .panel-body {
+    padding: 15px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .prefix-options {
+    flex-direction: column;
+  }
+  
+  .structure-diagram {
+    overflow-x: auto;
+  }
+  
+  .structure-row {
+    min-width: 600px;
+  }
+}
+
+@media (max-width: 480px) {
+  .result-container {
+    padding: 12px;
+  }
+  
+  .ipv6-address {
+    font-size: 14px;
+    padding: 10px;
+  }
+  
+  .structure-cell .cell-title {
+    font-size: 13px;
+    padding: 8px 4px;
+  }
+  
+  .structure-cell .cell-value {
+    font-size: 13px;
+    padding: 10px 4px;
+  }
+  
+  .help-content h3 {
+    font-size: 15px;
+  }
+  
+  .help-content p, .help-content li {
+    font-size: 13px;
+  }
+  
+  .help-content code {
+    font-size: 12px;
   }
 }
 </style> 

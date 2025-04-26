@@ -231,6 +231,38 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'IPv6 ULA生成器'
         }
+      },
+      {
+        path: 'ip-lookup',
+        name: 'ip-lookup',
+        component: () => import('../views/network/ip-lookup/index.vue'),
+        meta: {
+          title: 'IP地址查询'
+        }
+      },
+      {
+        path: 'port-scanner',
+        name: 'port-scanner',
+        component: () => import('../views/network/port-scanner/index.vue'),
+        meta: {
+          title: '端口扫描器'
+        }
+      },
+      {
+        path: 'domain-lookup',
+        name: 'domain-lookup',
+        component: () => import('../views/network/domain-lookup/index.vue'),
+        meta: {
+          title: '域名查询'
+        }
+      },
+      {
+        path: 'ping',
+        name: 'ping',
+        component: () => import('../views/network/ping/index.vue'),
+        meta: {
+          title: 'Ping测试'
+        }
       }
     ]
   }

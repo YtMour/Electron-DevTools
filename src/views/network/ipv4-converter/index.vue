@@ -310,23 +310,57 @@ const copyResults = async () => {
 
 <style lang="scss" scoped>
 .ipv4-converter-page {
+  max-width: 100%;
+  overflow-x: hidden;
+  
+  .page-header {
+    margin-bottom: 20px;
+    
+    .header-title {
+      h2 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--el-text-color-primary);
+      }
+      
+      .header-desc {
+        font-size: 14px;
+        color: var(--el-text-color-secondary);
+        margin: 0;
+      }
+    }
+  }
+  
   .page-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 24px;
+  }
+
+  .converter-card, .results-card, .info-card {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    
+    &:hover {
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
   }
 
   .card-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
+    gap: 10px;
+    margin-bottom: 20px;
     font-weight: 600;
     color: var(--el-text-color-primary);
     font-size: 16px;
     
     .el-icon {
       color: var(--el-color-primary);
+      font-size: 18px;
     }
     
     .copy-button {
@@ -343,27 +377,42 @@ const copyResults = async () => {
       
       h4 {
         margin: 16px 0 8px 0;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
         color: var(--el-text-color-primary);
+        
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+      
+      p {
+        margin: 10px 0;
+        line-height: 1.6;
       }
       
       ul {
         padding-left: 20px;
-        margin: 8px 0;
+        margin: 10px 0;
         
         li {
           margin-bottom: 8px;
-          line-height: 1.5;
+          line-height: 1.6;
+          position: relative;
+          
+          &::marker {
+            color: var(--el-color-primary);
+          }
         }
       }
       
       code {
         font-family: monospace;
         background: var(--el-fill-color-light);
-        padding: 2px 4px;
-        border-radius: 3px;
+        padding: 4px 6px;
+        border-radius: 4px;
         color: var(--el-color-primary);
+        font-size: 13px;
       }
     }
   }
@@ -375,21 +424,226 @@ const copyResults = async () => {
   }
   
   .results-container {
+    :deep(.el-descriptions) {
+      border-radius: 6px;
+      overflow: hidden;
+      
+      .el-descriptions__label {
+        font-weight: 600;
+        background-color: var(--el-fill-color-light);
+        min-width: 120px;
+        padding: 12px;
+      }
+      
+      .el-descriptions__cell {
+        padding: 12px;
+      }
+    }
+    
     .result-value {
       font-family: monospace;
       word-break: break-all;
+      font-size: 15px;
+      background-color: var(--el-fill-color-light);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      max-width: 100%;
+      overflow-x: auto;
     }
     
     .copy-format {
       margin-left: 8px;
+      transition: all 0.2s;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+  
+  :deep(.el-card__body) {
+    padding: 20px;
+  }
+  
+  :deep(.el-input__wrapper) {
+    border-radius: 6px;
+  }
+  
+  :deep(.el-button--primary) {
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(var(--el-color-primary-rgb), 0.3);
+    }
+  }
+  
+  :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+    box-shadow: 0 0 0 1px var(--el-color-primary-light-5) inset;
+  }
+  
+  :deep(.el-form-item__label) {
+    font-weight: 500;
+  }
+  
+  :deep(.el-table) {
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 12px;
+    
+    th {
+      background-color: var(--el-fill-color-light);
+      font-weight: 600;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .ipv4-converter-page {
+    .page-content {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .ipv4-converter-page {
+    .page-content {
+      grid-template-columns: 1fr;
+    }
+    
+    .converter-card {
+      order: 1;
+    }
+    
+    .results-card {
+      order: 2;
+    }
+    
+    .info-card {
+      order: 3;
     }
   }
 }
 
 @media (max-width: 768px) {
   .ipv4-converter-page {
-    .page-content {
-      grid-template-columns: 1fr;
+    .page-header {
+      .header-title {
+        h2 {
+          font-size: 20px;
+        }
+      }
+    }
+    
+    .card-header {
+      flex-wrap: wrap;
+      
+      .copy-button {
+        margin-left: 0;
+        margin-top: 8px;
+        width: 100%;
+        
+        .el-button {
+          width: 100%;
+        }
+      }
+    }
+    
+    :deep(.el-radio-group) {
+      display: flex;
+      flex-wrap: wrap;
+      
+      .el-radio-button {
+        flex: 1 0 50%;
+        
+        &__inner {
+          border-radius: 0;
+          width: 100%;
+        }
+      }
+    }
+    
+    .results-container {
+      .result-value {
+        font-size: 13px;
+        max-width: calc(100% - 40px);
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .ipv4-converter-page {
+    .page-header {
+      .header-title {
+        h2 {
+          font-size: 18px;
+        }
+        
+        .header-desc {
+          font-size: 13px;
+        }
+      }
+    }
+    
+    .card-header {
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    
+    :deep(.el-radio-group) {
+      .el-radio-button {
+        flex: 1 0 100%;
+        margin-bottom: 4px;
+      }
+    }
+    
+    .info-card {
+      .info-content {
+        font-size: 13px;
+        
+        h4 {
+          font-size: 14px;
+        }
+        
+        code {
+          font-size: 11px;
+        }
+        
+        ul li {
+          margin-bottom: 6px;
+        }
+      }
+    }
+    
+    .results-container {
+      :deep(.el-descriptions) {
+        .el-descriptions__label,
+        .el-descriptions__cell {
+          padding: 8px;
+        }
+      }
+      
+      .result-value {
+        font-size: 12px;
+        padding: 3px 6px;
+      }
+    }
+    
+    :deep(.el-card__body) {
+      padding: 16px;
+    }
+    
+    :deep(.el-form-item__label) {
+      padding-bottom: 4px;
+      font-size: 13px;
+    }
+    
+    :deep(.el-form-item) {
+      margin-bottom: 16px;
     }
   }
 }

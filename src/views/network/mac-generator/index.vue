@@ -10,151 +10,189 @@
     <div class="page-content">
       <el-card class="generator-card">
         <div class="card-header">
-          <el-icon><Setting /></el-icon>
-          <span>生成选项</span>
+          <div class="card-icon">
+            <el-icon><Setting /></el-icon>
+          </div>
+          <div class="card-title">生成选项</div>
         </div>
-
-        <el-form :model="form" label-position="top">
-          <el-form-item label="格式">
-            <el-radio-group v-model="form.format">
-              <el-radio-button label=":">XX:XX:XX:XX:XX:XX</el-radio-button>
-              <el-radio-button label="-">XX-XX-XX-XX-XX-XX</el-radio-button>
-              <el-radio-button label="">XXXXXXXXXXXX</el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-
-          <el-form-item label="大小写">
-            <el-radio-group v-model="form.case">
-              <el-radio-button label="upper">大写</el-radio-button>
-              <el-radio-button label="lower">小写</el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-
-          <el-form-item label="地址类型">
-            <el-radio-group v-model="form.addressType">
-              <el-radio-button label="global">全球唯一地址</el-radio-button>
-              <el-radio-button label="local">本地管理地址</el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-
-          <el-form-item label="传输类型">
-            <el-radio-group v-model="form.transmissionType">
-              <el-radio-button label="unicast">单播地址</el-radio-button>
-              <el-radio-button label="multicast">组播地址</el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-
-          <el-form-item label="生成数量">
-            <el-slider 
-              v-model="form.count" 
-              :min="1" 
-              :max="100" 
-              :step="1" 
-              :show-input="true"
-              :marks="{1: '1', 25: '25', 50: '50', 75: '75', 100: '100'}"
-            />
-          </el-form-item>
-
-          <el-form-item label="厂商前缀 (可选)">
-            <el-select 
-              v-model="form.vendor" 
-              filterable 
-              clearable 
-              placeholder="选择厂商前缀或保持随机"
-              style="width: 100%"
-            >
-              <el-option 
-                v-for="vendor in vendorList"
-                :key="vendor.oui"
-                :label="`${vendor.company} (${vendor.oui})`"
-                :value="vendor.oui"
-              />
-            </el-select>
-          </el-form-item>
-
-          <el-form-item>
-            <el-button 
-              type="primary" 
-              @click="generateMacs" 
-              style="width: 100%"
-            >
-              <el-icon><VideoPlay /></el-icon>
-              生成 MAC 地址
+        
+        <div class="generator-section">
+          <div class="format-options">
+            <div class="option-label">格式</div>
+            <div class="format-buttons">
+              <div 
+                class="format-button" 
+                :class="{ active: formatType === 'noSeparator' }"
+                @click="formatType = 'noSeparator'"
+              >
+                XXXXXXXXXXXX
+              </div>
+              <div 
+                class="format-button" 
+                :class="{ active: formatType === 'colon' }"
+                @click="formatType = 'colon'"
+              >
+                XX:XX:XX:XX:XX:XX
+              </div>
+              <div 
+                class="format-button" 
+                :class="{ active: formatType === 'hyphen' }"
+                @click="formatType = 'hyphen'"
+              >
+                XX-XX-XX-XX-XX-XX
+              </div>
+              <div 
+                class="format-button" 
+                :class="{ active: formatType === 'dot' }"
+                @click="formatType = 'dot'"
+              >
+                XXXX.XXXX.XXXX
+              </div>
+            </div>
+            
+            <div class="option-label">大小写</div>
+            <div class="case-buttons">
+              <el-button 
+                :type="letterCase === 'upper' ? 'primary' : 'default'" 
+                @click="letterCase = 'upper'"
+                :plain="letterCase !== 'upper'"
+              >
+                大写
+              </el-button>
+              <el-button 
+                :type="letterCase === 'lower' ? 'primary' : 'default'" 
+                @click="letterCase = 'lower'"
+                :plain="letterCase !== 'lower'"
+              >
+                小写
+              </el-button>
+            </div>
+          </div>
+          
+          <div class="mac-type">
+            <div class="type-label">地址类型</div>
+            <div class="type-options">
+              <el-radio v-model="macType" label="global">全球唯一地址 (UAA)</el-radio>
+              <el-radio v-model="macType" label="local">本地管理地址 (LAA)</el-radio>
+              <el-radio v-model="macType" label="multicast">组播地址</el-radio>
+              <el-radio v-model="macType" label="random">完全随机</el-radio>
+            </div>
+          </div>
+          
+          <div class="mac-count">
+            <div class="option-label">生成数量</div>
+            <el-slider v-model="macCount" :min="1" :max="10" show-stops :marks="{1: '1', 5: '5', 10: '10'}" />
+          </div>
+          
+          <div class="actions">
+            <el-button type="primary" @click="generateMac">
+              <el-icon><RefreshRight /></el-icon> 生成地址
             </el-button>
-          </el-form-item>
-        </el-form>
+            <el-button type="danger" @click="clearResults" :disabled="!macAddresses.length">
+              <el-icon><Delete /></el-icon> 清空结果
+            </el-button>
+          </div>
+        </div>
       </el-card>
 
       <el-card class="result-card">
         <div class="card-header">
-          <el-icon><List /></el-icon>
-          <span>生成结果</span>
-          <div class="result-actions">
-            <el-button type="primary" plain size="small" @click="copyAll">
+          <div class="card-icon">
+            <el-icon><List /></el-icon>
+          </div>
+          <div class="card-title">生成结果</div>
+          <div class="card-actions">
+            <el-button 
+              type="primary" 
+              plain 
+              size="small" 
+              @click="copyAllAddresses" 
+              :disabled="!macAddresses.length"
+              class="copy-all-button"
+            >
               <el-icon><CopyDocument /></el-icon>
               复制所有
             </el-button>
           </div>
         </div>
-
-        <div class="result-content">
-          <el-table
-            :data="generatedMacs"
-            border
-            style="width: 100%"
-            v-loading="loading"
-            height="350"
-          >
-            <el-table-column type="index" width="60" label="#" />
-            <el-table-column prop="mac" label="MAC 地址" min-width="180" />
-            <el-table-column prop="type" label="类型" min-width="120" />
-            <el-table-column label="操作" width="80" fixed="right">
-              <template #default="scope">
-                <el-button
-                  type="primary"
-                  link
-                  size="small"
-                  @click="copyMac(scope.row.mac)"
-                >
-                  <el-icon><CopyDocument /></el-icon>
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+        
+        <div class="result-section">
+          <div class="result-table">
+            <el-table 
+              :data="macAddresses" 
+              style="width: 100%" 
+              :empty-text="macAddresses.length === 0 ? '点击生成按钮创建MAC地址' : '加载中...'"
+            >
+              <el-table-column prop="index" label="#" width="60" />
+              <el-table-column prop="address" label="MAC 地址">
+                <template #default="scope">
+                  <span class="mac-value">{{ scope.row.address }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="type" label="类型" width="120">
+                <template #default="scope">
+                  <el-tag v-if="scope.row.type === 'global'" type="success" size="small">全球唯一</el-tag>
+                  <el-tag v-else-if="scope.row.type === 'local'" type="warning" size="small">本地管理</el-tag>
+                  <el-tag v-else-if="scope.row.type === 'multicast'" type="danger" size="small">组播地址</el-tag>
+                  <el-tag v-else type="info" size="small">随机</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="70">
+                <template #default="scope">
+                  <el-button 
+                    type="primary" 
+                    link 
+                    size="small" 
+                    @click="copyAddress(scope.row.address)"
+                  >
+                    <el-icon><CopyDocument /></el-icon>
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
         </div>
       </el-card>
+    </div>
 
+    <div class="info-section">
       <el-card class="info-card">
         <div class="card-header">
-          <el-icon><InfoFilled /></el-icon>
-          <span>MAC 地址信息</span>
+          <div class="card-icon">
+            <el-icon><InfoFilled /></el-icon>
+          </div>
+          <div class="card-title">MAC 地址信息</div>
         </div>
-
+        
         <div class="info-content">
           <h4>MAC 地址类型</h4>
-          
-          <p><strong>全球唯一地址 vs 本地管理地址：</strong></p>
+          <p>全球唯一地址 vs 本地管理地址：</p>
           <ul>
             <li><strong>全球唯一地址 (UAA)：</strong> 由IEEE分配给设备制造商的唯一地址，第一个字节的第二低位为0</li>
             <li><strong>本地管理地址 (LAA)：</strong> 由本地网络管理员分配的地址，第一个字节的第二低位为1</li>
           </ul>
           
-          <p><strong>单播地址 vs 组播地址：</strong></p>
+          <h4>单播地址 vs 组播地址：</h4>
           <ul>
             <li><strong>单播地址：</strong> 标识网络上的单个接口，第一个字节的最低位为0</li>
-            <li><strong>组播地址：</strong> 发送到多个接收者的地址，第一个字节的最低位为1</li>
-            <li><strong>广播地址：</strong> 特殊地址FF:FF:FF:FF:FF:FF，发送到网络中的所有设备</li>
+            <li><strong>组播地址：</strong> 标识多个网络接口，第一个字节的最低位为1</li>
           </ul>
           
-          <h4>常见厂商前缀</h4>
-          <p>MAC地址的前24位(前3个字节)称为OUI，由IEEE分配给不同的设备制造商。生成器可以选择特定厂商前缀或随机生成。</p>
+          <h4>特殊的MAC地址</h4>
+          <ul>
+            <li><strong>FF:FF:FF:FF:FF:FF</strong> - 广播地址，用于向网络中的所有设备发送数据</li>
+            <li><strong>00:00:00:00:00:00</strong> - 零地址，通常表示未分配或未知的MAC地址</li>
+            <li><strong>01:00:5E:xx:xx:xx</strong> - IPv4组播地址</li>
+            <li><strong>33:33:xx:xx:xx:xx</strong> - IPv6组播地址</li>
+          </ul>
           
           <h4>MAC地址格式</h4>
-          <p>MAC地址可以有不同的表示格式：</p>
+          <p>MAC地址是48位（6字节）标识符，通常表示为十六进制数字，不同格式包括：</p>
           <ul>
-            <li><strong>带冒号：</strong> XX:XX:XX:XX:XX:XX (如 00:1A:2B:3C:4D:5E)</li>
-            <li><strong>带连字符：</strong> XX-XX-XX-XX-XX-XX (如 00-1A-2B-3C-4D-5E)</li>
-            <li><strong>无分隔符：</strong> XXXXXXXXXXXX (如 001A2B3C4D5E)</li>
+            <li><code>XX:XX:XX:XX:XX:XX</code> - 冒号分隔（常见于Unix/Linux系统）</li>
+            <li><code>XX-XX-XX-XX-XX-XX</code> - 连字符分隔（常见于Windows系统）</li>
+            <li><code>XXXX.XXXX.XXXX</code> - 点分隔（常见于Cisco设备）</li>
+            <li><code>XXXXXXXXXXXX</code> - 无分隔符</li>
           </ul>
         </div>
       </el-card>
@@ -163,244 +201,525 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
-import { Setting, VideoPlay, List, InfoFilled, CopyDocument } from '@element-plus/icons-vue';
+import { Setting, List, InfoFilled, CopyDocument, RefreshRight, Delete } from '@element-plus/icons-vue';
 import { useClipboard } from '@vueuse/core';
-import { generateRandomMacAddress, formatMacAddress, isMacAddressGloballyUnique, isMacAddressUnicast } from '@/utils/network/mac';
+import { generateRandomMacAddress } from '@/utils/network/mac';
 
 const { copy } = useClipboard();
 
-// 表单数据
-const form = reactive({
-  format: ':',
-  case: 'upper',
-  addressType: 'global',
-  transmissionType: 'unicast',
-  count: 10,
-  vendor: ''
-});
+// 格式选项
+const formatType = ref('colon');  // 'noSeparator', 'colon', 'hyphen', 'dot'
+const letterCase = ref('upper'); // 'upper', 'lower'
+const macType = ref('global');   // 'global', 'local', 'multicast', 'random'
+const macCount = ref(3);         // 默认生成3个地址
 
-// 常见厂商列表
-const vendorList = [
-  { oui: '00:50:56', company: 'VMware, Inc.' },
-  { oui: '00:0C:29', company: 'VMware, Inc.' },
-  { oui: '00:1A:11', company: 'Google, Inc.' },
-  { oui: '00:03:93', company: 'Apple, Inc.' },
-  { oui: '00:0D:93', company: 'Apple, Inc.' },
-  { oui: '00:1E:C2', company: 'Apple, Inc.' },
-  { oui: '00:21:E9', company: 'Apple, Inc.' },
-  { oui: '00:25:00', company: 'Apple, Inc.' },
-  { oui: '00:26:BB', company: 'Apple, Inc.' },
-  { oui: '00:21:27', company: 'Cisco Systems, Inc' },
-  { oui: '00:23:5E', company: 'Cisco Systems, Inc' },
-  { oui: '00:25:83', company: 'Cisco Systems, Inc' },
-  { oui: '00:12:5A', company: 'Microsoft Corporation' },
-  { oui: '00:15:5D', company: 'Microsoft Corporation' },
-  { oui: '00:50:F2', company: 'Microsoft Corporation' },
-  { oui: '00:17:9A', company: 'D-Link Corporation' },
-  { oui: '00:21:91', company: 'D-Link Corporation' },
-  { oui: '00:22:B0', company: 'D-Link Corporation' },
-  { oui: '00:1A:4B', company: 'Hewlett Packard' },
-  { oui: '00:17:A4', company: 'Hewlett Packard' },
-  { oui: '00:0B:CD', company: 'Samsung Electronics' },
-  { oui: '00:25:38', company: 'Samsung Electronics' },
-  { oui: '00:00:01', company: 'Xerox Corporation' },
-  { oui: '00:0A:27', company: 'Apple, Inc.' },
-  { oui: '00:1B:63', company: 'Apple, Inc.' },
-  { oui: '00:0D:4B', company: 'Roku, Inc.' },
-  { oui: '00:24:FE', company: 'AVM GmbH' },
-  { oui: '24:4B:FE', company: 'HUAWEI Technologies' },
-];
+// 已生成的MAC地址列表
+const macAddresses = ref<{ index: number; address: string; type: string }[]>([]);
 
-// 生成的MAC地址列表
-const generatedMacs = ref<{ mac: string; type: string }[]>([]);
-
-// 加载状态
-const loading = ref(false);
+// 格式化MAC地址
+const formatMacAddress = (mac: string): string => {
+  // 先移除所有分隔符，转为纯十六进制
+  const pureMac = mac.replace(/[^0-9a-fA-F]/g, '');
+  
+  // 根据大小写处理
+  const formattedCase = letterCase.value === 'upper' 
+    ? pureMac.toUpperCase() 
+    : pureMac.toLowerCase();
+  
+  // 根据格式类型添加分隔符
+  switch (formatType.value) {
+    case 'colon':
+      return formattedCase.match(/.{2}/g)?.join(':') || formattedCase;
+    case 'hyphen':
+      return formattedCase.match(/.{2}/g)?.join('-') || formattedCase;
+    case 'dot':
+      return formattedCase.match(/.{4}/g)?.join('.') || formattedCase;
+    case 'noSeparator':
+    default:
+      return formattedCase;
+  }
+};
 
 // 生成MAC地址
-const generateMacs = () => {
-  loading.value = true;
-  generatedMacs.value = [];
+const generateMac = () => {
+  const newAddresses = [];
   
-  // 使用setTimeout以便UI可以更新加载状态
-  setTimeout(() => {
-    try {
-      const macs = [];
-      const isGlobal = form.addressType === 'global';
-      const isUnicast = form.transmissionType === 'unicast';
+  for (let i = 0; i < macCount.value; i++) {
+    // 生成MAC地址
+    let macAddress = generateRandomMacAddress();
+    
+    // 处理地址类型
+    if (macType.value !== 'random') {
+      // 提取第一个字节的十六进制值并转为二进制
+      const firstByte = parseInt(macAddress.substring(0, 2), 16);
+      let newFirstByte = firstByte;
       
-      for (let i = 0; i < form.count; i++) {
-        // 生成MAC地址
-        let macAddress = generateRandomMacAddress(isGlobal, !isUnicast);
-        
-        // 如果指定了厂商前缀，则替换OUI部分
-        if (form.vendor) {
-          const vendorOui = form.vendor.replace(/[^a-fA-F0-9]/g, '').substring(0, 6);
-          const macParts = macAddress.split(':');
-          
-          // 保留原始MAC地址的后三个字节
-          macParts[0] = vendorOui.substring(0, 2);
-          macParts[1] = vendorOui.substring(2, 4);
-          macParts[2] = vendorOui.substring(4, 6);
-          
-          // 重新组合MAC地址
-          macAddress = macParts.join(':');
-          
-          // 如果需要设置地址类型和传输类型的位
-          const firstByte = parseInt(macParts[0], 16);
-          let newFirstByte = firstByte;
-          
-          if (isGlobal) {
-            // 全球唯一地址：第二低位为0
-            newFirstByte &= ~0x02;
-          } else {
-            // 本地管理地址：第二低位为1
-            newFirstByte |= 0x02;
-          }
-          
-          if (isUnicast) {
-            // 单播地址：最低位为0
-            newFirstByte &= ~0x01;
-          } else {
-            // 组播地址：最低位为1
-            newFirstByte |= 0x01;
-          }
-          
-          macParts[0] = newFirstByte.toString(16).padStart(2, '0');
-          macAddress = macParts.join(':');
-        }
-        
-        // 格式化MAC地址
-        macAddress = formatMacAddress(macAddress);
-        
-        // 应用格式设置
-        if (form.format !== ':') {
-          macAddress = macAddress.replace(/:/g, form.format);
-        }
-        
-        // 应用大小写设置
-        macAddress = form.case === 'upper' 
-          ? macAddress.toUpperCase() 
-          : macAddress.toLowerCase();
-        
-        // 构造类型描述
-        const addressTypeDesc = isMacAddressGloballyUnique(macAddress) 
-          ? '全球唯一地址' 
-          : '本地管理地址';
-        
-        const transmissionTypeDesc = isMacAddressUnicast(macAddress) 
-          ? '单播地址' 
-          : '组播地址';
-        
-        macs.push({
-          mac: macAddress,
-          type: `${addressTypeDesc} / ${transmissionTypeDesc}`
-        });
+      if (macType.value === 'global') {
+        // 全球唯一: 第二低位为0，最低位为0（单播）
+        newFirstByte = (firstByte & 0xFC) | 0x00;
+      } else if (macType.value === 'local') {
+        // 本地管理: 第二低位为1，最低位为0（单播）
+        newFirstByte = (firstByte & 0xFC) | 0x02;
+      } else if (macType.value === 'multicast') {
+        // 组播: 最低位为1
+        newFirstByte = (firstByte & 0xFE) | 0x01;
       }
       
-      generatedMacs.value = macs;
-      ElMessage.success(`成功生成 ${macs.length} 个MAC地址`);
-    } catch (error) {
-      ElMessage.error(`生成失败: ${(error as Error).message}`);
-    } finally {
-      loading.value = false;
+      // 替换第一个字节
+      macAddress = newFirstByte.toString(16).padStart(2, '0') + macAddress.substring(2);
     }
-  }, 200);
-};
-
-// 复制单个MAC地址
-const copyMac = async (mac: string) => {
-  try {
-    await copy(mac);
-    ElMessage.success('MAC地址已复制到剪贴板');
-  } catch (error) {
-    ElMessage.error('复制失败');
-  }
-};
-
-// 复制所有MAC地址
-const copyAll = async () => {
-  if (generatedMacs.value.length === 0) {
-    ElMessage.warning('没有MAC地址可复制');
-    return;
+    
+    // 格式化地址并添加到列表
+    const formattedMac = formatMacAddress(macAddress);
+    
+    // 确定类型标签
+    const firstByte = parseInt(macAddress.substring(0, 2), 16);
+    let type = 'random';
+    
+    if ((firstByte & 0x02) === 0 && (firstByte & 0x01) === 0) {
+      type = 'global';
+    } else if ((firstByte & 0x02) === 2 && (firstByte & 0x01) === 0) {
+      type = 'local';
+    } else if ((firstByte & 0x01) === 1) {
+      type = 'multicast';
+    }
+    
+    newAddresses.push({
+      index: i + 1,
+      address: formattedMac,
+      type
+    });
   }
   
-  try {
-    const text = generatedMacs.value.map(item => item.mac).join('\n');
-    await copy(text);
-    ElMessage.success('所有MAC地址已复制到剪贴板');
-  } catch (error) {
-    ElMessage.error('复制失败');
-  }
+  macAddresses.value = newAddresses;
+  ElMessage.success(`已生成 ${macCount.value} 个MAC地址`);
 };
 
-// 初始生成一些MAC地址
-generateMacs();
+// 清空结果
+const clearResults = () => {
+  macAddresses.value = [];
+  ElMessage.info('已清空所有MAC地址');
+};
+
+// 复制单个地址
+const copyAddress = (mac: string) => {
+  copy(mac);
+  ElMessage.success('MAC地址已复制到剪贴板');
+};
+
+// 复制所有地址
+const copyAllAddresses = () => {
+  if (macAddresses.value.length === 0) return;
+  
+  const allMacs = macAddresses.value.map(item => item.address).join('\n');
+  copy(allMacs);
+  ElMessage.success(`已复制全部 ${macAddresses.value.length} 个MAC地址到剪贴板`);
+};
+
+// 初始化生成一些随机MAC地址
+generateMac();
 </script>
 
 <style lang="scss" scoped>
 .mac-generator-page {
+  max-width: 100%;
+  overflow-x: hidden;
+  
+  .page-header {
+    margin-bottom: 24px;
+    
+    .header-title {
+      h2 {
+        font-size: 26px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-5));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+      }
+      
+      .header-desc {
+        font-size: 15px;
+        color: var(--el-text-color-secondary);
+        margin: 0;
+      }
+    }
+  }
+  
   .page-content {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  
+  .generator-card, .result-card, .info-card {
+    height: 100%;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background-color: var(--el-bg-color);
     
-    .info-card {
-      grid-column: 1 / -1;
+    &:hover {
+      border-color: var(--el-color-primary-light-5);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     }
   }
   
   .card-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-    font-weight: 600;
-    color: var(--el-text-color-primary);
-    font-size: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--el-border-color-light);
     
-    .el-icon {
-      color: var(--el-color-primary);
+    .card-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--el-color-primary-light-9);
+      margin-right: 12px;
+      
+      .el-icon {
+        font-size: 18px;
+        color: var(--el-color-primary);
+      }
     }
     
-    .result-actions {
-      margin-left: auto;
+    .card-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+      flex: 1;
+    }
+    
+    .card-actions {
+      display: flex;
+      gap: 8px;
     }
   }
   
-  .info-content {
-    h4 {
-      margin: 16px 0 8px 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--el-text-color-primary);
-    }
-    
-    p {
-      margin: 8px 0;
-      line-height: 1.5;
-      color: var(--el-text-color-regular);
-    }
-    
-    ul {
-      padding-left: 20px;
-      margin: 8px 0;
-      color: var(--el-text-color-regular);
+  .generator-section {
+    .format-options {
+      margin-bottom: 24px;
       
-      li {
-        margin-bottom: 6px;
-        line-height: 1.5;
+      .option-label {
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--el-text-color-primary);
+        margin-bottom: 10px;
+      }
+      
+      .format-buttons {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        
+        .format-button {
+          flex: 1;
+          text-align: center;
+          padding: 10px;
+          border: 1px solid var(--el-border-color);
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          background: var(--el-fill-color-light);
+          font-family: var(--el-font-family-monospace, monospace);
+          
+          &.active {
+            border-color: var(--el-color-primary);
+            background: var(--el-color-primary-light-9);
+            color: var(--el-color-primary);
+            font-weight: 500;
+          }
+          
+          &:hover:not(.active) {
+            border-color: var(--el-color-primary-light-5);
+            background: var(--el-fill-color);
+          }
+        }
+      }
+      
+      .case-buttons {
+        display: flex;
+        gap: 8px;
+        
+        .el-button {
+          flex: 1;
+        }
+      }
+    }
+    
+    .mac-type {
+      margin-bottom: 24px;
+      
+      .type-label {
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--el-text-color-primary);
+        margin-bottom: 10px;
+      }
+      
+      .type-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        
+        .el-radio {
+          margin-right: 0;
+          
+          &.is-checked {
+            .el-radio__label {
+              color: var(--el-color-primary);
+              font-weight: 500;
+            }
+          }
+        }
+      }
+    }
+    
+    .actions {
+      display: flex;
+      gap: 12px;
+      
+      .el-button {
+        flex: 1;
       }
     }
   }
-}
-
-@media (max-width: 768px) {
-  .mac-generator-page {
+  
+  .result-section {
+    .result-table {
+      margin-bottom: 16px;
+      
+      .el-table {
+        --el-table-border-color: var(--el-border-color-lighter);
+        border-radius: 8px;
+        overflow: hidden;
+        
+        :deep(th.el-table__cell) {
+          background-color: var(--el-fill-color-light);
+          color: var(--el-text-color-regular);
+          font-weight: 600;
+          padding: 12px 8px;
+        }
+        
+        :deep(td.el-table__cell) {
+          padding: 12px 8px;
+        }
+        
+        :deep(.cell) {
+          word-break: break-all;
+        }
+      }
+    }
+    
+    .mac-value {
+      font-family: var(--el-font-family-monospace, monospace);
+      word-break: break-all;
+    }
+    
+    .copy-all-button {
+      width: 100%;
+      margin-top: 8px;
+    }
+  }
+  
+  .info-section {
+    margin-top: 24px;
+    
+    .info-card {
+      width: 100%;
+    }
+    
+    .info-content {
+      color: var(--el-text-color-regular);
+      font-size: 14px;
+      line-height: 1.6;
+      
+      h4 {
+        color: var(--el-text-color-primary);
+        font-size: 16px;
+        font-weight: 600;
+        margin: 16px 0 10px;
+        
+        &:first-of-type {
+          margin-top: 0;
+        }
+      }
+      
+      p {
+        margin: 0 0 12px;
+      }
+      
+      ul {
+        padding-left: 20px;
+        margin: 12px 0;
+        
+        li {
+          margin-bottom: 6px;
+          position: relative;
+          
+          &::marker {
+            color: var(--el-color-primary);
+          }
+          
+          strong {
+            color: var(--el-text-color-primary);
+            font-weight: 600;
+          }
+        }
+      }
+      
+      code {
+        background-color: var(--el-fill-color-light);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: var(--el-font-family-monospace, monospace);
+        font-size: 13px;
+        color: var(--el-color-danger);
+      }
+    }
+  }
+  
+  :deep(.el-card__body) {
+    padding: 20px;
+  }
+  
+  @media (max-width: 1200px) {
+    .page-content {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  @media (max-width: 991px) {
     .page-content {
       grid-template-columns: 1fr;
+    }
+    
+    .result-card {
+      order: 2;
+    }
+    
+    .info-section {
+      order: 3;
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .page-header {
+      .header-title {
+        h2 {
+          font-size: 22px;
+        }
+        
+        .header-desc {
+          font-size: 14px;
+        }
+      }
+    }
+    
+    .card-header {
+      flex-wrap: wrap;
+      
+      .card-actions {
+        margin-top: 8px;
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    :deep(.el-card__body) {
+      padding: 16px;
+    }
+    
+    .page-header {
+      .header-title {
+        h2 {
+          font-size: 20px;
+        }
+      }
+    }
+    
+    .card-header {
+      margin-bottom: 16px;
+      
+      .card-icon {
+        width: 32px;
+        height: 32px;
+        
+        .el-icon {
+          font-size: 16px;
+        }
+      }
+      
+      .card-title {
+        font-size: 16px;
+      }
+    }
+    
+    .format-options {
+      .option-label {
+        font-size: 14px;
+      }
+      
+      .format-buttons {
+        .format-button {
+          font-size: 12px;
+          padding: 6px 4px;
+        }
+      }
+    }
+    
+    .mac-type {
+      .type-label {
+        font-size: 14px;
+      }
+    }
+    
+    .actions {
+      flex-direction: column;
+      
+      .el-button {
+        margin-left: 0 !important;
+      }
+    }
+    
+    .result-section {
+      .result-table {
+        font-size: 13px;
+        
+        :deep(th.el-table__cell) {
+          padding: 8px 6px;
+        }
+        
+        :deep(td.el-table__cell) {
+          padding: 8px 6px;
+        }
+      }
+    }
+    
+    .info-section {
+      .info-content {
+        font-size: 13px;
+        
+        h4 {
+          font-size: 15px;
+        }
+        
+        code {
+          font-size: 12px;
+        }
+      }
     }
   }
 }
