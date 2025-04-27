@@ -449,7 +449,7 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 10px;
-}
+  }
 
 .quick-examples-buttons {
   display: flex;

@@ -1,0 +1,189 @@
+// 全局主题和颜色样式规范
+
+// 标题样式统一
+.gradient-title {
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  font-weight: 600;
+}
+
+// 卡片标题渐变效果
+.card-header h3,
+.el-card__header .card-header h3 {
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+// 全局通用标题渐变效果
+// 这个选择器比较通用，可以应用到所有带有h2元素的标题
+.page-header h2,
+.header h2,
+.header-title h2,
+.tool-header h2,
+.tool-title h2,
+.section-header h2,
+.container-header h2,
+.title-area h2 {
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  font-weight: 600;
+}
+
+// 渐变标题辅助类 - 可以直接添加到任何标题元素上
+.gradient-text {
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+// 全局标题渐变样式变量
+:root {
+  --title-gradient: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
+  
+  // 自定义操作按钮颜色变量
+  --custom-action-primary-color: var(--el-color-primary);
+  --custom-action-primary-bg: rgba(var(--el-color-primary-rgb), 0.1);
+  --custom-action-success-color: var(--el-color-success); 
+  --custom-action-success-bg: rgba(var(--el-color-success-rgb), 0.1);
+  --custom-action-warning-color: var(--el-color-warning);
+  --custom-action-warning-bg: rgba(var(--el-color-warning-rgb), 0.1);
+  --custom-action-danger-color: var(--el-color-danger);
+  --custom-action-danger-bg: rgba(var(--el-color-danger-rgb), 0.1);
+  --custom-action-info-color: var(--el-color-info);
+  --custom-action-info-bg: rgba(var(--el-color-info-rgb), 0.1);
+  
+  // 卡片样式变量
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --card-hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+// 暗色模式下的变量调整
+.dark-mode {
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --card-hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+// 全局组件样式统一
+
+// 卡片样式
+.app-card {
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background-color: var(--el-bg-color);
+  border: 1px solid transparent;
+  overflow: hidden;
+  
+  &:hover {
+    box-shadow: var(--card-hover-shadow);
+    transform: translateY(-2px);
+    border-color: var(--el-color-primary-light-5);
+  }
+}
+
+// 内容区块样式
+.content-section {
+  background-color: var(--el-fill-color-light);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+// 状态标签样式
+.status-tag {
+  &.status-success {
+    color: var(--el-color-success);
+    background-color: rgba(var(--el-color-success-rgb), 0.1);
+  }
+  
+  &.status-warning {
+    color: var(--el-color-warning);
+    background-color: rgba(var(--el-color-warning-rgb), 0.1);
+  }
+  
+  &.status-error {
+    color: var(--el-color-danger);
+    background-color: rgba(var(--el-color-danger-rgb), 0.1);
+  }
+  
+  &.status-info {
+    color: var(--el-color-info);
+    background-color: rgba(var(--el-color-info-rgb), 0.1);
+  }
+}
+
+// 统一按钮样式
+.action-button {
+  &.btn-primary {
+    color: var(--custom-action-primary-color);
+    
+    &:hover {
+      background-color: var(--custom-action-primary-bg);
+    }
+  }
+  
+  &.btn-success {
+    color: var(--custom-action-success-color);
+    
+    &:hover {
+      background-color: var(--custom-action-success-bg);
+    }
+  }
+  
+  &.btn-warning {
+    color: var(--custom-action-warning-color);
+    
+    &:hover {
+      background-color: var(--custom-action-warning-bg);
+    }
+  }
+  
+  &.btn-danger {
+    color: var(--custom-action-danger-color);
+    
+    &:hover {
+      background-color: var(--custom-action-danger-bg);
+    }
+  }
+  
+  &.btn-info {
+    color: var(--custom-action-info-color);
+    
+    &:hover {
+      background-color: var(--custom-action-info-bg);
+    }
+  }
+}
+
+// 高优先级标题渐变样式 - 确保覆盖所有页面
+[class*="-container"] h2,
+[class*="-page"] h2,
+[class*="container"] .header h2, 
+[class*="container"] .header-title h2,
+[class*="page"] .page-header .header-title h2,
+.tool-header h2,
+.header-area h2,
+.section-header h2,
+.app-header h2,
+.card-header .title,
+.panel-header .title,
+.card-header h3,
+.el-card .card-header h3,
+[class*="-page"] .el-card .card-header h3,
+.image-page .card-header h3,
+.pdf-page .card-header h3 {
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3)) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  display: inline-block !important;
+  font-weight: 600 !important;
+} 

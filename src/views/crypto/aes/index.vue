@@ -1,7 +1,7 @@
 <template>
   <div class="aes-container">
     <div class="header">
-      <h2>AES 加密</h2>
+      <h2 class="header-title">AES 加密</h2>
       <el-alert
         title="AES 加密说明"
         type="info"
@@ -478,6 +478,12 @@ onMounted(() => {
 
     h2 {
       margin-bottom: 12px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
     }
 
     .aes-info {

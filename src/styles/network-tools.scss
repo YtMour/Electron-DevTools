@@ -691,6 +691,39 @@
   }
 }
 
+// 全局标题渐变样式
+// 应用于所有工具页面的标题
+.format-page .page-header .header-title h2,
+.crypto-container .header h2, 
+.crypto-container .header-title h2,
+.des-container .header h2,
+.aes-container .header-title h2,
+.file-page .page-header .header-title h2,
+.process-page .page-header .header-title h2,
+.base64-container .header h2,
+.base64-container .header-title h2,
+.hash-container .header h2,
+.hash-container .header-title h2,
+.rsa-container .header h2,
+.rsa-container .header-title h2,
+.blowfish-container .header h2,
+.blowfish-container .header-title h2,
+.uuid-container .header h2,
+.uuid-container .header-title h2,
+.password-container .header h2,
+.password-container .header-title h2,
+.image-container .header h2,
+.image-page .page-header .header-title h2,
+.pdf-container .header h2,
+.pdf-page .page-header .header-title h2,
+.file-tools-container .header h2 {
+  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  font-weight: 600;
+}
+
 // 类选择器样式优化
 .option-selector {
   display: flex;

@@ -5,6 +5,7 @@
 @use './base' as *;
 @use './transitions' as *;
 @use './element-ui' as *;
+@use './app-theme' as *; // 全局主题颜色和样式规范
 @use './format-page' as *; // 格式转换页面公共样式
 @use './markdown-theme' as *; // Markdown主题样式
 @use './network-tools' as *; // 网络工具页面通用样式

@@ -581,6 +581,10 @@ onMounted(() => {
       margin-bottom: 12px;
       font-size: 1.5rem;
       font-weight: 600;
+      background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
     }
     
     .des-info {
