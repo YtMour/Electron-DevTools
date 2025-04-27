@@ -1,126 +1,129 @@
 <template>
-  <div class="port-scanner-container">
-    <div class="header">
-      <h1>端口扫描器</h1>
-      <p>扫描远程主机的开放端口，检测网络服务可用性</p>
+  <div class="network-tool-page">
+    <div class="page-header">
+      <div class="header-title">
+        <h2>端口扫描器</h2>
+        <p class="header-desc">扫描远程主机的开放端口，检测网络服务可用性</p>
+      </div>
     </div>
     
-    <div class="main-content">
-      <div class="scanner-section">
-        <div class="panel">
-          <div class="panel-header">
-            <span class="icon">
+    <div class="page-content main-sidebar">
+      <div class="main-content-left">
+        <el-card class="network-card config-card">
+          <div class="card-header">
+            <div class="card-icon">
               <el-icon><ScaleToOriginal /></el-icon>
-            </span>
-            <span class="title">扫描配置</span>
+            </div>
+            <div class="card-title">扫描配置</div>
           </div>
           
-          <div class="panel-body">
-            <div class="form-group">
-              <label>主机地址</label>
-              <el-input 
-                v-model="form.host" 
-                placeholder="例如: example.com 或 192.168.1.1"
-                @keyup.enter="startScan"
-              />
-              <div class="error-message" v-if="validationErrors.host">
-                {{ validationErrors.host }}
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label>端口范围</label>
-              <div class="port-range-inputs">
-                <el-input-number 
-                  v-model="form.startPort" 
-                  :min="1" 
-                  :max="65535"
-                  :step="1"
-                  placeholder="开始端口"
-                  controls-position="right"
-                  size="default"
-                  class="port-input"
-                />
-                <span class="port-range-separator">至</span>
-                <el-input-number 
-                  v-model="form.endPort" 
-                  :min="1" 
-                  :max="65535"
-                  :step="1"
-                  placeholder="结束端口"
-                  controls-position="right"
-                  size="default"
-                  class="port-input"
-                />
-              </div>
-              <div class="error-message" v-if="validationErrors.ports">
-                {{ validationErrors.ports }}
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label>扫描类型</label>
-              <el-radio-group v-model="form.scanType">
-                <el-radio label="quick">快速扫描（常用端口）</el-radio>
-                <el-radio label="custom">自定义端口范围</el-radio>
-              </el-radio-group>
-            </div>
-            
-            <div class="form-group" v-if="form.scanType === 'quick'">
-              <label>预设端口组</label>
-              <el-select v-model="form.portPreset" placeholder="选择预设端口组" class="port-preset-select">
-                <el-option label="常用服务端口 (20-25, 80, 443...)" value="common" />
-                <el-option label="全部常见端口 (1-1024)" value="wellknown" />
-                <el-option label="Web服务 (80, 443, 8080...)" value="web" />
-                <el-option label="数据库服务 (3306, 5432...)" value="database" />
-                <el-option label="邮件服务 (25, 110, 143...)" value="mail" />
-              </el-select>
-            </div>
-            
-            <div class="form-group">
-              <label>超时设置 (毫秒)</label>
-              <el-slider 
-                v-model="form.timeout" 
-                :min="500" 
-                :max="10000" 
-                :step="500"
-                :format-tooltip="formatTooltip"
-              />
-            </div>
-            
-            <div class="action-buttons">
-              <el-button type="primary" @click="startScan" :loading="scanning" :disabled="scanning" class="scan-button">
-                <el-icon><VideoPlay /></el-icon>
-                开始扫描
-              </el-button>
-              <el-button @click="resetForm" :disabled="scanning" class="reset-button">
-                <el-icon><Refresh /></el-icon>
-                重置
-              </el-button>
-            </div>
-            
-            <div v-if="scanning" class="scanning-progress">
-              <div class="progress-title">
-                <span>正在扫描端口: {{ currentPort }}/{{ totalPorts }}</span>
-                <span class="progress-percentage">{{ Math.round(scanProgress) }}%</span>
-              </div>
-              <el-progress :percentage="scanProgress" :stroke-width="10" />
+          <div class="form-group">
+            <label>主机地址</label>
+            <el-input 
+              v-model="form.host" 
+              placeholder="例如: example.com 或 192.168.1.1"
+              @keyup.enter="startScan"
+            />
+            <div class="validation-error" v-if="validationErrors.host">
+              {{ validationErrors.host }}
             </div>
           </div>
-        </div>
-        
-        <div v-if="scanResults.length > 0" class="panel result-panel">
-          <div class="panel-header">
-            <span class="icon">
-              <el-icon><DataAnalysis /></el-icon>
-            </span>
-            <span class="title">扫描结果</span>
-            <el-button type="primary" plain size="small" class="copy-button" @click="copyResults">
-              复制结果
+          
+          <div class="form-group">
+            <label>端口范围</label>
+            <div class="port-range-inputs">
+              <el-input-number 
+                v-model="form.startPort" 
+                :min="1" 
+                :max="65535"
+                :step="1"
+                placeholder="开始端口"
+                controls-position="right"
+                size="default"
+                class="port-input"
+              />
+              <span class="port-range-separator">至</span>
+              <el-input-number 
+                v-model="form.endPort" 
+                :min="1" 
+                :max="65535"
+                :step="1"
+                placeholder="结束端口"
+                controls-position="right"
+                size="default"
+                class="port-input"
+              />
+            </div>
+            <div class="validation-error" v-if="validationErrors.ports">
+              {{ validationErrors.ports }}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>扫描类型</label>
+            <el-radio-group v-model="form.scanType">
+              <el-radio label="quick">快速扫描（常用端口）</el-radio>
+              <el-radio label="custom">自定义端口范围</el-radio>
+            </el-radio-group>
+          </div>
+          
+          <div class="form-group" v-if="form.scanType === 'quick'">
+            <label>预设端口组</label>
+            <el-select v-model="form.portPreset" placeholder="选择预设端口组" class="port-preset-select">
+              <el-option label="常用服务端口 (20-25, 80, 443...)" value="common" />
+              <el-option label="全部常见端口 (1-1024)" value="wellknown" />
+              <el-option label="Web服务 (80, 443, 8080...)" value="web" />
+              <el-option label="数据库服务 (3306, 5432...)" value="database" />
+              <el-option label="邮件服务 (25, 110, 143...)" value="mail" />
+            </el-select>
+          </div>
+          
+          <div class="form-group">
+            <label>超时设置 (毫秒)</label>
+            <el-slider 
+              v-model="form.timeout" 
+              :min="500" 
+              :max="10000" 
+              :step="500"
+              :format-tooltip="formatTooltip"
+            />
+          </div>
+          
+          <div class="action-buttons">
+            <el-button type="primary" @click="startScan" :loading="scanning" :disabled="scanning">
+              <el-icon><VideoPlay /></el-icon>
+              开始扫描
+            </el-button>
+            <el-button @click="resetForm" :disabled="scanning">
+              <el-icon><Refresh /></el-icon>
+              重置
             </el-button>
           </div>
           
-          <div class="panel-body">
+          <div v-if="scanning" class="scanning-progress">
+            <div class="progress-title">
+              <span>正在扫描端口: {{ currentPort }}/{{ totalPorts }}</span>
+              <span class="progress-percentage">{{ Math.round(scanProgress) }}%</span>
+            </div>
+            <el-progress :percentage="scanProgress" :stroke-width="10" />
+          </div>
+        </el-card>
+        
+        <el-card v-if="scanResults.length > 0" class="network-card result-card">
+          <div class="card-header">
+            <div class="card-icon">
+              <el-icon><DataAnalysis /></el-icon>
+            </div>
+            <div class="card-title">扫描结果</div>
+            <div class="header-actions">
+              <el-button type="primary" plain size="small" class="copy-button" @click="copyResults">
+                <el-icon><CopyDocument /></el-icon>
+                复制结果
+              </el-button>
+            </div>
+          </div>
+          
+          <div class="result-content">
             <div class="scan-info">
               <div class="info-items">
                 <div class="info-item">
@@ -142,79 +145,77 @@
               </div>
             </div>
             
-            <el-table 
-              :data="scanResults" 
-              style="width: 100%"
-              :stripe="true"
-              class="result-table">
-              <el-table-column prop="port" label="端口" width="100" sortable />
-              <el-table-column prop="status" label="状态" width="120">
-                <template #default="scope">
-                  <span :class="getPortStatusClass(scope.row.status)">{{ scope.row.status }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="service" label="服务" />
-              <el-table-column prop="description" label="描述" />
-            </el-table>
-          </div>
-        </div>
-      </div>
-      
-      <div class="info-section">
-        <div class="panel">
-          <div class="panel-header">
-            <span class="icon">
-              <el-icon><InfoFilled /></el-icon>
-            </span>
-            <span class="title">工具说明</span>
-          </div>
-          
-          <div class="panel-body">
-            <div class="help-content">
-              <h3>什么是端口扫描?</h3>
-              <p>
-                端口扫描是一种用于检测服务器或主机上开放的TCP/UDP端口的技术。
-                通过扫描可以了解主机上运行的网络服务，帮助诊断网络问题或评估安全状况。
-              </p>
-              
-              <h3>使用方法</h3>
-              <ol>
-                <li>输入要扫描的主机地址（域名或IP地址）</li>
-                <li>选择扫描类型（快速扫描或自定义端口范围）</li>
-                <li>设置超时时间（越长越准确，但扫描时间更长）</li>
-                <li>点击"开始扫描"按钮</li>
-              </ol>
-              
-              <h3>端口状态说明</h3>
-              <ul>
-                <li><strong class="status-open">开放</strong>: 端口接受连接，相应服务正在运行</li>
-                <li><strong class="status-closed">关闭</strong>: 端口不接受连接，没有服务在监听</li>
-                <li><strong class="status-filtered">过滤</strong>: 无法确定端口状态，可能被防火墙过滤</li>
-              </ul>
-              
-              <h3>常见端口及服务</h3>
-              <ul>
-                <li><strong>20, 21</strong> - FTP (文件传输协议)</li>
-                <li><strong>22</strong> - SSH (安全shell)</li>
-                <li><strong>23</strong> - Telnet</li>
-                <li><strong>25</strong> - SMTP (邮件发送)</li>
-                <li><strong>53</strong> - DNS (域名解析)</li>
-                <li><strong>80</strong> - HTTP (网页服务)</li>
-                <li><strong>443</strong> - HTTPS (安全网页服务)</li>
-                <li><strong>3306</strong> - MySQL 数据库</li>
-                <li><strong>5432</strong> - PostgreSQL 数据库</li>
-                <li><strong>8080</strong> - 常用的替代HTTP端口</li>
-              </ul>
-              
-              <h3>注意事项</h3>
-              <p>
-                请仅在授权的情况下使用此工具扫描主机。未经授权的端口扫描在某些情况下可能违反法律或服务提供商的使用条款。
-                此工具设计用于合法的网络诊断和教育目的。
-              </p>
+            <div class="table-container">
+              <el-table 
+                :data="scanResults" 
+                style="width: 100%"
+                :stripe="true"
+                class="result-table">
+                <el-table-column prop="port" label="端口" width="100" sortable />
+                <el-table-column prop="status" label="状态" width="120">
+                  <template #default="scope">
+                    <span :class="getPortStatusClass(scope.row.status)">{{ scope.row.status }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="service" label="服务" />
+                <el-table-column prop="description" label="描述" />
+              </el-table>
             </div>
           </div>
-        </div>
+        </el-card>
       </div>
+      
+      <el-card class="network-card info-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <el-icon><InfoFilled /></el-icon>
+          </div>
+          <div class="card-title">工具说明</div>
+        </div>
+        
+        <div class="help-content">
+          <h4>什么是端口扫描?</h4>
+          <p>
+            端口扫描是一种用于检测服务器或主机上开放的TCP/UDP端口的技术。
+            通过扫描可以了解主机上运行的网络服务，帮助诊断网络问题或评估安全状况。
+          </p>
+          
+          <h4>使用方法</h4>
+          <ol>
+            <li>输入要扫描的主机地址（域名或IP地址）</li>
+            <li>选择扫描类型（快速扫描或自定义端口范围）</li>
+            <li>设置超时时间（越长越准确，但扫描时间更长）</li>
+            <li>点击"开始扫描"按钮</li>
+          </ol>
+          
+          <h4>端口状态说明</h4>
+          <ul>
+            <li><strong class="status-open">开放</strong>: 端口接受连接，相应服务正在运行</li>
+            <li><strong class="status-closed">关闭</strong>: 端口不接受连接，没有服务在监听</li>
+            <li><strong class="status-filtered">过滤</strong>: 无法确定端口状态，可能被防火墙过滤</li>
+          </ul>
+          
+          <h4>常见端口及服务</h4>
+          <ul>
+            <li><strong>20, 21</strong> - FTP (文件传输协议)</li>
+            <li><strong>22</strong> - SSH (安全shell)</li>
+            <li><strong>23</strong> - Telnet</li>
+            <li><strong>25</strong> - SMTP (邮件发送)</li>
+            <li><strong>53</strong> - DNS (域名解析)</li>
+            <li><strong>80</strong> - HTTP (网页服务)</li>
+            <li><strong>443</strong> - HTTPS (安全网页服务)</li>
+            <li><strong>3306</strong> - MySQL 数据库</li>
+            <li><strong>5432</strong> - PostgreSQL 数据库</li>
+            <li><strong>8080</strong> - 常用的替代HTTP端口</li>
+          </ul>
+          
+          <h4>注意事项</h4>
+          <p>
+            请仅在授权的情况下使用此工具扫描主机。未经授权的端口扫描在某些情况下可能违反法律或服务提供商的使用条款。
+            此工具设计用于合法的网络诊断和教育目的。
+          </p>
+        </div>
+      </el-card>
     </div>
   </div>
 </template>
@@ -222,7 +223,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { ScaleToOriginal, VideoPlay, Refresh, DataAnalysis, InfoFilled } from '@element-plus/icons-vue';
+import { ScaleToOriginal, VideoPlay, Refresh, DataAnalysis, InfoFilled, CopyDocument } from '@element-plus/icons-vue';
 import { useClipboard } from '@vueuse/core';
 
 const { copy } = useClipboard();
@@ -464,96 +465,11 @@ const formatTooltip = (value: number): string => {
 };
 </script>
 
-<style scoped>
-.port-scanner-container {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  color: var(--el-text-color-primary);
-}
-
-.header {
-  margin-bottom: 24px;
-  text-align: left;
-}
-
-.header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
-}
-
-.header p {
-  font-size: 16px;
-  color: var(--el-text-color-regular);
-  margin: 0;
-}
-
-.main-content {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 24px;
-}
-
-.scanner-section {
+<style lang="scss" scoped>
+.main-content-left {
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.panel {
-  background-color: var(--el-bg-color);
-  border-radius: 12px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  border: 1px solid var(--el-border-color-light);
-  transition: all 0.3s;
-}
-
-.panel:hover {
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-.panel-header {
-  padding: 15px 20px;
-  border-bottom: 1px solid var(--el-border-color-lighter);
-  display: flex;
-  align-items: center;
-}
-
-.panel-header .icon {
-  margin-right: 10px;
-  width: 24px;
-  height: 24px;
-  background-color: var(--el-color-primary-light-9);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--el-color-primary);
-}
-
-.panel-header .title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--el-text-color-primary);
-  flex: 1;
-}
-
-.panel-header .copy-button {
-  position: absolute;
-  right: 20px;
-  padding: 6px 12px;
-}
-
-.panel-body {
-  padding: 20px;
 }
 
 .form-group {
@@ -563,15 +479,8 @@ const formatTooltip = (value: number): string => {
 .form-group label {
   display: block;
   font-size: 14px;
-  color: var(--el-text-color-regular);
   margin-bottom: 8px;
   font-weight: 500;
-}
-
-.error-message {
-  color: var(--el-color-danger);
-  font-size: 12px;
-  margin-top: 5px;
 }
 
 .port-range-inputs {
@@ -596,17 +505,7 @@ const formatTooltip = (value: number): string => {
 .action-buttons {
   display: flex;
   gap: 10px;
-  margin-top: 30px;
-}
-
-.scan-button {
-  flex: 2;
-  height: 40px;
-}
-
-.reset-button {
-  flex: 1;
-  height: 40px;
+  margin-top: 24px;
 }
 
 .scanning-progress {
@@ -619,7 +518,6 @@ const formatTooltip = (value: number): string => {
 .progress-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--el-text-color-primary);
   margin-bottom: 10px;
   display: flex;
   align-items: center;
@@ -653,9 +551,13 @@ const formatTooltip = (value: number): string => {
 
 .info-item .value {
   font-size: 14px;
-  font-family: monospace;
-  color: var(--el-text-color-primary);
+  font-family: var(--el-font-family-monospace, monospace);
   font-weight: 500;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
 }
 
 .result-table {
@@ -663,90 +565,43 @@ const formatTooltip = (value: number): string => {
 }
 
 .port-status-open {
-  color: var(--custom-action-success-color, #67c23a);
+  color: var(--el-color-success);
   font-weight: 600;
 }
 
 .port-status-closed {
-  color: var(--custom-action-danger-color, #f56c6c);
+  color: var(--el-color-danger);
 }
 
 .port-status-filtered {
-  color: var(--custom-action-warning-color, #e6a23c);
+  color: var(--el-color-warning);
 }
 
-.help-content h3 {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 16px 0 10px;
-  color: var(--el-text-color-primary);
+.validation-error {
+  color: var(--el-color-danger);
+  font-size: 12px;
+  margin-top: 5px;
 }
 
-.help-content h3:first-child {
-  margin-top: 0;
+.status-open {
+  color: var(--el-color-success);
 }
 
-.help-content p {
-  margin: 0 0 12px;
-  line-height: 1.6;
-  color: var(--el-text-color-regular);
+.status-closed {
+  color: var(--el-color-danger);
 }
 
-.help-content ul, .help-content ol {
-  padding-left: 20px;
-  margin: 12px 0;
-}
-
-.help-content li {
-  margin-bottom: 8px;
-  color: var(--el-text-color-regular);
-  line-height: 1.6;
-}
-
-.help-content strong {
-  color: var(--el-text-color-primary);
-  font-weight: 600;
-}
-
-.help-content .status-open {
-  color: var(--custom-action-success-color, #67c23a);
-}
-
-.help-content .status-closed {
-  color: var(--custom-action-danger-color, #f56c6c);
-}
-
-.help-content .status-filtered {
-  color: var(--custom-action-warning-color, #e6a23c);
+.status-filtered {
+  color: var(--el-color-warning);
 }
 
 @media (max-width: 1200px) {
-  .main-content {
+  .page-content {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .port-scanner-container {
-    padding: 15px;
-  }
-  
-  .header h1 {
-    font-size: 24px;
-  }
-  
-  .header p {
-    font-size: 14px;
-  }
-  
-  .panel-header {
-    padding: 12px 15px;
-  }
-  
-  .panel-body {
-    padding: 15px;
-  }
-  
   .action-buttons {
     flex-direction: column;
   }
@@ -761,11 +616,8 @@ const formatTooltip = (value: number): string => {
     margin: 5px 0;
   }
   
-  .panel-header .copy-button {
-    position: relative;
-    right: auto;
+  .header-actions {
     margin-top: 10px;
-    width: 100%;
   }
   
   .info-items {
@@ -774,14 +626,6 @@ const formatTooltip = (value: number): string => {
 }
 
 @media (max-width: 480px) {
-  .header h1 {
-    font-size: 22px;
-  }
-  
-  .header p {
-    font-size: 13px;
-  }
-  
   .scan-info {
     padding: 12px;
   }
@@ -791,14 +635,6 @@ const formatTooltip = (value: number): string => {
   }
   
   .info-item .value {
-    font-size: 13px;
-  }
-  
-  .help-content h3 {
-    font-size: 15px;
-  }
-  
-  .help-content p, .help-content li {
     font-size: 13px;
   }
 }
