@@ -1,5 +1,5 @@
 <template>
-  <div class="mac-generator-page format-page">
+  <div class="network-tool-page">
     <div class="page-header">
       <div class="header-title">
         <h2>MAC 地址生成器</h2>
@@ -7,156 +7,156 @@
       </div>
     </div>
 
-    <div class="page-content">
-      <el-card class="generator-card">
-        <div class="card-header">
-          <div class="card-icon">
-            <el-icon><Setting /></el-icon>
+    <div class="page-content main-sidebar">
+      <div class="main-content-left">
+        <el-card class="network-card generator-card">
+          <div class="card-header">
+            <div class="card-icon">
+              <el-icon><Setting /></el-icon>
+            </div>
+            <div class="card-title">生成选项</div>
           </div>
-          <div class="card-title">生成选项</div>
-        </div>
-        
-        <div class="generator-section">
-          <div class="format-options">
-            <div class="option-label">格式</div>
-            <div class="format-buttons">
-              <div 
-                class="format-button" 
-                :class="{ active: formatType === 'noSeparator' }"
-                @click="formatType = 'noSeparator'"
-              >
-                XXXXXXXXXXXX
+          
+          <div class="generator-section">
+            <div class="format-section">
+              <div class="option-label">格式</div>
+              <div class="option-selector">
+                <div 
+                  class="option-item" 
+                  :class="{ active: formatType === 'noSeparator' }"
+                  @click="formatType = 'noSeparator'"
+                >
+                  XXXXXXXXXXXX
+                </div>
+                <div 
+                  class="option-item" 
+                  :class="{ active: formatType === 'colon' }"
+                  @click="formatType = 'colon'"
+                >
+                  XX:XX:XX:XX:XX:XX
+                </div>
+                <div 
+                  class="option-item" 
+                  :class="{ active: formatType === 'hyphen' }"
+                  @click="formatType = 'hyphen'"
+                >
+                  XX-XX-XX-XX-XX-XX
+                </div>
+                <div 
+                  class="option-item" 
+                  :class="{ active: formatType === 'dot' }"
+                  @click="formatType = 'dot'"
+                >
+                  XXXX.XXXX.XXXX
+                </div>
               </div>
-              <div 
-                class="format-button" 
-                :class="{ active: formatType === 'colon' }"
-                @click="formatType = 'colon'"
-              >
-                XX:XX:XX:XX:XX:XX
-              </div>
-              <div 
-                class="format-button" 
-                :class="{ active: formatType === 'hyphen' }"
-                @click="formatType = 'hyphen'"
-              >
-                XX-XX-XX-XX-XX-XX
-              </div>
-              <div 
-                class="format-button" 
-                :class="{ active: formatType === 'dot' }"
-                @click="formatType = 'dot'"
-              >
-                XXXX.XXXX.XXXX
+              
+              <div class="option-label">大小写</div>
+              <div class="option-selector">
+                <div 
+                  class="option-item" 
+                  :class="{ active: letterCase === 'upper' }"
+                  @click="letterCase = 'upper'"
+                >
+                  大写
+                </div>
+                <div 
+                  class="option-item" 
+                  :class="{ active: letterCase === 'lower' }"
+                  @click="letterCase = 'lower'"
+                >
+                  小写
+                </div>
               </div>
             </div>
             
-            <div class="option-label">大小写</div>
-            <div class="case-buttons">
-              <el-button 
-                :type="letterCase === 'upper' ? 'primary' : 'default'" 
-                @click="letterCase = 'upper'"
-                :plain="letterCase !== 'upper'"
-              >
-                大写
+            <div class="mac-type">
+              <div class="option-label">地址类型</div>
+              <div class="type-options">
+                <el-radio v-model="macType" label="global">全球唯一地址 (UAA)</el-radio>
+                <el-radio v-model="macType" label="local">本地管理地址 (LAA)</el-radio>
+                <el-radio v-model="macType" label="multicast">组播地址</el-radio>
+                <el-radio v-model="macType" label="random">完全随机</el-radio>
+              </div>
+            </div>
+            
+            <div class="mac-count">
+              <div class="option-label">生成数量</div>
+              <el-slider v-model="macCount" :min="1" :max="10" show-stops :marks="{1: '1', 5: '5', 10: '10'}" />
+            </div>
+            
+            <div class="action-buttons">
+              <el-button type="primary" @click="generateMac">
+                <el-icon><RefreshRight /></el-icon> 生成地址
               </el-button>
+              <el-button type="danger" @click="clearResults" :disabled="!macAddresses.length">
+                <el-icon><Delete /></el-icon> 清空结果
+              </el-button>
+            </div>
+          </div>
+        </el-card>
+
+        <el-card class="network-card result-card">
+          <div class="card-header">
+            <div class="card-icon">
+              <el-icon><List /></el-icon>
+            </div>
+            <div class="card-title">生成结果</div>
+            <div class="header-actions">
               <el-button 
-                :type="letterCase === 'lower' ? 'primary' : 'default'" 
-                @click="letterCase = 'lower'"
-                :plain="letterCase !== 'lower'"
+                type="primary" 
+                plain 
+                size="small" 
+                @click="copyAllAddresses" 
+                :disabled="!macAddresses.length"
+                class="copy-all-button"
               >
-                小写
+                <el-icon><CopyDocument /></el-icon>
+                复制所有
               </el-button>
             </div>
           </div>
           
-          <div class="mac-type">
-            <div class="type-label">地址类型</div>
-            <div class="type-options">
-              <el-radio v-model="macType" label="global">全球唯一地址 (UAA)</el-radio>
-              <el-radio v-model="macType" label="local">本地管理地址 (LAA)</el-radio>
-              <el-radio v-model="macType" label="multicast">组播地址</el-radio>
-              <el-radio v-model="macType" label="random">完全随机</el-radio>
+          <div class="result-content">
+            <div class="table-container">
+              <el-table 
+                :data="macAddresses" 
+                style="width: 100%" 
+                :empty-text="macAddresses.length === 0 ? '点击生成按钮创建MAC地址' : '加载中...'"
+              >
+                <el-table-column prop="index" label="#" width="60" />
+                <el-table-column prop="address" label="MAC 地址">
+                  <template #default="scope">
+                    <span class="mac-value">{{ scope.row.address }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="type" label="类型" width="120">
+                  <template #default="scope">
+                    <el-tag v-if="scope.row.type === 'global'" type="success" size="small">全球唯一</el-tag>
+                    <el-tag v-else-if="scope.row.type === 'local'" type="warning" size="small">本地管理</el-tag>
+                    <el-tag v-else-if="scope.row.type === 'multicast'" type="danger" size="small">组播地址</el-tag>
+                    <el-tag v-else type="info" size="small">随机</el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="70">
+                  <template #default="scope">
+                    <el-button 
+                      type="primary" 
+                      link 
+                      size="small" 
+                      @click="copyAddress(scope.row.address)"
+                    >
+                      <el-icon><CopyDocument /></el-icon>
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
             </div>
           </div>
-          
-          <div class="mac-count">
-            <div class="option-label">生成数量</div>
-            <el-slider v-model="macCount" :min="1" :max="10" show-stops :marks="{1: '1', 5: '5', 10: '10'}" />
-          </div>
-          
-          <div class="actions">
-            <el-button type="primary" @click="generateMac">
-              <el-icon><RefreshRight /></el-icon> 生成地址
-            </el-button>
-            <el-button type="danger" @click="clearResults" :disabled="!macAddresses.length">
-              <el-icon><Delete /></el-icon> 清空结果
-            </el-button>
-          </div>
-        </div>
-      </el-card>
+        </el-card>
+      </div>
 
-      <el-card class="result-card">
-        <div class="card-header">
-          <div class="card-icon">
-            <el-icon><List /></el-icon>
-          </div>
-          <div class="card-title">生成结果</div>
-          <div class="card-actions">
-            <el-button 
-              type="primary" 
-              plain 
-              size="small" 
-              @click="copyAllAddresses" 
-              :disabled="!macAddresses.length"
-              class="copy-all-button"
-            >
-              <el-icon><CopyDocument /></el-icon>
-              复制所有
-            </el-button>
-          </div>
-        </div>
-        
-        <div class="result-section">
-          <div class="result-table">
-            <el-table 
-              :data="macAddresses" 
-              style="width: 100%" 
-              :empty-text="macAddresses.length === 0 ? '点击生成按钮创建MAC地址' : '加载中...'"
-            >
-              <el-table-column prop="index" label="#" width="60" />
-              <el-table-column prop="address" label="MAC 地址">
-                <template #default="scope">
-                  <span class="mac-value">{{ scope.row.address }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="type" label="类型" width="120">
-                <template #default="scope">
-                  <el-tag v-if="scope.row.type === 'global'" type="success" size="small">全球唯一</el-tag>
-                  <el-tag v-else-if="scope.row.type === 'local'" type="warning" size="small">本地管理</el-tag>
-                  <el-tag v-else-if="scope.row.type === 'multicast'" type="danger" size="small">组播地址</el-tag>
-                  <el-tag v-else type="info" size="small">随机</el-tag>
-                </template>
-              </el-table-column>
-              <el-table-column label="操作" width="70">
-                <template #default="scope">
-                  <el-button 
-                    type="primary" 
-                    link 
-                    size="small" 
-                    @click="copyAddress(scope.row.address)"
-                  >
-                    <el-icon><CopyDocument /></el-icon>
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
-        </div>
-      </el-card>
-    </div>
-
-    <div class="info-section">
-      <el-card class="info-card">
+      <el-card class="network-card info-card">
         <div class="card-header">
           <div class="card-icon">
             <el-icon><InfoFilled /></el-icon>
@@ -164,7 +164,7 @@
           <div class="card-title">MAC 地址信息</div>
         </div>
         
-        <div class="info-content">
+        <div class="help-content">
           <h4>MAC 地址类型</h4>
           <p>全球唯一地址 vs 本地管理地址：</p>
           <ul>
@@ -323,480 +323,45 @@ generateMac();
 </script>
 
 <style lang="scss" scoped>
-.mac-generator-page {
-  max-width: 100%;
-  overflow-x: hidden;
+.main-content-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.format-section {
+  margin-bottom: 20px;
+}
+
+.option-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--el-text-color-primary);
+  margin-bottom: 10px;
+}
+
+.mac-type {
+  margin-bottom: 20px;
   
-  .page-header {
-    margin-bottom: 24px;
-    
-    .header-title {
-      h2 {
-        font-size: 26px;
-        font-weight: 600;
-        margin-bottom: 6px;
-        background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-5));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        display: inline-block;
-      }
-      
-      .header-desc {
-        font-size: 15px;
-        color: var(--el-text-color-secondary);
-        margin: 0;
-      }
-    }
-  }
-  
-  .page-content {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 24px;
-    margin-bottom: 24px;
-  }
-  
-  .generator-card, .result-card, .info-card {
-    height: 100%;
-    transition: all 0.3s ease;
-    border-radius: 12px;
-    border: 1px solid transparent;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    background-color: var(--el-bg-color);
-    
-    &:hover {
-      border-color: var(--el-color-primary-light-5);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    }
-  }
-  
-  .card-header {
+  .type-options {
     display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px dashed var(--el-border-color-light);
-    
-    .card-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: var(--el-color-primary-light-9);
-      margin-right: 12px;
-      
-      .el-icon {
-        font-size: 18px;
-        color: var(--el-color-primary);
-      }
-    }
-    
-    .card-title {
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--el-text-color-primary);
-      flex: 1;
-    }
-    
-    .card-actions {
-      display: flex;
-      gap: 8px;
-    }
+    flex-wrap: wrap;
+    gap: 16px;
   }
-  
-  .generator-section {
-    .format-options {
-      margin-bottom: 24px;
-      
-      .option-label {
-        font-size: 15px;
-        font-weight: 500;
-        color: var(--el-text-color-primary);
-        margin-bottom: 10px;
-      }
-      
-      .format-buttons {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 16px;
-        
-        .format-button {
-          flex: 1;
-          text-align: center;
-          padding: 10px;
-          border: 1px solid var(--el-border-color);
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          background: var(--el-fill-color-light);
-          font-family: var(--el-font-family-monospace, monospace);
-          
-          &.active {
-            border-color: var(--el-color-primary);
-            background: var(--el-color-primary-light-9);
-            color: var(--el-color-primary);
-            font-weight: 500;
-            box-shadow: 0 0 0 1px var(--el-color-primary-light-5);
-          }
-          
-          &:hover:not(.active) {
-            border-color: var(--el-color-primary-light-5);
-            background: var(--el-fill-color);
-          }
-          
-          :root.dark & {
-            background-color: #2a2b2f;
-            border-color: #444;
-            color: #e0e0e0;
-            
-            &.active {
-              background-color: rgba(64, 158, 255, 0.25);
-              border-color: var(--el-color-primary, #409eff);
-              color: var(--el-color-primary-light-3, #79bbff);
-              box-shadow: 0 0 0 1px var(--el-color-primary-dark-2, #0a60bd), 
-                        0 0 8px 0 rgba(64, 158, 255, 0.6);
-            }
-            
-            &:hover:not(.active) {
-              background-color: #32353a;
-              border-color: var(--el-color-primary-light-5, #a0cfff);
-              color: var(--el-color-primary-light-5, #a0cfff);
-            }
-          }
-        }
-      }
-      
-      .case-buttons {
-        display: flex;
-        gap: 8px;
-        
-        .el-button {
-          flex: 1;
-          
-          &.is-plain:not(.is-disabled) {
-            &:hover {
-              color: var(--el-color-primary);
-              border-color: var(--el-color-primary-light-5);
-              background-color: var(--el-color-primary-light-9);
-            }
-          }
-          
-          &.el-button--primary.is-plain {
-            background-color: var(--custom-action-primary-bg, var(--el-color-primary-light-9));
-            border-color: var(--custom-action-primary-color, var(--el-color-primary));
-            color: var(--custom-action-primary-color, var(--el-color-primary));
-            
-            &:hover {
-              background-color: var(--el-color-primary-light-8);
-            }
-          }
-          
-          // 深色模式下专门的样式
-          :root.dark & {
-            &.el-button--primary.is-plain {
-              background-color: rgba(64, 158, 255, 0.15);
-              border-color: var(--el-color-primary, #409eff);
-              color: var(--el-color-primary-light-3, #79bbff);
-              
-              &:hover {
-                background-color: var(--el-color-primary-dark-2, #0a60bd);
-                border-color: var(--el-color-primary, #409eff);
-                color: #ffffff;
-              }
-            }
-            
-            &.el-button--default {
-              background-color: #2a2b2f;
-              border-color: #444;
-              color: #e0e0e0;
-              
-              &:hover {
-                border-color: var(--el-color-primary, #409eff);
-                color: var(--el-color-primary-light-3, #79bbff);
-              }
-              
-              &.is-plain {
-                background-color: transparent;
-                border-color: #555;
-                color: #bbb;
-                
-                &:hover {
-                  border-color: var(--el-color-primary, #409eff);
-                  color: var(--el-color-primary-light-3, #79bbff);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    .mac-type {
-      margin-bottom: 24px;
-      
-      .type-label {
-        font-size: 15px;
-        font-weight: 500;
-        color: var(--el-text-color-primary);
-        margin-bottom: 10px;
-      }
-      
-      .type-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        
-        .el-radio {
-          margin-right: 0;
-          
-          &.is-checked {
-            .el-radio__label {
-              color: var(--el-color-primary);
-              font-weight: 500;
-            }
-          }
-        }
-      }
-    }
-    
-    .actions {
-      display: flex;
-      gap: 12px;
-      
-      .el-button {
-        flex: 1;
-      }
-    }
-  }
-  
-  .result-section {
-    .result-table {
-      margin-bottom: 16px;
-      
-      .el-table {
-        --el-table-border-color: var(--el-border-color-lighter);
-        border-radius: 8px;
-        overflow: hidden;
-        
-        :deep(th.el-table__cell) {
-          background-color: var(--el-fill-color-light);
-          color: var(--el-text-color-regular);
-          font-weight: 600;
-          padding: 12px 8px;
-        }
-        
-        :deep(td.el-table__cell) {
-          padding: 12px 8px;
-        }
-        
-        :deep(.cell) {
-          word-break: break-all;
-        }
-      }
-    }
-    
-    .mac-value {
-      font-family: var(--el-font-family-monospace, monospace);
-      word-break: break-all;
-    }
-    
-    .copy-all-button {
-      width: 100%;
-      margin-top: 8px;
-    }
-  }
-  
-  .info-section {
-    margin-top: 24px;
-    
-    .info-card {
-      width: 100%;
-    }
-    
-    .info-content {
-      color: var(--el-text-color-regular);
-      font-size: 14px;
-      line-height: 1.6;
-      
-      h4 {
-        color: var(--el-text-color-primary);
-        font-size: 16px;
-        font-weight: 600;
-        margin: 16px 0 10px;
-        
-        &:first-of-type {
-          margin-top: 0;
-        }
-      }
-      
-      p {
-        margin: 0 0 12px;
-      }
-      
-      ul {
-        padding-left: 20px;
-        margin: 12px 0;
-        
-        li {
-          margin-bottom: 6px;
-          position: relative;
-          
-          &::marker {
-            color: var(--el-color-primary);
-          }
-          
-          strong {
-            color: var(--el-text-color-primary);
-            font-weight: 600;
-          }
-        }
-      }
-      
-      code {
-        background-color: var(--el-fill-color-light);
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-family: var(--el-font-family-monospace, monospace);
-        font-size: 13px;
-        color: var(--el-color-danger);
-      }
-    }
-  }
-  
-  :deep(.el-card__body) {
-    padding: 20px;
-  }
-  
-  @media (max-width: 1200px) {
-    .page-content {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  
-  @media (max-width: 991px) {
-    .page-content {
-      grid-template-columns: 1fr;
-    }
-    
-    .result-card {
-      order: 2;
-    }
-    
-    .info-section {
-      order: 3;
-    }
-  }
-  
-  @media (max-width: 767px) {
-    .page-header {
-      .header-title {
-        h2 {
-          font-size: 22px;
-        }
-        
-        .header-desc {
-          font-size: 14px;
-        }
-      }
-    }
-    
-    .card-header {
-      flex-wrap: wrap;
-      
-      .card-actions {
-        margin-top: 8px;
-        width: 100%;
-        justify-content: flex-end;
-      }
-    }
-  }
-  
-  @media (max-width: 480px) {
-    :deep(.el-card__body) {
-      padding: 16px;
-    }
-    
-    .page-header {
-      .header-title {
-        h2 {
-          font-size: 20px;
-        }
-      }
-    }
-    
-    .card-header {
-      margin-bottom: 16px;
-      
-      .card-icon {
-        width: 32px;
-        height: 32px;
-        
-        .el-icon {
-          font-size: 16px;
-        }
-      }
-      
-      .card-title {
-        font-size: 16px;
-      }
-    }
-    
-    .format-options {
-      .option-label {
-        font-size: 14px;
-      }
-      
-      .format-buttons {
-        .format-button {
-          font-size: 12px;
-          padding: 6px 4px;
-        }
-      }
-    }
-    
-    .mac-type {
-      .type-label {
-        font-size: 14px;
-      }
-    }
-    
-    .actions {
-      flex-direction: column;
-      
-      .el-button {
-        margin-left: 0 !important;
-      }
-    }
-    
-    .result-section {
-      .result-table {
-        font-size: 13px;
-        
-        :deep(th.el-table__cell) {
-          padding: 8px 6px;
-        }
-        
-        :deep(td.el-table__cell) {
-          padding: 8px 6px;
-        }
-      }
-    }
-    
-    .info-section {
-      .info-content {
-        font-size: 13px;
-        
-        h4 {
-          font-size: 15px;
-        }
-        
-        code {
-          font-size: 12px;
-        }
-      }
-    }
+}
+
+.mac-count {
+  margin-bottom: 20px;
+}
+
+.mac-value {
+  font-family: var(--el-font-family-monospace, monospace);
+  font-weight: 500;
+}
+
+@media (max-width: 1200px) {
+  .page-content {
+    grid-template-columns: 1fr;
   }
 }
 </style> 

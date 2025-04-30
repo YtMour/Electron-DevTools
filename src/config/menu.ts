@@ -96,6 +96,10 @@ const menuConfig: MenuItem[] = [
     icon: 'Connection',
     children: [
       {
+        path: '/network/unified-lookup',
+        name: '网络信息查询'
+      },
+      {
         path: '/network/ipv4-subnet',
         name: 'IPv4子网计算器'
       },
@@ -108,20 +112,8 @@ const menuConfig: MenuItem[] = [
         name: 'IPv4范围扩展器'
       },
       {
-        path: '/network/ip-lookup',
-        name: 'IP地址查询'
-      },
-      {
-        path: '/network/ping',
-        name: 'Ping测试'
-      },
-      {
         path: '/network/port-scanner',
         name: '端口扫描器'
-      },
-      {
-        path: '/network/domain-lookup',
-        name: '域名查询'
       },
       {
         path: '/network/mac-lookup',

@@ -1,5 +1,5 @@
 <template>
-  <div class="ipv4-range-page format-page">
+  <div class="network-tool-page">
     <div class="page-header">
       <div class="header-title">
         <h2>IPv4 范围扩展器</h2>
@@ -7,37 +7,41 @@
       </div>
     </div>
 
-    <div class="page-content">
-      <el-card class="input-card">
-        <div class="card-header">
-          <el-icon><SetUp /></el-icon>
-          <span>设置IP地址范围</span>
-        </div>
+    <div class="page-content main-sidebar">
+      <div class="main-content-left">
+        <el-card class="network-card config-card">
+          <div class="card-header">
+            <div class="card-icon">
+              <el-icon><SetUp /></el-icon>
+            </div>
+            <div class="card-title">设置IP地址范围</div>
+          </div>
 
-        <el-form :model="form" label-position="top">
-          <el-form-item label="起始IP地址">
+          <div class="form-group">
+            <label>起始IP地址</label>
             <el-input
               v-model="form.startIP"
               placeholder="例如：192.168.1.1"
               @input="validateInput('start')"
             />
-            <div v-if="validationError.startIP" class="error-message">
+            <div v-if="validationError.startIP" class="validation-error">
               {{ validationError.startIP }}
             </div>
-          </el-form-item>
+          </div>
 
-          <el-form-item label="结束IP地址">
+          <div class="form-group">
+            <label>结束IP地址</label>
             <el-input
               v-model="form.endIP"
               placeholder="例如：192.168.1.10"
               @input="validateInput('end')"
             />
-            <div v-if="validationError.endIP" class="error-message">
+            <div v-if="validationError.endIP" class="validation-error">
               {{ validationError.endIP }}
             </div>
-          </el-form-item>
+          </div>
 
-          <el-form-item>
+          <div class="action-buttons">
             <el-button 
               type="primary" 
               @click="generateRange" 
@@ -47,56 +51,62 @@
               <el-icon><Connection /></el-icon>
               生成地址范围
             </el-button>
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <el-card class="result-card" v-if="result.length">
-        <div class="card-header">
-          <el-icon><List /></el-icon>
-          <span>IP地址列表</span>
-          <div class="result-actions">
-            <el-button type="primary" plain size="small" @click="handleCopy">
-              <el-icon><CopyDocument /></el-icon>
-              复制所有地址
-            </el-button>
           </div>
-        </div>
+        </el-card>
 
-        <div class="range-info">
-          范围内包含 <strong>{{ result.length }}</strong> 个IP地址
-        </div>
+        <el-card class="network-card result-card" v-if="result.length">
+          <div class="card-header">
+            <div class="card-icon">
+              <el-icon><List /></el-icon>
+            </div>
+            <div class="card-title">IP地址列表</div>
+            <div class="header-actions">
+              <el-button type="primary" plain size="small" @click="handleCopy">
+                <el-icon><CopyDocument /></el-icon>
+                复制所有地址
+              </el-button>
+            </div>
+          </div>
 
-        <div class="result-content">
-          <el-table
-            :data="result"
-            height="400"
-            border
-            style="width: 100%"
-            v-loading="loading"
-          >
-            <el-table-column type="index" width="70" label="序号" />
-            <el-table-column prop="ip" label="IP地址" />
-            <el-table-column label="操作" width="100">
-              <template #default="scope">
-                <el-button
-                  type="primary"
-                  link
-                  size="small"
-                  @click="copyIP(scope.row.ip)"
-                >
-                  <el-icon><CopyDocument /></el-icon>
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-card>
+          <div class="result-content">
+            <div class="range-info">
+              范围内包含 <strong>{{ result.length }}</strong> 个IP地址
+            </div>
 
-      <el-card class="help-card">
+            <div class="table-container">
+              <el-table
+                :data="result"
+                height="400"
+                border
+                style="width: 100%"
+                v-loading="loading"
+              >
+                <el-table-column type="index" width="70" label="序号" />
+                <el-table-column prop="ip" label="IP地址" />
+                <el-table-column label="操作" width="100">
+                  <template #default="scope">
+                    <el-button
+                      type="primary"
+                      link
+                      size="small"
+                      @click="copyIP(scope.row.ip)"
+                    >
+                      <el-icon><CopyDocument /></el-icon>
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        </el-card>
+      </div>
+
+      <el-card class="network-card info-card">
         <div class="card-header">
-          <el-icon><InfoFilled /></el-icon>
-          <span>使用帮助</span>
+          <div class="card-icon">
+            <el-icon><InfoFilled /></el-icon>
+          </div>
+          <div class="card-title">使用帮助</div>
         </div>
 
         <div class="help-content">
@@ -260,296 +270,74 @@ const isFormValid = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-.ipv4-range-page {
-  max-width: 100%;
-  overflow-x: hidden;
+.network-tool-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.validation-error {
+  color: var(--el-color-danger);
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.result-content {
+  padding: 20px;
+}
+
+.range-info {
+  margin-bottom: 16px;
+  font-size: 15px;
+  color: var(--el-text-color-primary);
+  font-weight: 500;
   
-  .page-header {
-    margin-bottom: 24px;
-    
-    .header-title {
-      h2 {
-        font-size: 26px;
-        font-weight: 600;
-        margin-bottom: 6px;
-        background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        display: inline-block;
-      }
-      
-      .header-desc {
-        font-size: 15px;
-        color: var(--el-text-color-secondary);
-        margin: 0;
-      }
-    }
-  }
-  
-  .page-content {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 24px;
-    
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-      font-weight: 600;
-      color: var(--el-text-color-primary);
-      font-size: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px dashed var(--el-border-color-light);
-      
-      .el-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        background: var(--el-color-primary-light-9);
-        color: var(--el-color-primary);
-        font-size: 18px;
-        margin-right: 8px;
-      }
-      
-      .result-actions {
-        margin-left: auto;
-      }
-    }
-    
-    .input-card, .result-card, .help-card {
-      width: 100%;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      border-radius: 12px;
-      border: 1px solid transparent;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      background-color: var(--el-bg-color);
-      overflow: hidden;
-      margin-bottom: 16px;
-      
-      &:hover {
-        border-color: var(--el-color-primary-light-5);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-      }
-    }
-    
-    .help-card {
-      height: fit-content;
-      
-      .help-content {
-        font-size: 14px;
-        color: var(--el-text-color-regular);
-        line-height: 1.6;
-        
-        h4 {
-          color: var(--el-text-color-primary);
-          font-size: 16px;
-          font-weight: 600;
-          margin: 16px 0 10px;
-          
-          &:first-child {
-            margin-top: 0;
-          }
-        }
-        
-        p {
-          margin: 0 0 12px;
-        }
-        
-        ol, ul {
-          padding-left: 20px;
-          margin: 12px 0;
-          
-          li {
-            margin-bottom: 8px;
-            position: relative;
-            
-            &::marker {
-              color: var(--el-color-primary);
-            }
-            
-            strong {
-              color: var(--el-text-color-primary);
-              font-weight: 600;
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  .error-message {
-    color: var(--el-color-danger);
-    font-size: 12px;
-    font-weight: 500;
-    margin-top: 4px;
-    line-height: 1.4;
-  }
-  
-  .result-content {
-    overflow-x: auto;
-    border-radius: 8px;
-    
-    .el-table {
-      --el-table-border-color: var(--el-border-color-lighter);
-      
-      :deep(th.el-table__cell) {
-        background-color: var(--el-fill-color-light);
-        font-weight: 600;
-      }
-    }
-  }
-  
-  .range-info {
-    margin-bottom: 16px;
-    font-size: 14px;
-    color: var(--el-text-color-regular);
-    background-color: var(--el-fill-color-light);
-    padding: 12px 16px;
-    border-radius: 8px;
-    
-    strong {
-      color: var(--el-color-primary);
-      font-weight: 600;
-      font-size: 16px;
-    }
-  }
-  
-  :deep(.el-card__body) {
-    padding: 20px;
-  }
-  
-  :deep(.el-form-item__label) {
-    font-weight: 500;
-  }
-  
-  :deep(.el-button--primary) {
-    transition: all 0.3s ease;
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(var(--el-color-primary-rgb), 0.3);
-    }
+  strong {
+    color: var(--el-color-primary);
+    font-weight: 600;
   }
 }
 
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
 @media (max-width: 1200px) {
-  .ipv4-range-page {
-    .page-content {
-      grid-template-columns: 1fr;
-    }
+  .page-content {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .ipv4-range-page {
-    .page-header {
-      .header-title {
-        h2 {
-          font-size: 22px;
-        }
-        
-        .header-desc {
-          font-size: 14px;
-        }
-      }
-    }
-    
-    .card-header {
-      flex-wrap: wrap;
-      
-      .result-actions {
-        margin-left: 0;
-        margin-top: 8px;
-        width: 100%;
-        
-        .el-button {
-          width: 100%;
-        }
-      }
-    }
-    
-    .result-content {
-      .el-table {
-        font-size: 13px;
-        
-        :deep(th.el-table__cell) {
-          padding: 8px 0;
-        }
-        
-        :deep(td.el-table__cell) {
-          padding: 6px 0;
-        }
-      }
-    }
+  .network-tool-page {
+    padding: 15px;
   }
-}
-
-@media (max-width: 480px) {
-  .ipv4-range-page {
-    .page-header {
-      .header-title {
-        h2 {
-          font-size: 20px;
-        }
-        
-        .header-desc {
-          font-size: 13px;
-        }
-      }
-    }
-    
-    .card-header {
-      margin-bottom: 16px;
-      font-size: 14px;
-      
-      .el-icon {
-        width: 32px;
-        height: 32px;
-        font-size: 16px;
-      }
-    }
-    
-    .help-card {
-      .help-content {
-        font-size: 13px;
-        
-        h4 {
-          font-size: 15px;
-        }
-      }
-    }
-    
-    .result-content {
-      .el-table {
-        font-size: 12px;
-      }
-    }
-    
-    .range-info {
-      font-size: 13px;
-      padding: 8px 12px;
-      
-      strong {
-        font-size: 14px;
-      }
-    }
-    
-    :deep(.el-card__body) {
-      padding: 16px;
-    }
-    
-    :deep(.el-form-item__label) {
-      padding-bottom: 4px;
-      font-size: 13px;
-    }
-    
-    :deep(.el-form-item) {
-      margin-bottom: 16px;
-    }
+  
+  .range-info {
+    font-size: 14px;
+  }
+  
+  .header-actions {
+    position: relative;
+    margin-top: 10px;
   }
 }
 </style> 

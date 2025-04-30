@@ -1,18 +1,20 @@
 <template>
-  <div class="ping-container">
-    <div class="header">
-      <h1>Ping测试</h1>
-      <p>检测与目标主机的网络连接状态和延迟</p>
+  <div class="network-tool-page">
+    <div class="page-header">
+      <div class="header-title">
+        <h2>Ping测试</h2>
+        <p class="header-desc">检测与目标主机的网络连接状态和延迟</p>
+      </div>
     </div>
     
-    <div class="main-content">
-      <div class="ping-section">
-        <div class="panel">
-          <div class="panel-header">
-            <span class="icon">
+    <div class="page-content main-sidebar">
+      <div class="main-content-left">
+        <el-card class="network-card config-card">
+          <div class="card-header">
+            <div class="card-icon">
               <el-icon><Connection /></el-icon>
-            </span>
-            <span class="title">Ping测试</span>
+            </div>
+            <div class="card-title">Ping测试</div>
             <el-tooltip content="展开高级选项" placement="top" v-if="!showAdvanced">
               <el-button type="primary" text @click="showAdvanced = true">
                 <el-icon><ArrowDown /></el-icon>
@@ -25,173 +27,171 @@
             </el-tooltip>
           </div>
           
-          <div class="panel-body">
-            <div class="form-group">
-              <label>目标主机</label>
-              <el-input 
-                v-model="host" 
-                placeholder="例如: example.com 或 192.168.1.1"
-                @keyup.enter="startPing"
-              >
-                <template #prepend>
-                  <el-select v-model="targetProtocol" style="width: 100px;">
-                    <el-option label="IPv4" value="ipv4" />
-                    <el-option label="IPv6" value="ipv6" />
-                  </el-select>
-                </template>
-              </el-input>
-              <div class="error-message" v-if="validationError">
-                {{ validationError }}
-              </div>
+          <div class="form-group">
+            <label>目标主机</label>
+            <el-input 
+              v-model="host" 
+              placeholder="例如: example.com 或 192.168.1.1"
+              @keyup.enter="startPing"
+            >
+              <template #prepend>
+                <el-select v-model="targetProtocol" style="width: 100px;">
+                  <el-option label="IPv4" value="ipv4" />
+                  <el-option label="IPv6" value="ipv6" />
+                </el-select>
+              </template>
+            </el-input>
+            <div class="validation-error" v-if="validationError">
+              {{ validationError }}
             </div>
-            
-            <div class="form-group">
-              <label>基本选项</label>
-              <div class="options-row">
-                <div class="option-item">
-                  <span class="option-label">数据包数量</span>
-                  <el-input-number 
-                    v-model="packetCount" 
-                    :min="1" 
-                    :max="100"
-                    :step="1"
-                    size="default"
-                    class="input-number"
-                  />
-                </div>
-                
-                <div class="option-item">
-                  <span class="option-label">间隔(秒)</span>
-                  <el-input-number 
-                    v-model="interval" 
-                    :min="0.2" 
-                    :max="5"
-                    :step="0.2"
-                    :precision="1"
-                    size="default"
-                    class="input-number"
-                  />
-                </div>
-                
-                <div class="option-item">
-                  <span class="option-label">超时(秒)</span>
-                  <el-input-number 
-                    v-model="timeout" 
-                    :min="1" 
-                    :max="10"
-                    :step="1"
-                    size="default"
-                    class="input-number"
-                  />
-                </div>
+          </div>
+          
+          <div class="form-group">
+            <label>基本选项</label>
+            <div class="options-row">
+              <div class="option-item">
+                <span class="option-label">数据包数量</span>
+                <el-input-number 
+                  v-model="packetCount" 
+                  :min="1" 
+                  :max="100"
+                  :step="1"
+                  size="default"
+                  class="input-number"
+                />
               </div>
-            </div>
-            
-            <div v-if="showAdvanced" class="form-group advanced-options">
-              <label>高级选项</label>
-              <div class="options-row">
-                <div class="option-item">
-                  <span class="option-label">数据包大小</span>
-                  <el-input-number 
-                    v-model="packetSize" 
-                    :min="32" 
-                    :max="1472"
-                    :step="32"
-                    size="default"
-                    class="input-number"
-                  />
-                </div>
-                
-                <div class="option-item">
-                  <span class="option-label">TTL</span>
-                  <el-input-number 
-                    v-model="ttl" 
-                    :min="1" 
-                    :max="255"
-                    :step="1"
-                    size="default"
-                    class="input-number"
-                  />
-                </div>
-                
-                <div class="option-item">
-                  <span class="option-label">模拟丢包率(%)</span>
-                  <el-slider 
-                    v-model="simulatedPacketLoss" 
-                    :min="0" 
-                    :max="100"
-                    :step="5"
-                    size="default"
-                    show-stops
-                  />
-                </div>
+              
+              <div class="option-item">
+                <span class="option-label">间隔(秒)</span>
+                <el-input-number 
+                  v-model="interval" 
+                  :min="0.2" 
+                  :max="5"
+                  :step="0.2"
+                  :precision="1"
+                  size="default"
+                  class="input-number"
+                />
               </div>
-            </div>
-            
-            <div class="action-buttons">
-              <el-button 
-                type="primary" 
-                @click="startPing" 
-                :loading="pinging" 
-                :disabled="pinging" 
-                class="ping-button"
-              >
-                <el-icon><VideoPlay /></el-icon>
-                开始测试
-              </el-button>
-              <el-button 
-                @click="stopPing" 
-                :disabled="!pinging" 
-                class="stop-button"
-              >
-                <el-icon><VideoPause /></el-icon>
-                停止测试
-              </el-button>
-              <el-button 
-                @click="resetForm" 
-                :disabled="pinging" 
-                class="reset-button"
-              >
-                <el-icon><Refresh /></el-icon>
-                重置
-              </el-button>
-              <el-button 
-                @click="addToFavorites" 
-                :disabled="!host.trim()" 
-                class="favorite-button"
-              >
-                <el-icon><StarFilled /></el-icon>
-                收藏
-              </el-button>
-            </div>
-            
-            <div v-if="favorites.length > 0" class="favorites-section">
-              <div class="favorites-header">
-                <span>常用主机</span>
-              </div>
-              <div class="favorites-list">
-                <el-tag 
-                  v-for="(fav, index) in favorites" 
-                  :key="index" 
-                  closable
-                  @click="selectFavorite(fav)"
-                  @close="removeFavorite(index)"
-                  class="favorite-tag"
-                >
-                  {{ fav }}
-                </el-tag>
+              
+              <div class="option-item">
+                <span class="option-label">超时(秒)</span>
+                <el-input-number 
+                  v-model="timeout" 
+                  :min="1" 
+                  :max="10"
+                  :step="1"
+                  size="default"
+                  class="input-number"
+                />
               </div>
             </div>
           </div>
-        </div>
+          
+          <div v-if="showAdvanced" class="form-group">
+            <label>高级选项</label>
+            <div class="options-row">
+              <div class="option-item">
+                <span class="option-label">数据包大小</span>
+                <el-input-number 
+                  v-model="packetSize" 
+                  :min="32" 
+                  :max="1472"
+                  :step="32"
+                  size="default"
+                  class="input-number"
+                />
+              </div>
+              
+              <div class="option-item">
+                <span class="option-label">TTL</span>
+                <el-input-number 
+                  v-model="ttl" 
+                  :min="1" 
+                  :max="255"
+                  :step="1"
+                  size="default"
+                  class="input-number"
+                />
+              </div>
+              
+              <div class="option-item">
+                <span class="option-label">模拟丢包率(%)</span>
+                <el-slider 
+                  v-model="simulatedPacketLoss" 
+                  :min="0" 
+                  :max="100"
+                  :step="5"
+                  size="default"
+                  show-stops
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div class="action-buttons">
+            <el-button 
+              type="primary" 
+              @click="startPing" 
+              :loading="pinging" 
+              :disabled="pinging" 
+              class="ping-button"
+            >
+              <el-icon><VideoPlay /></el-icon>
+              开始测试
+            </el-button>
+            <el-button 
+              @click="stopPing" 
+              :disabled="!pinging" 
+              class="stop-button"
+            >
+              <el-icon><VideoPause /></el-icon>
+              停止测试
+            </el-button>
+            <el-button 
+              @click="resetForm" 
+              :disabled="pinging" 
+              class="reset-button"
+            >
+              <el-icon><Refresh /></el-icon>
+              重置
+            </el-button>
+            <el-button 
+              @click="addToFavorites" 
+              :disabled="!host.trim()" 
+              class="favorite-button"
+            >
+              <el-icon><StarFilled /></el-icon>
+              收藏
+            </el-button>
+          </div>
+          
+          <div v-if="favorites.length > 0" class="favorites-section">
+            <div class="favorites-header">
+              <span>常用主机</span>
+            </div>
+            <div class="favorites-list">
+              <el-tag 
+                v-for="(fav, index) in favorites" 
+                :key="index" 
+                closable
+                @click="selectFavorite(fav)"
+                @close="removeFavorite(index)"
+                class="favorite-tag"
+              >
+                {{ fav }}
+              </el-tag>
+            </div>
+          </div>
+        </el-card>
         
-        <div class="panel result-panel" v-show="pingStarted">
-          <div class="panel-header">
-            <span class="icon">
+        <el-card class="network-card result-card" v-show="pingStarted">
+          <div class="card-header">
+            <div class="card-icon">
               <el-icon><DataLine /></el-icon>
-            </span>
-            <span class="title">测试结果</span>
-            <div class="panel-actions">
+            </div>
+            <div class="card-title">测试结果</div>
+            <div class="header-actions">
               <el-button 
                 type="primary" 
                 plain 
@@ -199,6 +199,7 @@
                 class="copy-button" 
                 @click="copyResults"
               >
+                <el-icon><CopyDocument /></el-icon>
                 复制结果
               </el-button>
               <el-tooltip content="切换视图" placement="top">
@@ -214,118 +215,112 @@
             </div>
           </div>
           
-          <div class="panel-body">
-            <div class="ping-stats" v-if="pingCompleted">
-              <div class="stats-item">
-                <div class="stats-label">发送</div>
-                <div class="stats-value">{{ packetsSent }}</div>
-              </div>
-              <div class="stats-item">
-                <div class="stats-label">接收</div>
-                <div class="stats-value">{{ packetsReceived }}</div>
-              </div>
-              <div class="stats-item">
-                <div class="stats-label">丢包率</div>
-                <div class="stats-value" :class="{'stats-error': packetLoss > 0}">
-                  {{ packetLoss }}%
-                </div>
-              </div>
-              <div class="stats-item">
-                <div class="stats-label">最小延迟</div>
-                <div class="stats-value">{{ minLatency }}ms</div>
-              </div>
-              <div class="stats-item">
-                <div class="stats-label">最大延迟</div>
-                <div class="stats-value">{{ maxLatency }}ms</div>
-              </div>
-              <div class="stats-item">
-                <div class="stats-label">平均延迟</div>
-                <div class="stats-value">{{ avgLatency }}ms</div>
-              </div>
-              <div class="stats-item">
-                <div class="stats-label">抖动</div>
-                <div class="stats-value">{{ jitter }}ms</div>
+          <div class="ping-stats" v-if="pingCompleted">
+            <div class="stats-item">
+              <div class="stats-label">发送</div>
+              <div class="stats-value">{{ packetsSent }}</div>
+            </div>
+            <div class="stats-item">
+              <div class="stats-label">接收</div>
+              <div class="stats-value">{{ packetsReceived }}</div>
+            </div>
+            <div class="stats-item">
+              <div class="stats-label">丢包率</div>
+              <div class="stats-value" :class="{'stats-error': packetLoss > 0}">
+                {{ packetLoss }}%
               </div>
             </div>
-            
-            <template v-if="resultView === 'text'">
-              <div class="ping-terminal">
-                <div 
-                  v-for="(line, index) in pingOutput" 
-                  :key="index" 
-                  class="terminal-line"
-                  :class="{'success-line': line.success, 'error-line': !line.success}"
-                >
-                  {{ line.text }}
-                </div>
-                <div class="terminal-cursor" v-if="pinging"></div>
-              </div>
-            </template>
-            <template v-else>
-              <div class="chart-container" v-if="latencies.length > 0">
-                <div class="chart-title">延迟时间走势图 (ms)</div>
-                <div class="latency-chart">
-                  <el-skeleton v-if="chartLoading" :rows="6" animated />
-                  <div v-else ref="chartRef" class="chart"></div>
-                </div>
-              </div>
-            </template>
-          </div>
-        </div>
-      </div>
-      
-      <div class="info-section">
-        <div class="panel">
-          <div class="panel-header">
-            <span class="icon">
-              <el-icon><InfoFilled /></el-icon>
-            </span>
-            <span class="title">工具说明</span>
+            <div class="stats-item">
+              <div class="stats-label">最小延迟</div>
+              <div class="stats-value">{{ minLatency }}ms</div>
+            </div>
+            <div class="stats-item">
+              <div class="stats-label">最大延迟</div>
+              <div class="stats-value">{{ maxLatency }}ms</div>
+            </div>
+            <div class="stats-item">
+              <div class="stats-label">平均延迟</div>
+              <div class="stats-value">{{ avgLatency }}ms</div>
+            </div>
+            <div class="stats-item">
+              <div class="stats-label">抖动</div>
+              <div class="stats-value">{{ jitter }}ms</div>
+            </div>
           </div>
           
-          <div class="panel-body">
-            <div class="help-content">
-              <h3>什么是Ping测试?</h3>
-              <p>
-                Ping是一种网络诊断工具，用于测试与目标主机之间的网络连接和延迟。
-                它通过发送ICMP Echo请求数据包并等待响应来工作，这有助于确定网络连接的可用性和质量。
-              </p>
-              
-              <h3>Ping测试的用途</h3>
-              <ul>
-                <li>检查与目标主机的网络连接是否正常</li>
-                <li>测量网络延迟和数据包往返时间</li>
-                <li>检测网络丢包率</li>
-                <li>帮助诊断网络问题</li>
-              </ul>
-              
-              <h3>使用方法</h3>
-              <ol>
-                <li>输入要测试的目标主机（域名或IP地址）</li>
-                <li>调整测试选项（如需要）</li>
-                <li>点击"开始测试"按钮</li>
-                <li>查看实时测试结果</li>
-                <li>测试完成后分析统计数据</li>
-              </ol>
-              
-              <h3>结果解读</h3>
-              <ul>
-                <li><strong>延迟时间</strong>: 数据包往返所需的时间，较低的值表示更好的连接</li>
-                <li><strong>丢包率</strong>: 发送但未收到回复的数据包百分比，较低的值表示更稳定的连接</li>
-                <li><strong>TTL</strong>: 生存时间，表示数据包可以经过的最大路由器数量</li>
-                <li><strong>抖动</strong>: 延迟波动范围，越小表示连接越稳定</li>
-              </ul>
-              
-              <h3>注意事项</h3>
-              <p>
-                请注意，某些网络可能会限制或阻止ICMP数据包，这可能导致Ping测试失败，
-                即使目标主机实际上是可达的。此外，此工具使用基于Web的模拟实现，
-                与操作系统提供的原生Ping工具相比可能会有一些限制。
-              </p>
+          <template v-if="resultView === 'text'">
+            <div class="ping-terminal">
+              <div 
+                v-for="(line, index) in pingOutput" 
+                :key="index" 
+                class="terminal-line"
+                :class="{'success-line': line.success, 'error-line': !line.success}"
+              >
+                {{ line.text }}
+              </div>
+              <div class="terminal-cursor" v-if="pinging"></div>
             </div>
-          </div>
-        </div>
+          </template>
+          <template v-else>
+            <div class="chart-container" v-if="latencies.length > 0">
+              <div class="chart-title">延迟时间走势图 (ms)</div>
+              <div class="latency-chart">
+                <el-skeleton v-if="chartLoading" :rows="6" animated />
+                <div v-else ref="chartRef" class="chart"></div>
+              </div>
+            </div>
+          </template>
+        </el-card>
       </div>
+
+      <el-card class="network-card info-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <el-icon><InfoFilled /></el-icon>
+          </div>
+          <div class="card-title">使用说明</div>
+        </div>
+        
+        <div class="help-content">
+          <h4>什么是Ping测试?</h4>
+          <p>
+            Ping是一种网络诊断工具，用于测试与目标主机之间的网络连接和延迟。
+            它通过发送ICMP Echo请求数据包并等待响应来工作，这有助于确定网络连接的可用性和质量。
+          </p>
+          
+          <h4>Ping测试的用途</h4>
+          <ul>
+            <li>检查与目标主机的网络连接是否正常</li>
+            <li>测量网络延迟和数据包往返时间</li>
+            <li>检测网络丢包率</li>
+            <li>帮助诊断网络问题</li>
+          </ul>
+          
+          <h4>使用方法</h4>
+          <ol>
+            <li>输入要测试的目标主机（域名或IP地址）</li>
+            <li>调整测试选项（如需要）</li>
+            <li>点击"开始测试"按钮</li>
+            <li>查看实时测试结果</li>
+            <li>测试完成后分析统计数据</li>
+          </ol>
+          
+          <h4>结果解读</h4>
+          <ul>
+            <li><strong>延迟时间</strong>: 数据包往返所需的时间，较低的值表示更好的连接</li>
+            <li><strong>丢包率</strong>: 发送但未收到回复的数据包百分比，较低的值表示更稳定的连接</li>
+            <li><strong>TTL</strong>: 生存时间，表示数据包可以经过的最大路由器数量</li>
+            <li><strong>抖动</strong>: 延迟波动范围，越小表示连接越稳定</li>
+          </ul>
+          
+          <h4>注意事项</h4>
+          <p>
+            请注意，某些网络可能会限制或阻止ICMP数据包，这可能导致Ping测试失败，
+            即使目标主机实际上是可达的。此外，此工具使用基于Web的模拟实现，
+            与操作系统提供的原生Ping工具相比可能会有一些限制。
+          </p>
+        </div>
+      </el-card>
     </div>
   </div>
 </template>
@@ -344,7 +339,8 @@ import {
   ArrowDown, 
   ArrowUp, 
   PieChart, 
-  Document 
+  Document, 
+  CopyDocument
 } from '@element-plus/icons-vue';
 import { useClipboard } from '@vueuse/core';
 // 简化ECharts导入
@@ -798,176 +794,28 @@ const selectFavorite = (favorite: string) => {
 };
 </script>
 
-<style scoped>
-.ping-container {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+<style lang="scss" scoped>
+.network-tool-page {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  color: var(--el-text-color-primary);
-}
-
-.header {
-  margin-bottom: 32px;
-  text-align: left;
-  position: relative;
-  padding-left: 16px;
-}
-
-.header::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 10px;
-  height: 28px;
-  width: 4px;
-  background: linear-gradient(180deg, var(--el-color-primary), var(--el-color-primary-light-3));
-  border-radius: 4px;
-}
-
-.header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  margin: 0 0 12px 0;
-  background: linear-gradient(90deg, var(--el-color-primary), var(--el-color-primary-light-3));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
-  position: relative;
-}
-
-.header p {
-  font-size: 16px;
-  color: var(--el-text-color-secondary);
-  margin: 0;
-  opacity: 0.85;
-}
-
-.main-content {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 28px;
-}
-
-.ping-section {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.panel {
-  background-color: var(--el-bg-color);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  border: 1px solid var(--el-border-color-light);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.panel:hover {
-  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.08);
-  transform: translateY(-4px);
-}
-
-.panel-header {
-  display: flex;
-  align-items: center;
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--el-border-color-lighter);
-  position: relative;
-  background-color: var(--el-fill-color-light);
-}
-
-.panel-header .icon {
-  margin-right: 12px;
-  width: 32px;
-  height: 32px;
-  background-color: var(--el-color-primary-light-9);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--el-color-primary);
-  transition: transform 0.3s;
-}
-
-.panel:hover .panel-header .icon {
-  transform: scale(1.1);
-}
-
-.panel-header .title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--el-text-color-primary);
-  flex: 1;
-  background: linear-gradient(90deg, var(--el-text-color-primary), var(--el-text-color-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.panel-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
-}
-
-.panel-body {
-  padding: 24px;
 }
 
 .form-group {
-  margin-bottom: 24px;
-}
-
-.form-group:last-child {
-  margin-bottom: 0;
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
   font-size: 14px;
-  color: var(--el-text-color-secondary);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   font-weight: 500;
-  position: relative;
-  padding-left: 12px;
 }
 
-.form-group label::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 14px;
-  background-color: #409eff;
-  border-radius: 2px;
-  opacity: 0.7;
-}
-
-.error-message {
+.validation-error {
   color: var(--el-color-danger);
   font-size: 12px;
-  margin-top: 6px;
-  padding-left: 4px;
-  animation: fadeIn 0.3s;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.advanced-options {
-  background-color: var(--el-fill-color-light);
-  border-radius: 12px;
-  padding: 20px;
-  margin-top: 16px;
-  border: 1px dashed var(--el-border-color);
-  animation: fadeIn 0.3s;
-  transition: all 0.3s;
+  margin-top: 5px;
 }
 
 .options-row {
@@ -1195,7 +1043,7 @@ const selectFavorite = (favorite: string) => {
   line-height: 1.7;
 }
 
-.help-content h3 {
+.help-content h4 {
   font-size: 16px;
   font-weight: 600;
   margin: 20px 0 12px;
@@ -1204,7 +1052,7 @@ const selectFavorite = (favorite: string) => {
   padding-left: 16px;
 }
 
-.help-content h3::before {
+.help-content h4::before {
   content: '';
   position: absolute;
   left: 0;
@@ -1216,7 +1064,7 @@ const selectFavorite = (favorite: string) => {
   border-radius: 2px;
 }
 
-.help-content h3:first-child {
+.help-content h4:first-child {
   margin-top: 0;
 }
 

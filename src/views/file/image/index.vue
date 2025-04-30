@@ -3,7 +3,7 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <h3>图片转换</h3>
+          <h3 class="gradient-text">图片转换</h3>
         </div>
       </template>
 

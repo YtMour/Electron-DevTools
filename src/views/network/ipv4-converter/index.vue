@@ -1,454 +1,371 @@
 <template>
-  <div class="ipv4-converter-page format-page">
+  <div class="network-tool-page">
     <div class="page-header">
       <div class="header-title">
-        <h2>IPv4 地址转换器</h2>
-        <p class="header-desc">在不同表示格式之间转换IPv4地址</p>
+        <h2>IPv4地址转换器</h2>
+        <p class="header-desc">在不同表示格式间转换IPv4地址</p>
       </div>
     </div>
 
-    <div class="page-content">
-      <el-card class="converter-card">
+    <div class="page-content main-sidebar">
+      <div class="main-content-left">
+        <el-card class="network-card config-card">
         <div class="card-header">
-          <el-icon><Connection /></el-icon>
-          <span>输入IP地址</span>
+            <div class="card-icon">
+              <el-icon><Aim /></el-icon>
+            </div>
+            <div class="card-title">地址转换器</div>
         </div>
 
-        <el-form :model="form" label-position="top">
-          <el-form-item label="IP地址">
+          <div class="form-group">
+            <label>输入IPv4地址</label>
             <el-input
-              v-model="form.ipAddress"
-              :placeholder="getPlaceholder(form.inputFormat)"
-              @input="convertAddress"
-            />
-            <div v-if="error" class="error-message">{{ error }}</div>
-          </el-form-item>
-
-          <el-form-item label="输入格式">
-            <el-radio-group v-model="form.inputFormat" @change="convertAddress">
-              <el-radio-button label="dotted-decimal">点分十进制</el-radio-button>
-              <el-radio-button label="decimal">十进制</el-radio-button>
-              <el-radio-button label="hex">十六进制</el-radio-button>
-              <el-radio-button label="binary">二进制</el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <el-card class="results-card" v-if="!error && results.ipDecimal">
-        <div class="card-header">
-          <el-icon><Histogram /></el-icon>
-          <span>转换结果</span>
-          <div class="copy-button">
-            <el-button type="primary" plain size="small" @click="copyResults">
-              <el-icon><CopyDocument /></el-icon>
-              复制结果
-            </el-button>
+              v-model="ipInput"
+              placeholder="输入IP地址 (如: 192.168.1.1, 3232235777, 0xC0A80101 或二进制)"
+              @input="onInputChange"
+              @keydown.enter="convert"
+            >
+              <template #prepend>
+                <el-select 
+                  v-model="inputFormat" 
+                  placeholder="格式" 
+                  @change="onFormatChange"
+                  class="format-select"
+                >
+                  <el-option label="点分十进制" value="dotted" />
+                  <el-option label="十进制" value="decimal" />
+                  <el-option label="十六进制" value="hex" />
+                  <el-option label="二进制" value="binary" />
+                  <el-option label="自动检测" value="auto" />
+                </el-select>
+              </template>
+              <template #append>
+                <el-button @click="convert">转换</el-button>
+              </template>
+            </el-input>
+            <div class="validation-error" v-if="validationError">
+              {{ validationError }}
           </div>
         </div>
 
-        <div class="results-container">
-          <el-descriptions :column="1" border>
-            <el-descriptions-item label="点分十进制">
-              <span class="result-value">{{ results.ipDotted }}</span>
+          <div class="result-table" v-if="conversionResults.valid">
+            <div class="table-header">转换结果</div>
+            <el-table :data="resultTableData" border stripe style="width: 100%">
+              <el-table-column prop="format" label="格式" width="150" />
+              <el-table-column prop="value" label="值">
+                <template #default="scope">
+                  <div class="result-value">
+                    <span>{{ scope.row.value }}</span>
               <el-button
                 type="primary"
-                link
+                      text
                 size="small"
-                @click="copyFormat('dotted-decimal')"
-                class="copy-format"
+                      class="copy-button"
+                      @click="copyToClipboard(scope.row.value)"
               >
                 <el-icon><CopyDocument /></el-icon>
               </el-button>
-            </el-descriptions-item>
-            
-            <el-descriptions-item label="十进制">
-              <span class="result-value">{{ results.ipDecimal }}</span>
-              <el-button
-                type="primary"
-                link
-                size="small"
-                @click="copyFormat('decimal')"
-                class="copy-format"
-              >
-                <el-icon><CopyDocument /></el-icon>
-              </el-button>
-            </el-descriptions-item>
-            
-            <el-descriptions-item label="十六进制">
-              <span class="result-value">{{ results.ipHex }}</span>
-              <el-button
-                type="primary"
-                link
-                size="small"
-                @click="copyFormat('hex')"
-                class="copy-format"
-              >
-                <el-icon><CopyDocument /></el-icon>
-              </el-button>
-            </el-descriptions-item>
-            
-            <el-descriptions-item label="二进制">
-              <span class="result-value">{{ results.ipBinary }}</span>
-              <el-button
-                type="primary"
-                link
-                size="small"
-                @click="copyFormat('binary')"
-                class="copy-format"
-              >
-                <el-icon><CopyDocument /></el-icon>
-              </el-button>
-            </el-descriptions-item>
-          </el-descriptions>
+                  </div>
+                </template>
+              </el-table-column>
+            </el-table>
         </div>
       </el-card>
+      </div>
 
-      <el-card class="info-card">
+      <el-card class="network-card info-card">
         <div class="card-header">
+          <div class="card-icon">
           <el-icon><InfoFilled /></el-icon>
-          <span>使用说明</span>
+          </div>
+          <div class="card-title">使用说明</div>
         </div>
 
-        <div class="info-content">
-          <h4>支持的格式</h4>
+        <div class="help-content">
+          <h4>IPv4地址格式</h4>
+          <p>IPv4地址可以用多种格式表示，此工具支持以下格式之间的转换：</p>
+          
           <ul>
             <li>
-              <strong>点分十进制：</strong>
-              最常见的IP地址格式，例如 <code>192.168.1.1</code>
+              <strong>点分十进制</strong>: 最常见的格式，如 <code>192.168.1.1</code>
             </li>
             <li>
-              <strong>十进制：</strong>
-              32位无符号整数表示，例如 <code>3232235777</code>
+              <strong>十进制</strong>: 32位整数表示，如 <code>3232235777</code>
             </li>
             <li>
-              <strong>十六进制：</strong>
-              以十六进制表示，例如 <code>0xC0A80101</code> 或 <code>C0A80101</code>
+              <strong>十六进制</strong>: 以0x开头的十六进制表示，如 <code>0xC0A80101</code>
             </li>
             <li>
-              <strong>二进制：</strong>
-              以32位二进制表示，例如 <code>11000000101010000000000100000001</code>
+              <strong>二进制</strong>: 32位二进制表示，通常分组显示
             </li>
           </ul>
 
-          <h4>常见转换</h4>
-          <el-table :data="commonExamples" stripe>
-            <el-table-column prop="dotted" label="点分十进制" />
-            <el-table-column prop="decimal" label="十进制" />
-            <el-table-column prop="hex" label="十六进制" />
-          </el-table>
+          <h4>使用方法</h4>
+          <ol>
+            <li>选择输入格式（或使用自动检测）</li>
+            <li>输入要转换的IP地址</li>
+            <li>点击"转换"按钮</li>
+            <li>查看所有格式的转换结果</li>
+          </ol>
+          
+          <h4>自动检测规则</h4>
+          <p>自动检测功能根据以下规则识别IP格式：</p>
+          <ul>
+            <li>包含点(.)的视为点分十进制格式</li>
+            <li>以0x开头的视为十六进制格式</li>
+            <li>只包含0和1且长度为32的视为二进制格式</li>
+            <li>其他纯数字视为十进制整数格式</li>
+          </ul>
+          
+          <h4>常见示例</h4>
+          <div class="examples">
+            <div class="example-item">
+              <div class="example-label">点分十进制:</div>
+              <div class="example-value">192.168.1.1</div>
+            </div>
+            <div class="example-item">
+              <div class="example-label">十进制整数:</div>
+              <div class="example-value">3232235777</div>
+            </div>
+            <div class="example-item">
+              <div class="example-label">十六进制:</div>
+              <div class="example-value">0xC0A80101</div>
+            </div>
+            <div class="example-item">
+              <div class="example-label">二进制:</div>
+              <div class="example-value">11000000101010000000000100000001</div>
+            </div>
+          </div>
         </div>
       </el-card>
+    </div>
+    
+    <div class="quick-examples" v-if="!conversionResults.valid">
+      <div class="examples-header">常用IP地址示例：</div>
+      <div class="quick-examples-buttons">
+        <el-button size="small" @click="setExample('192.168.1.1')">192.168.1.1</el-button>
+        <el-button size="small" @click="setExample('127.0.0.1')">127.0.0.1</el-button>
+        <el-button size="small" @click="setExample('10.0.0.1')">10.0.0.1</el-button>
+        <el-button size="small" @click="setExample('3232235777')">3232235777</el-button>
+        <el-button size="small" @click="setExample('0xC0A80101')">0xC0A80101</el-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { Connection, InfoFilled, CopyDocument, Histogram } from '@element-plus/icons-vue';
+import { Connection, InfoFilled, CopyDocument, Histogram, Aim } from '@element-plus/icons-vue';
 import { IPv4Address } from '@/utils/network/ipv4';
 import { useClipboard } from '@vueuse/core';
 
 const { copy } = useClipboard();
 
-// 表单数据
-const form = reactive({
-  ipAddress: '',
-  inputFormat: 'dotted-decimal' as 'dotted-decimal' | 'decimal' | 'hex' | 'binary',
+const ipInput = ref('');
+const inputFormat = ref('auto');
+const validationError = ref('');
+
+// 转换结果
+const conversionResults = reactive({
+  valid: false,
+  dotted: '',
+  decimal: '',
+  hex: '',
+  binary: ''
 });
 
-// 结果
-const results = reactive({
-  ipDotted: '',
-  ipDecimal: '',
-  ipHex: '',
-  ipBinary: '',
+// 表格数据
+const resultTableData = computed(() => {
+  if (!conversionResults.valid) return [];
+  
+  return [
+    { format: '点分十进制', value: conversionResults.dotted },
+    { format: '十进制', value: conversionResults.decimal },
+    { format: '十六进制', value: conversionResults.hex },
+    { format: '二进制', value: conversionResults.binary }
+  ];
 });
 
-// 错误信息
-const error = ref('');
-
-// 获取输入占位符
-const getPlaceholder = (format: string) => {
-  switch (format) {
-    case 'dotted-decimal':
-      return '例如：192.168.1.1';
-    case 'decimal':
-      return '例如：3232235777';
-    case 'hex':
-      return '例如：C0A80101 或 0xC0A80101';
-    case 'binary':
-      return '例如：11000000101010000000000100000001';
-    default:
-      return '';
+// 格式改变处理
+function onFormatChange() {
+  if (ipInput.value) {
+    convert();
   }
-};
+}
 
-// 常见例子
-const commonExamples = [
-  { dotted: '192.168.1.1', decimal: '3232235777', hex: 'C0A80101' },
-  { dotted: '10.0.0.1', decimal: '167772161', hex: '0A000001' },
-  { dotted: '127.0.0.1', decimal: '2130706433', hex: '7F000001' },
-  { dotted: '8.8.8.8', decimal: '134744072', hex: '08080808' },
-];
+// 输入变化处理
+function onInputChange() {
+  // 如果是自动检测模式，尝试自动识别格式
+  if (inputFormat.value === 'auto' && ipInput.value) {
+    detectFormat();
+  }
+  
+  if (ipInput.value === '') {
+    validationError.value = '';
+    conversionResults.valid = false;
+  }
+}
 
-// 转换地址
-const convertAddress = () => {
-  if (!form.ipAddress) {
-    resetResults();
-    error.value = '';
+// 自动检测格式
+function detectFormat() {
+  const input = ipInput.value.trim();
+  
+  if (input.includes('.')) {
+    inputFormat.value = 'dotted';
+  } else if (input.startsWith('0x') || input.startsWith('0X')) {
+    inputFormat.value = 'hex';
+  } else if (/^[01]{32}$/.test(input)) {
+    inputFormat.value = 'binary';
+  } else if (/^\d+$/.test(input)) {
+    inputFormat.value = 'decimal';
+  }
+}
+
+// 转换IP地址
+function convert() {
+  validationError.value = '';
+  conversionResults.valid = false;
+  
+  if (!ipInput.value) {
+    validationError.value = '请输入IP地址';
     return;
   }
 
   try {
-    let numericIp: number;
-
-    switch (form.inputFormat) {
-      case 'dotted-decimal':
-        numericIp = IPv4Address.parseAddress(form.ipAddress);
+    let ipAddress: IPv4Address;
+    const input = ipInput.value.trim();
+    
+    // 如果是自动检测，先尝试识别格式
+    if (inputFormat.value === 'auto') {
+      detectFormat();
+    }
+    
+    // 根据选择的格式创建IPv4Address对象
+    switch (inputFormat.value) {
+      case 'dotted':
+        ipAddress = IPv4Address.fromDottedDecimal(input);
         break;
       case 'decimal':
-        numericIp = parseInt(form.ipAddress, 10);
-        if (isNaN(numericIp) || numericIp < 0 || numericIp > 0xffffffff) {
-          throw new Error('无效的十进制IP地址');
-        }
+        ipAddress = IPv4Address.fromDecimal(parseInt(input, 10));
         break;
       case 'hex':
-        let hexStr = form.ipAddress.startsWith('0x') 
-          ? form.ipAddress.substring(2) 
-          : form.ipAddress;
-        
-        if (!/^[0-9A-Fa-f]{1,8}$/.test(hexStr)) {
-          throw new Error('无效的十六进制IP地址');
-        }
-        
-        numericIp = parseInt(hexStr, 16);
+        // 处理带0x和不带0x的情况
+        const hexValue = input.startsWith('0x') || input.startsWith('0X') 
+          ? input.substring(2)
+          : input;
+        ipAddress = IPv4Address.fromHex(hexValue);
         break;
       case 'binary':
-        if (!/^[01]{1,32}$/.test(form.ipAddress)) {
-          throw new Error('无效的二进制IP地址');
-        }
-        numericIp = parseInt(form.ipAddress, 2);
+        ipAddress = IPv4Address.fromBinary(input);
         break;
       default:
-        throw new Error('未知格式');
+        validationError.value = '无法识别输入格式';
+        return;
     }
 
-    // 确保在有效范围内
-    if (numericIp < 0 || numericIp > 0xffffffff) {
-      throw new Error('IP地址超出范围');
-    }
-
-    // 更新结果
-    const ipObj = new IPv4Address(numericIp);
-    results.ipDotted = ipObj.toString();
-    results.ipDecimal = numericIp.toString();
-    results.ipHex = numericIp.toString(16).toUpperCase().padStart(8, '0');
-    results.ipBinary = numericIp.toString(2).padStart(32, '0');
-    error.value = '';
-  } catch (e) {
-    resetResults();
-    error.value = (e as Error).message;
+    // 更新转换结果
+    conversionResults.dotted = ipAddress.toDottedDecimal();
+    conversionResults.decimal = ipAddress.toDecimal().toString();
+    conversionResults.hex = '0x' + ipAddress.toHex().toUpperCase();
+    conversionResults.binary = ipAddress.toBinary();
+    conversionResults.valid = true;
+    
+  } catch (error: any) {
+    validationError.value = `格式错误: ${error.message || '无效的IP地址格式'}`;
   }
-};
+}
 
-// 重置结果
-const resetResults = () => {
-  results.ipDotted = '';
-  results.ipDecimal = '';
-  results.ipHex = '';
-  results.ipBinary = '';
-};
-
-// 复制特定格式
-const copyFormat = async (format: string) => {
-  let textToCopy = '';
-  
-  switch (format) {
-    case 'dotted-decimal':
-      textToCopy = results.ipDotted;
-      break;
-    case 'decimal':
-      textToCopy = results.ipDecimal;
-      break;
-    case 'hex':
-      textToCopy = results.ipHex;
-      break;
-    case 'binary':
-      textToCopy = results.ipBinary;
-      break;
-  }
-  
-  if (textToCopy) {
-    try {
-      await copy(textToCopy);
+// 复制到剪贴板
+function copyToClipboard(text: string) {
+  copy(text);
       ElMessage.success('已复制到剪贴板');
-    } catch (error) {
-      ElMessage.error('复制失败');
-    }
-  }
-};
+}
 
-// 复制所有结果
-const copyResults = async () => {
-  const text = `
-点分十进制: ${results.ipDotted}
-十进制值: ${results.ipDecimal}
-十六进制: ${results.ipHex}
-二进制: ${results.ipBinary}
-`.trim();
+// 设置示例IP地址
+function setExample(example: string) {
+  ipInput.value = example;
 
-  try {
-    await copy(text);
-    ElMessage.success('已复制到剪贴板');
-  } catch (error) {
-    ElMessage.error('复制失败');
+  // 自动检测格式
+  if (example.includes('.')) {
+    inputFormat.value = 'dotted';
+  } else if (example.startsWith('0x')) {
+    inputFormat.value = 'hex';
+  } else if (/^[01]{32}$/.test(example)) {
+    inputFormat.value = 'binary';
+  } else {
+    inputFormat.value = 'decimal';
   }
-};
+  
+  convert();
+}
+
+// 页面加载时，预设一个默认例子
+onMounted(() => {
+  ipInput.value = '192.168.1.1';
+  inputFormat.value = 'dotted';
+  convert();
+});
 </script>
 
 <style lang="scss" scoped>
-.ipv4-converter-page {
-  max-width: 100%;
-  overflow-x: hidden;
-  
-  .page-header {
+.network-tool-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.form-group {
     margin-bottom: 20px;
-    
-    .header-title {
-      h2 {
-        font-size: 24px;
-        font-weight: 600;
-        margin-bottom: 4px;
-        color: var(--el-text-color-primary);
-      }
-      
-      .header-desc {
+}
+
+.form-group label {
+  display: block;
         font-size: 14px;
-        color: var(--el-text-color-secondary);
-        margin: 0;
-      }
+  margin-bottom: 8px;
+  font-weight: 500;
     }
+
+/* 修复选择框宽度问题 */
+:deep(.format-select) {
+  width: 120px;
+  
+  @media (max-width: 768px) {
+    width: 110px;
+    }
+    
+  @media (max-width: 480px) {
+    width: 90px;
   }
   
-  .page-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
-
-  .converter-card, .results-card, .info-card {
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 16px;
-    
-    &:hover {
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    }
-  }
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    font-weight: 600;
-    color: var(--el-text-color-primary);
-    font-size: 16px;
-    
-    .el-icon {
-      color: var(--el-color-primary);
-      font-size: 18px;
-    }
-    
-    .copy-button {
-      margin-left: auto;
-    }
-  }
-  
-  .info-card {
-    grid-column: 1 / -1;
-    
-    .info-content {
-      font-size: 14px;
-      color: var(--el-text-color-regular);
-      
-      h4 {
-        margin: 16px 0 8px 0;
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--el-text-color-primary);
-        
-        &:first-child {
-          margin-top: 0;
-        }
+  .el-input__wrapper {
+    width: 100%;
       }
       
-      p {
-        margin: 10px 0;
-        line-height: 1.6;
-      }
-      
-      ul {
-        padding-left: 20px;
-        margin: 10px 0;
-        
-        li {
-          margin-bottom: 8px;
-          line-height: 1.6;
-          position: relative;
-          
-          &::marker {
-            color: var(--el-color-primary);
+  .el-select__popper {
+    min-width: 120px !important;
           }
         }
-      }
-      
-      code {
-        font-family: monospace;
-        background: var(--el-fill-color-light);
-        padding: 4px 6px;
-        border-radius: 4px;
-        color: var(--el-color-primary);
-        font-size: 13px;
-      }
-    }
-  }
-  
-  .error-message {
+
+.validation-error {
     color: var(--el-color-danger);
     font-size: 12px;
-    margin-top: 4px;
+  margin-top: 5px;
   }
   
-  .results-container {
-    :deep(.el-descriptions) {
-      border-radius: 6px;
-      overflow: hidden;
-      
-      .el-descriptions__label {
-        font-weight: 600;
-        background-color: var(--el-fill-color-light);
-        min-width: 120px;
-        padding: 12px;
-      }
-      
-      .el-descriptions__cell {
-        padding: 12px;
-      }
+.result-content {
+  padding: 20px;
     }
     
     .result-value {
-      font-family: monospace;
+  font-family: var(--el-font-family-monospace, monospace);
       word-break: break-all;
       font-size: 15px;
       background-color: var(--el-fill-color-light);
       padding: 4px 8px;
       border-radius: 4px;
       display: inline-block;
-      max-width: 100%;
+  max-width: calc(100% - 40px);
       overflow-x: auto;
     }
     
@@ -460,191 +377,126 @@ const copyResults = async () => {
         transform: scale(1.1);
       }
     }
+
+.table-header {
+  margin-bottom: 10px;
+  font-weight: 500;
+  font-size: 16px;
   }
   
-  :deep(.el-card__body) {
-    padding: 20px;
+.examples {
+  margin-top: 15px;
   }
   
-  :deep(.el-input__wrapper) {
-    border-radius: 6px;
+.example-item {
+  display: flex;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.example-label {
+  min-width: 100px;
+  font-weight: 500;
+}
+
+.example-value {
+  font-family: var(--el-font-family-monospace, monospace);
+  color: var(--el-color-primary);
+  background: var(--el-fill-color-light);
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+.help-content {
+  font-size: 14px;
+  
+  h4 {
+    margin-top: 16px;
+    margin-bottom: 8px;
   }
   
-  :deep(.el-button--primary) {
-    transition: all 0.3s ease;
-    border-radius: 6px;
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(var(--el-color-primary-rgb), 0.3);
-    }
+  ul, ol {
+    padding-left: 20px;
+    margin-bottom: 10px;
   }
   
-  :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-    box-shadow: 0 0 0 1px var(--el-color-primary-light-5) inset;
+  li {
+    margin-bottom: 4px;
   }
   
-  :deep(.el-form-item__label) {
-    font-weight: 500;
+  p {
+    margin-bottom: 10px;
   }
   
-  :deep(.el-table) {
-    border-radius: 6px;
-    overflow: hidden;
-    margin-top: 12px;
-    
-    th {
+  code {
+    font-family: var(--el-font-family-monospace, monospace);
+    background: var(--el-fill-color-light);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--el-color-primary);
+    font-size: 13px;
+  }
+}
+
+.quick-examples {
+  margin-top: 20px;
       background-color: var(--el-fill-color-light);
-      font-weight: 600;
+  padding: 15px;
+  border-radius: 4px;
     }
+
+.examples-header {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 10px;
   }
+
+.quick-examples-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 @media (max-width: 1200px) {
-  .ipv4-converter-page {
-    .page-content {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-}
-
-@media (max-width: 992px) {
-  .ipv4-converter-page {
     .page-content {
       grid-template-columns: 1fr;
-    }
-    
-    .converter-card {
-      order: 1;
-    }
-    
-    .results-card {
-      order: 2;
-    }
-    
-    .info-card {
-      order: 3;
-    }
   }
 }
 
 @media (max-width: 768px) {
-  .ipv4-converter-page {
-    .page-header {
-      .header-title {
-        h2 {
-          font-size: 20px;
-        }
-      }
+  .network-tool-page {
+    padding: 15px;
+  }
+  
+  .result-value {
+    font-size: 13px;
+    max-width: calc(100% - 35px);
     }
     
-    .card-header {
-      flex-wrap: wrap;
+  .header-actions {
+    position: relative;
+    margin-top: 10px;
+  }
+  
+  .quick-examples-buttons {
+    flex-direction: column;
+    align-items: flex-start;
       
-      .copy-button {
-        margin-left: 0;
-        margin-top: 8px;
-        width: 100%;
-        
-        .el-button {
-          width: 100%;
-        }
-      }
-    }
-    
-    :deep(.el-radio-group) {
-      display: flex;
-      flex-wrap: wrap;
-      
-      .el-radio-button {
-        flex: 1 0 50%;
-        
-        &__inner {
-          border-radius: 0;
-          width: 100%;
-        }
-      }
-    }
-    
-    .results-container {
-      .result-value {
-        font-size: 13px;
-        max-width: calc(100% - 40px);
-      }
+    .el-button {
+      margin: 0;
+      margin-bottom: 8px;
     }
   }
 }
 
 @media (max-width: 480px) {
-  .ipv4-converter-page {
-    .page-header {
-      .header-title {
-        h2 {
-          font-size: 18px;
-        }
-        
-        .header-desc {
-          font-size: 13px;
-        }
-      }
+  .el-input-group__prepend {
+    padding-right: 0;
     }
     
-    .card-header {
-      margin-bottom: 16px;
-      font-size: 14px;
-    }
-    
-    :deep(.el-radio-group) {
-      .el-radio-button {
-        flex: 1 0 100%;
-        margin-bottom: 4px;
-      }
-    }
-    
-    .info-card {
-      .info-content {
-        font-size: 13px;
-        
-        h4 {
-          font-size: 14px;
-        }
-        
-        code {
-          font-size: 11px;
-        }
-        
-        ul li {
-          margin-bottom: 6px;
-        }
-      }
-    }
-    
-    .results-container {
-      :deep(.el-descriptions) {
-        .el-descriptions__label,
-        .el-descriptions__cell {
-          padding: 8px;
-        }
-      }
-      
-      .result-value {
-        font-size: 12px;
-        padding: 3px 6px;
-      }
-    }
-    
-    :deep(.el-card__body) {
-      padding: 16px;
-    }
-    
-    :deep(.el-form-item__label) {
-      padding-bottom: 4px;
-      font-size: 13px;
-    }
-    
-    :deep(.el-form-item) {
-      margin-bottom: 16px;
-    }
+  .el-input__wrapper {
+    padding-left: 8px;
+    padding-right: 8px;
   }
 }
 </style> 

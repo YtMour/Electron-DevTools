@@ -3,7 +3,7 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <h3>PDF 处理</h3>
+          <h3 class="gradient-text">PDF 处理</h3>
         </div>
       </template>
 

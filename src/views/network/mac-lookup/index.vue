@@ -1,5 +1,5 @@
 <template>
-  <div class="mac-lookup-page format-page">
+  <div class="network-tool-page">
     <div class="page-header">
       <div class="header-title">
         <h2>MAC 地址查找</h2>
@@ -7,27 +7,30 @@
       </div>
     </div>
 
-    <div class="page-content">
-      <el-card class="input-card">
-        <div class="card-header">
-          <el-icon><Search /></el-icon>
-          <span>MAC地址查询</span>
-        </div>
+    <div class="page-content main-sidebar">
+      <div class="main-content-left">
+        <el-card class="network-card config-card">
+          <div class="card-header">
+            <div class="card-icon">
+              <el-icon><Search /></el-icon>
+            </div>
+            <div class="card-title">MAC地址查询</div>
+          </div>
 
-        <el-form :model="form" label-position="top">
-          <el-form-item label="MAC地址">
+          <div class="form-group">
+            <label>MAC地址</label>
             <el-input
               v-model="form.macAddress"
               placeholder="例如：00:1A:2B:3C:4D:5E 或 001A2B3C4D5E"
               @input="validateMac"
               clearable
             />
-            <div v-if="validationError" class="error-message">
+            <div v-if="validationError" class="validation-error">
               {{ validationError }}
             </div>
-          </el-form-item>
+          </div>
 
-          <el-form-item>
+          <div class="action-buttons">
             <el-button 
               type="primary" 
               @click="lookupMac" 
@@ -38,81 +41,89 @@
               <el-icon><Search /></el-icon>
               查询厂商信息
             </el-button>
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <el-card class="result-card" v-if="result.company">
-        <div class="card-header">
-          <el-icon><InfoFilled /></el-icon>
-          <span>查询结果</span>
-          <div class="result-actions">
-            <el-button type="primary" plain size="small" @click="copyResult">
-              <el-icon><CopyDocument /></el-icon>
-              复制结果
-            </el-button>
           </div>
-        </div>
+        </el-card>
 
-        <div class="result-content">
-          <el-descriptions :column="1" border>
-            <el-descriptions-item label="MAC地址">
-              <span class="formatted-mac">{{ result.formattedMac }}</span>
-            </el-descriptions-item>
-            <el-descriptions-item label="厂商名称">
-              {{ result.company }}
-            </el-descriptions-item>
-            <el-descriptions-item label="厂商地址" v-if="result.address">
-              {{ result.address }}
-            </el-descriptions-item>
-            <el-descriptions-item label="国家/地区" v-if="result.country">
-              {{ result.country }}
-            </el-descriptions-item>
-            <el-descriptions-item label="分配块" v-if="result.blockRange">
-              {{ result.blockRange }}
-            </el-descriptions-item>
-            <el-descriptions-item label="类型">
-              {{ getMacType(form.macAddress) }}
-            </el-descriptions-item>
-          </el-descriptions>
-        </div>
-      </el-card>
-
-      <el-card class="recent-searches" v-if="searchHistory.length > 0">
-        <div class="card-header">
-          <el-icon><Clock /></el-icon>
-          <span>最近查询</span>
-          <div class="history-actions">
-            <el-button type="danger" link size="small" @click="clearHistory">
-              清除历史
-            </el-button>
+        <el-card class="network-card result-card" v-if="result.company">
+          <div class="card-header">
+            <div class="card-icon">
+              <el-icon><InfoFilled /></el-icon>
+            </div>
+            <div class="card-title">查询结果</div>
+            <div class="header-actions">
+              <el-button type="primary" plain size="small" @click="copyResult">
+                <el-icon><CopyDocument /></el-icon>
+                复制结果
+              </el-button>
+            </div>
           </div>
-        </div>
 
-        <div class="history-content">
-          <el-table :data="searchHistory" style="width: 100%">
-            <el-table-column prop="mac" label="MAC地址" />
-            <el-table-column prop="company" label="厂商" />
-            <el-table-column label="操作" width="120">
-              <template #default="scope">
-                <el-button
-                  type="primary"
-                  link
-                  size="small"
-                  @click="reloadSearch(scope.row.mac)"
-                >
-                  重新查询
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-card>
+          <div class="result-content">
+            <el-descriptions :column="1" border>
+              <el-descriptions-item label="MAC地址">
+                <span class="formatted-mac">{{ result.formattedMac }}</span>
+              </el-descriptions-item>
+              <el-descriptions-item label="厂商名称">
+                {{ result.company }}
+              </el-descriptions-item>
+              <el-descriptions-item label="厂商地址" v-if="result.address">
+                {{ result.address }}
+              </el-descriptions-item>
+              <el-descriptions-item label="国家/地区" v-if="result.country">
+                {{ result.country }}
+              </el-descriptions-item>
+              <el-descriptions-item label="分配块" v-if="result.blockRange">
+                {{ result.blockRange }}
+              </el-descriptions-item>
+              <el-descriptions-item label="类型">
+                {{ getMacType(form.macAddress) }}
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
+        </el-card>
 
-      <el-card class="help-card">
+        <el-card class="network-card history-card" v-if="searchHistory.length > 0">
+          <div class="card-header">
+            <div class="card-icon">
+              <el-icon><Clock /></el-icon>
+            </div>
+            <div class="card-title">最近查询</div>
+            <div class="header-actions">
+              <el-button type="danger" link size="small" @click="clearHistory">
+                清除历史
+              </el-button>
+            </div>
+          </div>
+
+          <div class="result-content">
+            <div class="table-container">
+              <el-table :data="searchHistory" style="width: 100%">
+                <el-table-column prop="mac" label="MAC地址" />
+                <el-table-column prop="company" label="厂商" />
+                <el-table-column label="操作" width="120">
+                  <template #default="scope">
+                    <el-button
+                      type="primary"
+                      link
+                      size="small"
+                      @click="reloadSearch(scope.row.mac)"
+                    >
+                      重新查询
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        </el-card>
+      </div>
+
+      <el-card class="network-card info-card">
         <div class="card-header">
-          <el-icon><InfoFilled /></el-icon>
-          <span>帮助信息</span>
+          <div class="card-icon">
+            <el-icon><InfoFilled /></el-icon>
+          </div>
+          <div class="card-title">帮助信息</div>
         </div>
 
         <div class="help-content">
@@ -364,169 +375,64 @@ const isFormValid = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-.mac-lookup-page {
-  .page-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    
-    .recent-searches,
-    .help-card {
-      grid-column: 1 / -1;
-    }
-  }
-  
-  .input-card, .result-card, .recent-searches, .help-card {
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    overflow: hidden;
-    
-    &:hover {
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    }
-  }
-  
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    font-weight: 600;
-    color: var(--el-text-color-primary);
-    font-size: 16px;
-    
-    .el-icon {
-      color: var(--el-color-primary);
-      font-size: 18px;
-    }
-    
-    .result-actions,
-    .history-actions {
-      margin-left: auto;
-    }
-  }
-  
-  .formatted-mac {
-    font-family: monospace;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    font-size: 16px;
-    background-color: var(--el-fill-color-light);
-    padding: 4px 8px;
-    border-radius: 4px;
-    color: var(--el-color-primary);
-  }
-  
-  .result-content {
-    :deep(.el-descriptions) {
-      border-radius: 6px;
-      overflow: hidden;
-      
-      .el-descriptions__label {
-        font-weight: 600;
-        background-color: var(--el-fill-color-light);
-        width: 100px;
-      }
-      
-      .el-descriptions__content {
-        line-height: 1.6;
-      }
-    }
-  }
-  
-  .help-content,
-  .history-content {
-    margin-top: 12px;
-    
-    h4 {
-      margin: 20px 0 10px 0;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--el-text-color-primary);
-      
-      &:first-child {
-        margin-top: 0;
-      }
-    }
-    
-    p {
-      margin: 10px 0;
-      line-height: 1.6;
-      color: var(--el-text-color-regular);
-    }
-    
-    ul {
-      padding-left: 20px;
-      margin: 10px 0;
-      color: var(--el-text-color-regular);
-      
-      li {
-        margin-bottom: 8px;
-        line-height: 1.6;
-        position: relative;
-        
-        &::marker {
-          color: var(--el-color-primary);
-        }
-      }
-    }
-  }
-  
-  .error-message {
-    color: var(--el-color-danger);
-    font-size: 12px;
-    margin-top: 4px;
-  }
-  
-  :deep(.el-card__body) {
-    padding: 20px;
-  }
-  
-  :deep(.el-input__wrapper) {
-    border-radius: 6px;
-  }
-  
-  :deep(.el-button--primary) {
-    transition: all 0.3s ease;
-    border-radius: 6px;
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(var(--el-color-primary-rgb), 0.3);
-    }
-  }
-  
-  :deep(.el-button--primary.is-link) {
-    &:hover {
-      transform: scale(1.1);
-      box-shadow: none;
-    }
-  }
-  
-  :deep(.el-form-item__label) {
-    font-weight: 500;
-  }
-  
-  :deep(.el-table) {
-    border-radius: 6px;
-    overflow: hidden;
-    
-    th {
-      background-color: var(--el-fill-color-light);
-      font-weight: 600;
-    }
-    
-    .el-button.el-button--primary.is-link {
-      padding: 4px;
-    }
-  }
+.network-tool-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.error-message {
+  font-size: 12px;
+  color: var(--el-color-danger);
+  margin-top: 4px;
+}
+
+.formatted-mac {
+  font-family: var(--el-font-family-monospace, monospace);
+  font-weight: 500;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.validation-error {
+  color: var(--el-color-danger);
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.result-content {
+  padding: 20px;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
 }
 
 @media (max-width: 992px) {
-  .mac-lookup-page {
-    .page-content {
-      grid-template-columns: 1fr;
-    }
+  .page-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .header-actions {
+    position: relative;
+    margin-top: 10px;
   }
 }
 </style> 
