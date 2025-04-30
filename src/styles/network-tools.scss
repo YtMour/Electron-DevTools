@@ -52,7 +52,8 @@
   
   // 卡片通用样式
   .network-card {
-    height: 100%;
+    height: auto;
+    min-height: 100px;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     border-radius: 12px;
     border: 1px solid transparent;
@@ -109,6 +110,13 @@
     border-radius: 8px;
     padding: 16px;
     overflow-x: auto;
+    margin-bottom: 16px;
+  }
+  
+  // 结果卡片样式调整
+  .result-card {
+    margin-top: 24px;
+    margin-bottom: 24px;
   }
   
   // 帮助内容样式
@@ -196,6 +204,7 @@
     display: flex;
     gap: 12px;
     margin-top: 16px;
+    margin-bottom: 16px;
     
     .el-button {
       flex: 1;

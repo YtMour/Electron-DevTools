@@ -104,9 +104,9 @@
               <div class="section-title">网络信息</div>
               <div class="detail-list">
                 <div class="detail-item">
-                  <div class="detail-label">地区代码</div>
-                  <div class="detail-value" :class="{ empty: !ipResult.regionCode }">
-                    {{ ipResult.regionCode || '未知' }}
+                  <div class="detail-label">地区</div>
+                  <div class="detail-value" :class="{ empty: !ipResult.region }">
+                    {{ ipResult.region || '未知' }}
                   </div>
                 </div>
                 <div class="detail-item">
@@ -117,8 +117,8 @@
                 </div>
                 <div class="detail-item">
                   <div class="detail-label">AS 号码</div>
-                  <div class="detail-value" :class="{ empty: !ipResult.as }">
-                    {{ ipResult.as || '未知' }}
+                  <div class="detail-value" :class="{ empty: !ipResult.asn }">
+                    {{ ipResult.asn || '未知' }}
                   </div>
                 </div>
                 <div class="detail-item">
@@ -131,19 +131,49 @@
             </div>
             
             <div class="result-section">
+              <div class="section-title">安全信息</div>
+              <div class="detail-list">
+                <div class="detail-item">
+                  <div class="detail-label">代理</div>
+                  <div class="detail-value" :class="{ 'security-alert': ipResult.isProxy }">
+                    {{ ipResult.isProxy ? '是' : '否' }}
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">VPN</div>
+                  <div class="detail-value" :class="{ 'security-alert': ipResult.isVPN }">
+                    {{ ipResult.isVPN ? '是' : '否' }}
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">Tor</div>
+                  <div class="detail-value" :class="{ 'security-alert': ipResult.isTor }">
+                    {{ ipResult.isTor ? '是' : '否' }}
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">数据中心</div>
+                  <div class="detail-value" :class="{ 'security-info': ipResult.isHosting }">
+                    {{ ipResult.isHosting ? '是' : '否' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="result-section">
               <div class="section-title">地理位置</div>
               <div class="map-container" id="ip-map">
-                <el-empty v-if="!ipResult.lat || !ipResult.lon" description="无法显示地图，缺少位置数据"></el-empty>
+                <el-empty v-if="!ipResult.location" description="无法显示地图，缺少位置数据"></el-empty>
                 <!-- 地图将在此处渲染 -->
               </div>
-              <div class="location-details detail-list" v-if="ipResult.lat && ipResult.lon">
+              <div class="location-details detail-list" v-if="ipResult.location">
                 <div class="detail-item">
                   <div class="detail-label">纬度</div>
-                  <div class="detail-value">{{ ipResult.lat }}</div>
+                  <div class="detail-value">{{ ipResult.location.latitude }}</div>
                 </div>
                 <div class="detail-item">
                   <div class="detail-label">经度</div>
-                  <div class="detail-value">{{ ipResult.lon }}</div>
+                  <div class="detail-value">{{ ipResult.location.longitude }}</div>
                 </div>
               </div>
             </div>
@@ -204,6 +234,7 @@ import { ref, reactive, onMounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Search, Monitor, DataAnalysis, InfoFilled, CopyDocument } from '@element-plus/icons-vue';
 import { useClipboard } from '@vueuse/core';
+import { lookupIPInfo, getMyIPInfo, getMapUrl, IPInfo } from '@/utils/network/ip-info';
 
 const { copy } = useClipboard();
 
@@ -213,7 +244,7 @@ const validationError = ref('');
 const loading = ref(false);
 
 // 查询结果
-const ipResult = ref<any>(null);
+const ipResult = ref<IPInfo | null>(null);
 
 // 最近查询
 const recentSearches = ref<string[]>([]);
@@ -291,40 +322,21 @@ const lookupIP = async () => {
   loading.value = true;
   
   try {
-    // 这里应该是实际的API调用，这里用模拟数据演示
-    // const response = await fetch(`https://api.example.com/ip/${ipAddress.value}`);
-    // const data = await response.json();
+    // 使用新的IP信息查询工具
+    const ipData = await lookupIPInfo(ipAddress.value);
     
-    // 模拟API响应
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockData = {
-      ip: ipAddress.value,
-      country: '中国',
-      city: '上海',
-      isp: '中国电信',
-      org: 'China Telecom',
-      regionCode: 'CN-SH',
-      timezone: 'Asia/Shanghai',
-      as: 'AS4134 CHINANET-BACKBONE',
-      hostname: ipAddress.value === '8.8.8.8' ? 'dns.google' : null,
-      lat: 31.2222,
-      lon: 121.4581
-    };
-    
-    ipResult.value = mockData;
+    ipResult.value = ipData;
     saveRecentSearch(ipAddress.value);
     
     // 显示成功消息
     ElMessage.success('IP 信息查询成功');
     
-    // 如果有地图元素，这里应该初始化地图
-    if (mockData.lat && mockData.lon) {
-      initMap(mockData.lat, mockData.lon);
+    // 如果有地图元素并且有位置信息，初始化地图
+    if (ipData.location) {
+      initMap(ipData.location.latitude, ipData.location.longitude);
     }
   } catch (error) {
     ElMessage.error('查询失败: ' + (error as Error).message);
-    // 不输出到控制台
   } finally {
     loading.value = false;
   }
@@ -335,30 +347,33 @@ const useMyIP = async () => {
   loading.value = true;
   
   try {
-    // 这里应该是实际的API调用
-    // const response = await fetch('https://api.example.com/myip');
-    // const data = await response.json();
-    
-    // 模拟API响应
-    await new Promise(resolve => setTimeout(resolve, 500));
-    ipAddress.value = '58.34.100.1'; // 模拟的本机IP
+    // 使用新的获取当前IP工具
+    const myIPInfo = await getMyIPInfo();
+    ipAddress.value = myIPInfo.ip;
     
     ElMessage.success('已获取您的公网IP地址');
-    lookupIP();
+    ipResult.value = myIPInfo;
+    saveRecentSearch(myIPInfo.ip);
+    
+    // 如果有地图元素并且有位置信息，初始化地图
+    if (myIPInfo.location) {
+      initMap(myIPInfo.location.latitude, myIPInfo.location.longitude);
+    }
   } catch (error) {
     ElMessage.error('获取IP失败: ' + (error as Error).message);
+  } finally {
     loading.value = false;
   }
 };
 
-// 初始化地图 (示例函数)
+// 初始化地图
 const initMap = (lat: number, lon: number) => {
-  // 实际项目中，这里应该是地图API的调用
-  
-  // 例如，如果使用Leaflet:
-  // const map = L.map('ip-map').setView([lat, lon], 13);
-  // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-  // L.marker([lat, lon]).addTo(map);
+  // 使用OpenStreetMap静态地图
+  const mapElement = document.getElementById('ip-map');
+  if (mapElement) {
+    const mapUrl = getMapUrl(lat, lon);
+    mapElement.innerHTML = `<img src="${mapUrl}" alt="IP位置地图" style="width: 100%; border-radius: 8px;" />`;
+  }
 };
 
 // 复制结果
@@ -370,10 +385,13 @@ IP地址: ${ipResult.value.ip}
 国家/地区: ${ipResult.value.country || '未知'}${ipResult.value.city ? ', ' + ipResult.value.city : ''}
 ISP提供商: ${ipResult.value.isp || '未知'}
 组织: ${ipResult.value.org || '未知'}
-AS号码: ${ipResult.value.as || '未知'}
+AS号码: ${ipResult.value.asn || '未知'}
 主机名: ${ipResult.value.hostname || '未知'}
-地理位置: ${ipResult.value.lat ? `${ipResult.value.lat}, ${ipResult.value.lon}` : '未知'}
+地理位置: ${ipResult.value.location ? `${ipResult.value.location.latitude}, ${ipResult.value.location.longitude}` : '未知'}
 时区: ${ipResult.value.timezone || '未知'}
+${ipResult.value.isProxy ? '代理: 是' : ''}
+${ipResult.value.isVPN ? 'VPN: 是' : ''}
+${ipResult.value.isTor ? 'Tor: 是' : ''}
   `.trim();
   
   try {
@@ -711,5 +729,15 @@ AS号码: ${ipResult.value.as || '未知'}
   .help-content p, .help-content li {
     font-size: 13px;
   }
+}
+
+.security-alert {
+  color: #f56c6c;
+  font-weight: bold;
+}
+
+.security-info {
+  color: #409eff;
+  font-weight: bold;
 }
 </style> 

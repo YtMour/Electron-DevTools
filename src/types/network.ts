@@ -1,39 +1,14 @@
-export interface DNSRecord {
-  name: string;
-  value: string;
-  ttl: number;
-}
+/**
+ * 网络相关类型定义
+ */
 
-export interface WhoisData {
-  domain_name?: string;
-  registrar?: string;
-  whois_server?: string;
-  referral_url?: string;
-  updated_date?: Date;
-  creation_date?: Date;
-  expiration_date?: Date;
-  name_servers?: string[];
-  status?: string[];
-  emails?: string[];
-  dnssec?: string;
-  [key: string]: any;
-}
+// 重新导出IP信息相关类型
+export type { IPInfo, IPInfoResponse } from '@/utils/network/ip-info';
 
-export interface IPData {
-  address: string;
-  hostname?: string;
-  city?: string;
-  region?: string;
-  country?: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-  org?: string;
-  isp?: string;
-  timezone?: string;
-}
+// 重新导出域名信息相关类型
+export type { DNSRecord, WhoisInfo, DomainInfo } from '@/utils/network/domain-info';
 
+// 端口扫描结果
 export interface PortScanResult {
   port: number;
   status: 'open' | 'closed' | 'filtered';
@@ -41,6 +16,7 @@ export interface PortScanResult {
   banner?: string;
 }
 
+// 子网计算结果
 export interface SubnetCalculationResult {
   networkAddress: string;
   broadcastAddress: string;
@@ -57,6 +33,7 @@ export interface SubnetCalculationResult {
   isPrivate: boolean;
 }
 
+// MAC地址信息
 export interface MacAddress {
   address: string;
   type: 'global' | 'local' | 'multicast' | 'random';

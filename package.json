@@ -34,6 +34,7 @@
     "ajv": "^6.12.6",
     "axios": "^1.6.0",
     "browser-image-compression": "^2.0.2",
+    "chart.js": "^4.4.9",
     "codemirror": "^6.0.1",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.0",

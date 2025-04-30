@@ -185,6 +185,22 @@ const routes: RouteRecordRaw[] = [
     },
     children: [
       {
+        path: '',
+        name: 'network-home',
+        component: () => import('../views/network/home.vue'),
+        meta: {
+          title: '网络工具'
+        }
+      },
+      {
+        path: 'unified-lookup',
+        name: 'unified-lookup',
+        component: () => import('../views/network/unified-lookup/index.vue'),
+        meta: {
+          title: '网络信息查询'
+        }
+      },
+      {
         path: 'ipv4-subnet',
         name: 'ipv4-subnet',
         component: () => import('../views/network/ipv4-subnet/index.vue'),
@@ -233,35 +249,11 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
-        path: 'ip-lookup',
-        name: 'ip-lookup',
-        component: () => import('../views/network/ip-lookup/index.vue'),
-        meta: {
-          title: 'IP地址查询'
-        }
-      },
-      {
         path: 'port-scanner',
         name: 'port-scanner',
         component: () => import('../views/network/port-scanner/index.vue'),
         meta: {
           title: '端口扫描器'
-        }
-      },
-      {
-        path: 'domain-lookup',
-        name: 'domain-lookup',
-        component: () => import('../views/network/domain-lookup/index.vue'),
-        meta: {
-          title: '域名查询'
-        }
-      },
-      {
-        path: 'ping',
-        name: 'ping',
-        component: () => import('../views/network/ping/index.vue'),
-        meta: {
-          title: 'Ping测试'
         }
       }
     ]
