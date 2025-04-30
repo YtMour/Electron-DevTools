@@ -30,6 +30,7 @@ export interface WhoisInfo {
   registrantEmail?: string;
   nameServers?: string[];
   status?: string[];
+  raw?: string; // 原始Whois记录文本
 }
 
 /**

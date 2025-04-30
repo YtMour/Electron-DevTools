@@ -101,7 +101,7 @@
             <el-empty v-if="!hasResults && !isLoading" description="请输入域名并开始查询" />
             <el-skeleton :rows="10" animated v-else-if="isLoading" />
             
-            <div v-else-if="hasResults">
+            <div v-else-if="domainResults">
               <div class="domain-summary">
                 <div class="summary-item">
                   <span class="label">域名：</span>
@@ -123,7 +123,7 @@
                     </div>
                   </template>
                   
-                  <div v-if="domainResults?.dns" class="dns-records">
+                  <div v-if="domainResults.dns" class="dns-records">
                     <div v-for="(records, type) in domainResults.dns" :key="type" class="dns-type">
                       <div class="dns-type-header">
                         <el-tag :type="getDnsTagType(type)">{{ type.toUpperCase() }}</el-tag>
@@ -148,7 +148,7 @@
                     </div>
                   </template>
                   
-                  <div v-if="domainResults?.whois" class="whois-info">
+                  <div v-if="domainResults.whois" class="whois-info">
                     <div class="whois-content">
                       <div v-if="domainResults.whois.registrar" class="whois-item">
                         <div class="whois-label">注册商</div>
@@ -180,7 +180,7 @@
                       </div>
                     </div>
                     
-                    <el-collapse v-if="domainResults.whois.raw">
+                    <el-collapse v-if="domainResults.whois && domainResults.whois.raw">
                       <el-collapse-item title="原始Whois记录">
                         <pre class="raw-whois">{{ domainResults.whois.raw }}</pre>
                       </el-collapse-item>
@@ -317,9 +317,14 @@ onMounted(() => {
   }
 });
 
-// 是否有结果
+// 计算属性：是否有结果
 const hasResults = computed(() => {
-  return domainResults.value?.domain !== '';
+  return !!domainResults.value?.domain;
+});
+
+// 计算属性：是否有名称服务器
+const hasNameServers = computed(() => {
+  return !!domainResults.value?.whois?.nameServers && domainResults.value.whois.nameServers.length > 0;
 });
 
 // 验证域名
@@ -345,6 +350,35 @@ const resetForm = () => {
   domainName.value = '';
   validationError.value = '';
   domainResults.value = null;
+};
+
+// 格式化日期
+const formatDate = (dateStr?: string): string => {
+  if (!dateStr) return '未知';
+  
+  try {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('zh-CN');
+  } catch {
+    return dateStr;
+  }
+};
+
+// 获取DNS记录标签类型
+const getDnsTagType = (type: string): '' | 'success' | 'info' | 'warning' | 'danger' | 'primary' => {
+  const typesMap: Record<string, '' | 'success' | 'info' | 'warning' | 'danger' | 'primary'> = {
+    a: 'primary',
+    aaaa: 'success',
+    mx: 'warning',
+    txt: 'info',
+    ns: 'success',
+    cname: 'warning',
+    ptr: 'info',
+    soa: 'danger',
+    srv: 'warning'
+  };
+  
+  return typesMap[type.toLowerCase()] || '';
 };
 
 // 格式化Whois标签
@@ -375,10 +409,12 @@ const formatWhoisValue = (value: any): string => {
 
 // 复制结果
 const copyResults = () => {
-  let text = `域名: ${domainResults.value?.domain}\n`;
-  text += domainResults.value?.resolvedIp ? `解析IP: ${domainResults.value?.resolvedIp}\n\n` : '';
+  if (!domainResults.value) return;
   
-  if (activeTab.value === 'dns' && domainResults.value?.dns) {
+  let text = `域名: ${domainResults.value.domain}\n`;
+  text += domainResults.value.resolvedIp ? `解析IP: ${domainResults.value.resolvedIp}\n\n` : '';
+  
+  if (activeTab.value === 'dns' && domainResults.value.dns) {
     text += `DNS记录:\n`;
     for (const [type, records] of Object.entries(domainResults.value.dns)) {
       if (!records) continue;
@@ -388,14 +424,14 @@ const copyResults = () => {
       }
       text += '\n';
     }
-  } else if (activeTab.value === 'whois' && domainResults.value?.whois) {
+  } else if (activeTab.value === 'whois' && domainResults.value.whois) {
     text += `Whois信息:\n`;
     for (const [key, value] of Object.entries(domainResults.value.whois)) {
-      if (value) {
+      if (value && key !== 'raw') {
         text += `${formatWhoisLabel(key)}: ${formatWhoisValue(value)}\n`;
       }
     }
-  } else if (activeTab.value === 'ip' && domainResults.value?.ipInfo) {
+  } else if (activeTab.value === 'ip' && domainResults.value.ipInfo) {
     const ip = domainResults.value.ipInfo;
     text += `IP信息:\n`;
     text += `IP地址: ${ip.ip}\n`;
