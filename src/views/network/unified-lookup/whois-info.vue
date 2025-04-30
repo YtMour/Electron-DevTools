@@ -109,105 +109,115 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue';
+<script lang="ts">
+import { computed, defineComponent } from 'vue'; 
 import { Connection } from '@element-plus/icons-vue';
 import type { WhoisInfo } from '@/utils/network/domain-info';
 
-const props = defineProps<{
-  whois?: WhoisInfo;
-}>();
+export default defineComponent({
+  name: 'WhoisInfo',
+  props: {
+    whois: {
+      type: Object as () => WhoisInfo | undefined,
+      required: false
+    }
+  },
+  setup(props) {
+    // 计算属性
+    const hasWhoisData = computed(() => {
+      if (!props.whois) return false;
+      return Object.keys(props.whois).length > 0;
+    });
+    
+    const hasRegistrantInfo = computed(() => {
+      if (!props.whois) return false;
+      return props.whois.registrantName || 
+             props.whois.registrantOrganization || 
+             props.whois.registrantEmail;
+    });
+    
+    const hasMaskedInfo = computed(() => {
+      if (!props.whois) return false;
+      
+      // 检查常见隐私保护邮箱模式
+      const privacyPatterns = [
+        /privacy/i, 
+        /protected/i, 
+        /redacted/i, 
+        /private/i, 
+        /proxy/i,
+        /mask/i
+      ];
+      
+      const email = props.whois.registrantEmail || '';
+      return privacyPatterns.some(pattern => pattern.test(email));
+    });
+    
+    const isExpired = computed(() => {
+      if (!props.whois?.expirationDate) return false;
+      
+      const expDate = new Date(props.whois.expirationDate);
+      return expDate < new Date();
+    });
+    
+    const isExpiringSoon = computed(() => {
+      if (!props.whois?.expirationDate || isExpired.value) return false;
+      
+      const expDate = new Date(props.whois.expirationDate);
+      const thirtyDaysFromNow = new Date();
+      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+      
+      return expDate <= thirtyDaysFromNow;
+    });
 
-// 计算属性：是否有Whois数据
-const hasWhoisData = computed(() => {
-  if (!props.whois) return false;
-  return Object.keys(props.whois).length > 0;
-});
+    // 方法
+    const formatDate = (date?: string) => {
+      if (!date) return '未知';
+      try {
+        return new Date(date).toLocaleDateString('zh-CN');
+      } catch (e) {
+        return date;
+      }
+    };
+    
+    const getStatusType = (status: string) => {
+      status = status.toLowerCase();
+      
+      if (status.includes('delete') || status.includes('redempt')) {
+        return 'danger';
+      }
+      
+      if (status.includes('prohibit') || status.includes('lock')) {
+        return 'warning';
+      }
+      
+      if (status.includes('ok') || status.includes('active')) {
+        return 'success';
+      }
+      
+      return 'info';
+    };
+    
+    const formatStatus = (status: string) => {
+      // 移除常见的前缀
+      status = status.replace(/^(client|server)/i, '');
+      
+      // 首字母大写
+      return status.charAt(0).toUpperCase() + status.slice(1);
+    };
 
-// 计算属性：是否有注册人信息
-const hasRegistrantInfo = computed(() => {
-  if (!props.whois) return false;
-  return props.whois.registrantName || 
-         props.whois.registrantOrganization || 
-         props.whois.registrantEmail;
-});
-
-// 计算属性：是否有隐私保护信息
-const hasMaskedInfo = computed(() => {
-  if (!props.whois) return false;
-  
-  // 检查常见隐私保护邮箱模式
-  const privacyPatterns = [
-    /privacy/i, 
-    /protected/i, 
-    /redacted/i, 
-    /private/i, 
-    /proxy/i,
-    /mask/i
-  ];
-  
-  const email = props.whois.registrantEmail || '';
-  return privacyPatterns.some(pattern => pattern.test(email));
-});
-
-// 计算属性：是否已过期
-const isExpired = computed(() => {
-  if (!props.whois?.expirationDate) return false;
-  
-  const expDate = new Date(props.whois.expirationDate);
-  return expDate < new Date();
-});
-
-// 计算属性：是否即将过期（30天内）
-const isExpiringSoon = computed(() => {
-  if (!props.whois?.expirationDate || isExpired.value) return false;
-  
-  const expDate = new Date(props.whois.expirationDate);
-  const thirtyDaysFromNow = new Date();
-  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-  
-  return expDate <= thirtyDaysFromNow;
-});
-
-// 格式化日期
-const formatDate = (dateStr?: string): string => {
-  if (!dateStr) return '';
-  
-  try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('zh-CN');
-  } catch {
-    return dateStr;
+    return {
+      hasWhoisData,
+      hasRegistrantInfo,
+      hasMaskedInfo,
+      isExpired,
+      isExpiringSoon,
+      formatDate,
+      getStatusType,
+      formatStatus
+    };
   }
-};
-
-// 根据域名状态获取标签类型
-const getStatusType = (status: string): '' | 'success' | 'info' | 'warning' | 'danger' => {
-  status = status.toLowerCase();
-  
-  if (status.includes('delete') || status.includes('redempt')) {
-    return 'danger';
-  }
-  
-  if (status.includes('prohibit') || status.includes('lock')) {
-    return 'warning';
-  }
-  
-  if (status.includes('ok') || status.includes('active')) {
-    return 'success';
-  }
-  
-  return 'info';
-};
-
-// 格式化域名状态文本
-const formatStatus = (status: string): string => {
-  // 移除常见的前缀
-  status = status.replace(/^(client|server)/i, '');
-  
-  // 首字母大写
-  return status.charAt(0).toUpperCase() + status.slice(1);
-};
+});
 </script>
 
 <style scoped>

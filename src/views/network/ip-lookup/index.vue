@@ -162,10 +162,6 @@
             
             <div class="result-section">
               <div class="section-title">地理位置</div>
-              <div class="map-container" id="ip-map">
-                <el-empty v-if="!ipResult.location" description="无法显示地图，缺少位置数据"></el-empty>
-                <!-- 地图将在此处渲染 -->
-              </div>
               <div class="location-details detail-list" v-if="ipResult.location">
                 <div class="detail-item">
                   <div class="detail-label">纬度</div>
@@ -176,6 +172,7 @@
                   <div class="detail-value">{{ ipResult.location.longitude }}</div>
                 </div>
               </div>
+              <el-empty v-else description="无法显示位置，缺少位置数据"></el-empty>
             </div>
           </div>
         </el-card>
@@ -234,7 +231,7 @@ import { ref, reactive, onMounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Search, Monitor, DataAnalysis, InfoFilled, CopyDocument } from '@element-plus/icons-vue';
 import { useClipboard } from '@vueuse/core';
-import { lookupIPInfo, getMyIPInfo, getMapUrl, IPInfo } from '@/utils/network/ip-info';
+import { lookupIPInfo, getMyIPInfo, type IPInfo } from '@/utils/network/ip-info';
 
 const { copy } = useClipboard();
 
@@ -330,11 +327,6 @@ const lookupIP = async () => {
     
     // 显示成功消息
     ElMessage.success('IP 信息查询成功');
-    
-    // 如果有地图元素并且有位置信息，初始化地图
-    if (ipData.location) {
-      initMap(ipData.location.latitude, ipData.location.longitude);
-    }
   } catch (error) {
     ElMessage.error('查询失败: ' + (error as Error).message);
   } finally {
@@ -354,25 +346,10 @@ const useMyIP = async () => {
     ElMessage.success('已获取您的公网IP地址');
     ipResult.value = myIPInfo;
     saveRecentSearch(myIPInfo.ip);
-    
-    // 如果有地图元素并且有位置信息，初始化地图
-    if (myIPInfo.location) {
-      initMap(myIPInfo.location.latitude, myIPInfo.location.longitude);
-    }
   } catch (error) {
     ElMessage.error('获取IP失败: ' + (error as Error).message);
   } finally {
     loading.value = false;
-  }
-};
-
-// 初始化地图
-const initMap = (lat: number, lon: number) => {
-  // 使用OpenStreetMap静态地图
-  const mapElement = document.getElementById('ip-map');
-  if (mapElement) {
-    const mapUrl = getMapUrl(lat, lon);
-    mapElement.innerHTML = `<img src="${mapUrl}" alt="IP位置地图" style="width: 100%; border-radius: 8px;" />`;
   }
 };
 
@@ -551,6 +528,10 @@ ${ipResult.value.isTor ? 'Tor: 是' : ''}
   padding: 20px;
 }
 
+.result-section {
+  margin-bottom: 16px;
+}
+
 .section-title {
   font-size: 16px;
   font-weight: 600;
@@ -592,18 +573,6 @@ ${ipResult.value.isTor ? 'Tor: 是' : ''}
 .detail-value.empty {
   color: var(--el-text-color-placeholder);
   font-style: italic;
-}
-
-.map-container {
-  height: 300px;
-  background-color: var(--el-fill-color-light);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
 }
 
 .location-details {
@@ -694,10 +663,6 @@ ${ipResult.value.isTor ? 'Tor: 是' : ''}
     border-bottom: 1px solid var(--el-border-color-light);
     padding-bottom: 8px;
   }
-  
-  .map-container {
-    height: 250px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -716,10 +681,6 @@ ${ipResult.value.isTor ? 'Tor: 是' : ''}
   .detail-label, .detail-value {
     padding: 10px 12px;
     font-size: 13px;
-  }
-  
-  .map-container {
-    height: 200px;
   }
   
   .help-content h4 {

@@ -88,6 +88,31 @@ export interface IPInfoResponse {
 const IPINFO_TOKEN = ''; // 可以设置为空字符串使用免费额度
 
 /**
+ * 安全地处理位置信息，避免地图加载错误
+ * 
+ * @param response 服务器响应数据
+ * @returns 处理后的位置信息，如果解析失败则返回undefined
+ */
+function safeParseLocation(locString?: string): LocationInfo | undefined {
+  if (!locString) return undefined;
+  
+  try {
+    const [lat, lon] = locString.split(',');
+    const latitude = parseFloat(lat);
+    const longitude = parseFloat(lon);
+    
+    if (isNaN(latitude) || isNaN(longitude)) {
+      return undefined;
+    }
+    
+    return { latitude, longitude };
+  } catch (error) {
+    console.error('解析位置信息失败:', error);
+    return undefined;
+  }
+}
+
+/**
  * 从IPinfo查询IP地址信息
  * @param ip IP地址或域名
  * @returns 处理后的IP信息
@@ -109,15 +134,8 @@ export async function lookupIPInfo(ip: string): Promise<IPInfo> {
     
     const data: IPInfoResponse = await response.json();
     
-    // 提取位置信息
-    let latitude: number | undefined;
-    let longitude: number | undefined;
-    
-    if (data.loc) {
-      const [lat, lon] = data.loc.split(',');
-      latitude = parseFloat(lat);
-      longitude = parseFloat(lon);
-    }
+    // 提取位置信息 - 使用安全解析
+    const location = safeParseLocation(data.loc);
     
     // 提取ASN信息
     const asnInfo = data.asn ? `${data.asn.asn} ${data.asn.name}` : undefined;
@@ -129,10 +147,7 @@ export async function lookupIPInfo(ip: string): Promise<IPInfo> {
       city: data.city,
       region: data.region,
       country: data.country,
-      location: (latitude && longitude) ? {
-        latitude,
-        longitude
-      } : undefined,
+      location,
       org: data.org,
       isp: data.org?.split(' ').slice(1).join(' ') || data.company?.name,
       asn: asnInfo,
@@ -161,19 +176,4 @@ export async function getMyIPInfo(): Promise<IPInfo> {
     console.error('获取当前IP信息失败:', error);
     throw error;
   }
-}
-
-/**
- * 获取地图URL
- * @param latitude 纬度
- * @param longitude 经度
- * @param zoom 缩放级别
- * @returns 地图URL
- */
-export function getMapUrl(latitude: number, longitude: number, zoom: number = 13): string {
-  // 高德地图静态图API
-  const key = '8325164e247e15eea68b59e89200988b'; // 应替换为实际的API密钥
-  
-  // 高德地图接口使用经度在前，纬度在后
-  return `https://restapi.amap.com/v3/staticmap?location=${longitude},${latitude}&zoom=${zoom}&size=600x300&markers=mid,,A:${longitude},${latitude}&key=${key}`;
 } 

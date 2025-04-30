@@ -115,36 +115,85 @@
               
               <div class="result-tabs">
                 <!-- DNS记录 -->
-                <div v-if="activeTab === 'dns'" class="dns-results">
-                  <div v-for="(records, type) in domainResults.dns" :key="type" class="dns-section">
-                    <h4>{{ type.toUpperCase() }} 记录</h4>
-                    <el-table :data="records" style="width: 100%">
-                      <el-table-column prop="name" label="名称" min-width="180" />
-                      <el-table-column prop="value" label="数据" min-width="220" />
-                      <el-table-column prop="ttl" label="TTL" width="100" />
-                    </el-table>
-                  </div>
-                  <el-empty v-if="!domainResults.dns || Object.keys(domainResults.dns).length === 0" description="未找到DNS记录" />
-                </div>
-                
-                <!-- Whois信息 -->
-                <div v-if="activeTab === 'whois'" class="whois-results">
-                  <div class="whois-data" v-if="domainResults.whois">
-                    <div v-for="(value, key) in domainResults.whois" :key="key" class="whois-item" v-if="value">
-                      <div class="whois-label">{{ formatWhoisLabel(key) }}</div>
-                      <div class="whois-value">{{ formatWhoisValue(value) }}</div>
+                <el-tab-pane name="dns">
+                  <template #label>
+                    <div class="tab-label">
+                      <el-icon><Connection /></el-icon>
+                      <span>DNS记录</span>
+                    </div>
+                  </template>
+                  
+                  <div v-if="domainResults?.dns" class="dns-records">
+                    <div v-for="(records, type) in domainResults.dns" :key="type" class="dns-type">
+                      <div class="dns-type-header">
+                        <el-tag :type="getDnsTagType(type)">{{ type.toUpperCase() }}</el-tag>
+                        <span class="record-count">{{ records.length }} 条记录</span>
+                      </div>
+                      <div v-for="(record, index) in records" :key="index" class="dns-record">
+                        <div class="record-value">{{ record.value }}</div>
+                        <div v-if="record.ttl" class="record-ttl">TTL: {{ record.ttl }}</div>
+                      </div>
                     </div>
                   </div>
-                  <el-empty v-else description="未找到Whois信息" />
-                </div>
+                  
+                  <el-empty v-else description="无DNS记录信息" />
+                </el-tab-pane>
+                
+                <!-- Whois信息 -->
+                <el-tab-pane name="whois">
+                  <template #label>
+                    <div class="tab-label">
+                      <el-icon><Document /></el-icon>
+                      <span>Whois信息</span>
+                    </div>
+                  </template>
+                  
+                  <div v-if="domainResults?.whois" class="whois-info">
+                    <div class="whois-content">
+                      <div v-if="domainResults.whois.registrar" class="whois-item">
+                        <div class="whois-label">注册商</div>
+                        <div class="whois-value">{{ domainResults.whois.registrar }}</div>
+                      </div>
+                      
+                      <div v-if="domainResults.whois.creationDate" class="whois-item">
+                        <div class="whois-label">创建日期</div>
+                        <div class="whois-value">{{ formatDate(domainResults.whois.creationDate) }}</div>
+                      </div>
+                      
+                      <div v-if="domainResults.whois.expirationDate" class="whois-item">
+                        <div class="whois-label">到期日期</div>
+                        <div class="whois-value">{{ formatDate(domainResults.whois.expirationDate) }}</div>
+                      </div>
+                      
+                      <div v-if="domainResults.whois.updatedDate" class="whois-item">
+                        <div class="whois-label">更新日期</div>
+                        <div class="whois-value">{{ formatDate(domainResults.whois.updatedDate) }}</div>
+                      </div>
+                      
+                      <div v-if="hasNameServers" class="whois-item">
+                        <div class="whois-label">域名服务器</div>
+                        <div class="whois-value name-servers">
+                          <div v-for="(ns, index) in domainResults.whois.nameServers" :key="index" class="name-server">
+                            {{ ns }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <el-collapse v-if="domainResults.whois.raw">
+                      <el-collapse-item title="原始Whois记录">
+                        <pre class="raw-whois">{{ domainResults.whois.raw }}</pre>
+                      </el-collapse-item>
+                    </el-collapse>
+                  </div>
+                  
+                  <el-empty v-else description="无Whois信息" />
+                </el-tab-pane>
                 
                 <!-- IP地址 -->
                 <div v-if="activeTab === 'ip'" class="ip-results">
                   <div class="ip-data">
                     <div v-if="domainResults.ipInfo" class="ip-info">
-                      <div class="ip-map" v-if="domainResults.ipInfo.location">
-                        <img :src="getMapImageUrl(domainResults.ipInfo.location)" alt="IP位置地图" />
-                      </div>
                       <div class="ip-details">
                         <div class="ip-item">
                           <span class="ip-label">IP地址:</span>
@@ -153,6 +202,10 @@
                         <div class="ip-item" v-if="domainResults.ipInfo.country">
                           <span class="ip-label">位置:</span>
                           <span class="ip-value">{{ domainResults.ipInfo.country }}{{ domainResults.ipInfo.region ? ', ' + domainResults.ipInfo.region : '' }}{{ domainResults.ipInfo.city ? ', ' + domainResults.ipInfo.city : '' }}</span>
+                        </div>
+                        <div class="ip-item" v-if="domainResults.ipInfo.location">
+                          <span class="ip-label">坐标:</span>
+                          <span class="ip-value">{{ domainResults.ipInfo.location.latitude }}, {{ domainResults.ipInfo.location.longitude }}</span>
                         </div>
                         <div class="ip-item" v-if="domainResults.ipInfo.isp">
                           <span class="ip-label">ISP:</span>
@@ -236,12 +289,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Search, Connection, InfoFilled, Document, CopyDocument, Delete, Location } from '@element-plus/icons-vue';
 import { useClipboard } from '@vueuse/core';
 import { lookupDomainInfo, DomainInfo, DNSRecord, WhoisInfo } from '@/utils/network/domain-info';
-import { getMapUrl } from '@/utils/network/ip-info';
 
 const { copy } = useClipboard();
 
@@ -250,15 +302,24 @@ const domainName = ref('');
 const validationError = ref('');
 const activeTab = ref('dns');
 const isLoading = ref(false);
+const domainResults = ref<DomainInfo | null>(null);
+const recentSearches = ref<string[]>([]);
 
-// 查询结果
-const domainResults = ref<DomainInfo>({
-  domain: ''
+// 在组件挂载时从localStorage加载最近的查询
+onMounted(() => {
+  const savedSearches = localStorage.getItem('recentDomainLookups');
+  if (savedSearches) {
+    try {
+      recentSearches.value = JSON.parse(savedSearches).slice(0, 5);
+    } catch (e) {
+      console.error('Failed to parse saved searches:', e);
+    }
+  }
 });
 
 // 是否有结果
 const hasResults = computed(() => {
-  return domainResults.value.domain !== '';
+  return domainResults.value?.domain !== '';
 });
 
 // 验证域名
@@ -283,9 +344,7 @@ const validateDomain = (): boolean => {
 const resetForm = () => {
   domainName.value = '';
   validationError.value = '';
-  domainResults.value = {
-    domain: ''
-  };
+  domainResults.value = null;
 };
 
 // 格式化Whois标签
@@ -314,18 +373,12 @@ const formatWhoisValue = (value: any): string => {
   return String(value);
 };
 
-// 获取地图URL
-const getMapImageUrl = (location?: { latitude: number; longitude: number }) => {
-  if (!location) return '';
-  return getMapUrl(location.latitude, location.longitude, 6);
-};
-
 // 复制结果
 const copyResults = () => {
-  let text = `域名: ${domainResults.value.domain}\n`;
-  text += domainResults.value.resolvedIp ? `解析IP: ${domainResults.value.resolvedIp}\n\n` : '';
+  let text = `域名: ${domainResults.value?.domain}\n`;
+  text += domainResults.value?.resolvedIp ? `解析IP: ${domainResults.value?.resolvedIp}\n\n` : '';
   
-  if (activeTab.value === 'dns' && domainResults.value.dns) {
+  if (activeTab.value === 'dns' && domainResults.value?.dns) {
     text += `DNS记录:\n`;
     for (const [type, records] of Object.entries(domainResults.value.dns)) {
       if (!records) continue;
@@ -335,14 +388,14 @@ const copyResults = () => {
       }
       text += '\n';
     }
-  } else if (activeTab.value === 'whois' && domainResults.value.whois) {
+  } else if (activeTab.value === 'whois' && domainResults.value?.whois) {
     text += `Whois信息:\n`;
     for (const [key, value] of Object.entries(domainResults.value.whois)) {
       if (value) {
         text += `${formatWhoisLabel(key)}: ${formatWhoisValue(value)}\n`;
       }
     }
-  } else if (activeTab.value === 'ip' && domainResults.value.ipInfo) {
+  } else if (activeTab.value === 'ip' && domainResults.value?.ipInfo) {
     const ip = domainResults.value.ipInfo;
     text += `IP信息:\n`;
     text += `IP地址: ${ip.ip}\n`;
@@ -376,8 +429,6 @@ const performLookup = async () => {
     isLoading.value = false;
   }
 };
-
-// 初始化页面
 </script>
 
 <style lang="scss" scoped>
@@ -481,18 +532,6 @@ const performLookup = async () => {
   flex-direction: column;
   gap: 20px;
   
-  .ip-map {
-    width: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-    
-    img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-  }
-  
   .ip-details {
     background: var(--el-fill-color-light);
     border-radius: 8px;
@@ -545,10 +584,6 @@ const performLookup = async () => {
   .ip-info {
     flex-direction: column;
     
-    .ip-map {
-      width: 100%;
-    }
-    
     .ip-details {
       width: 100%;
     }
@@ -559,7 +594,7 @@ const performLookup = async () => {
   .ip-info {
     flex-direction: row;
     
-    .ip-map, .ip-details {
+    .ip-details {
       width: 48%;
     }
   }

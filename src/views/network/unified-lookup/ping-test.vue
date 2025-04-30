@@ -23,7 +23,7 @@
     <div v-else-if="pingStats" class="ping-results">
       <!-- 延迟走势图 -->
       <div class="ping-chart-container">
-        <canvas ref="chartCanvas"></canvas>
+        <canvas ref="chartContainer"></canvas>
       </div>
       
       <!-- Ping测试统计 -->
@@ -110,112 +110,125 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted, watch, watchEffect, nextTick } from 'vue';
+<script lang="ts">
+import { defineComponent, ref, onMounted, watch, watchEffect, nextTick } from 'vue';
 import { VideoPlay, Loading } from '@element-plus/icons-vue';
 import type { PingStatistics } from '@/utils/network/ping';
 import Chart from 'chart.js/auto';
 
-const props = defineProps<{
-  host?: string;
-  pingStats?: PingStatistics | null;
-  isPinging: boolean;
-}>();
-
-const emit = defineEmits<{
-  'start-ping': [];
-}>();
-
-// 图表引用
-const chartCanvas = ref<HTMLCanvasElement | null>(null);
-const chart = ref<Chart | null>(null);
-
-// 每当pingStats改变时更新图表
-watchEffect(() => {
-  if (props.pingStats && chartCanvas.value) {
-    nextTick(() => {
-      renderChart();
-    });
-  }
-});
-
-// 渲染图表
-const renderChart = () => {
-  if (!props.pingStats || !chartCanvas.value) return;
-  
-  // 如果已经有图表，先销毁
-  if (chart.value) {
-    chart.value.destroy();
-  }
-  
-  // 准备数据
-  const labels = props.pingStats.results.map((_, i) => `#${i + 1}`);
-  const data = props.pingStats.results.map(r => r.success ? r.latency : null);
-  
-  // 创建图表
-  chart.value = new Chart(chartCanvas.value, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: '延迟 (ms)',
-        data,
-        borderColor: 'rgb(75, 192, 192)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        tension: 0.1,
-        fill: true,
-        pointBackgroundColor: data.map(val => 
-          val === null ? 'rgb(255, 99, 132)' : 
-          val < 100 ? 'rgb(75, 192, 192)' : 
-          val < 200 ? 'rgb(255, 205, 86)' : 
-          'rgb(255, 99, 132)'
-        ),
-        pointRadius: 6,
-        pointHoverRadius: 8
-      }]
+export default defineComponent({
+  name: 'PingTest',
+  props: {
+    host: {
+      type: String,
+      required: true
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: {
-          display: true,
-          text: `Ping: ${props.pingStats.host}`,
-          font: {
-            size: 16,
-            weight: 'bold'
-          }
+    pingStats: {
+      type: Object as () => PingStatistics | null,
+      default: null
+    },
+    isPinging: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['start-ping'],
+  setup(props, { emit }) {
+    const chartContainer = ref<HTMLCanvasElement | null>(null);
+    const chart = ref<Chart | null>(null);
+    
+    // 点击开始Ping测试
+    const startPing = () => {
+      emit('start-ping');
+    };
+    
+    // 监听pingStats变化，更新图表
+    watch(() => props.pingStats, (newStats) => {
+      if (newStats) {
+        nextTick(() => {
+          updateChart(newStats);
+        });
+      }
+    }, { immediate: true });
+    
+    // 初始化/更新图表
+    const updateChart = (stats: PingStatistics) => {
+      if (!chartContainer.value) return;
+      
+      // 准备数据
+      const labels = stats.results.map((_, i) => `#${i + 1}`);
+      const data = stats.results.map(r => r.success ? r.latency : null);
+      
+      // 清除旧图表
+      if (chart.value) {
+        chart.value.destroy();
+      }
+      
+      // 创建新图表
+      chart.value = new Chart(chartContainer.value, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Ping 延迟 (ms)',
+            data,
+            borderColor: '#409EFF',
+            backgroundColor: 'rgba(64, 158, 255, 0.1)',
+            tension: 0.1,
+            pointBackgroundColor: data.map(val => 
+              val === null ? '#F56C6C' : '#67C23A'
+            ),
+            pointRadius: 5,
+            fill: true
+          }]
         },
-        tooltip: {
-          callbacks: {
-            label: (context: any) => {
-              const dataIndex = context.dataIndex;
-              const result = props.pingStats!.results[dataIndex];
-              
-              if (!result.success) {
-                return '超时';
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                title: (tooltipItems) => {
+                  const index = tooltipItems[0].dataIndex;
+                  return `Ping #${index + 1}`;
+                },
+                label: (context) => {
+                  const value = context.raw as number | null;
+                  return value === null ? 
+                    '请求超时' : 
+                    `延迟: ${value} ms`;
+                }
               }
-              
-              return `延迟: ${result.latency} ms`;
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '延迟 (ms)'
+              }
             }
           }
         }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: '延迟 (ms)'
-          },
-          ticks: {
-            callback: (value: any) => `${value} ms`
-          }
-        }
+      });
+    };
+    
+    // 组件挂载时初始化图表
+    onMounted(() => {
+      if (props.pingStats) {
+        nextTick(() => {
+          updateChart(props.pingStats as PingStatistics);
+        });
       }
-    }
-  });
-};
+    });
+    
+    return {
+      chartContainer,
+      startPing
+    };
+  }
+});
 </script>
 
 <style scoped>

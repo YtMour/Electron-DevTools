@@ -24,5 +24,11 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 
 app.use(ElementPlus)
 
+// 添加全局错误处理
+app.config.errorHandler = (err, instance, info) => {
+  console.error('应用错误:', err);
+  console.info('错误信息:', info);
+};
+
 // 挂载应用
 app.mount('#app')
