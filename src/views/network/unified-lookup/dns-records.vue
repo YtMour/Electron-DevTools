@@ -14,8 +14,8 @@
             <el-table-column prop="name" label="名称" min-width="180" />
             <el-table-column prop="value" label="值" min-width="220" />
             <el-table-column prop="ttl" label="TTL" width="100" align="center" />
-          </el-table>
-        </div>
+        </el-table>
+            </div>
       </div>
     </div>
     <el-empty v-else description="未找到DNS记录" />
@@ -38,17 +38,17 @@ export default defineComponent({
     getDnsTagType(type: string): '' | 'success' | 'info' | 'warning' | 'danger' | 'primary' {
       const typesMap: Record<string, '' | 'success' | 'info' | 'warning' | 'danger' | 'primary'> = {
         a: 'primary',
-        aaaa: 'success',
-        mx: 'warning',
-        txt: 'info',
-        ns: 'success',
-        cname: 'warning',
-        ptr: 'info',
-        soa: 'danger',
-        srv: 'warning'
-      };
-      
-      return typesMap[type.toLowerCase()] || '';
+    aaaa: 'success',
+    mx: 'warning',
+    txt: 'info',
+    ns: 'success',
+    cname: 'warning',
+    ptr: 'info',
+    soa: 'danger',
+    srv: 'warning'
+  };
+  
+  return typesMap[type.toLowerCase()] || '';
     }
   }
 });
