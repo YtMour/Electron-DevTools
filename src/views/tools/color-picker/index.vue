@@ -16,7 +16,7 @@
         <el-card shadow="never" class="color-card">
           <template #header>
             <div class="card-header">
-              <el-icon><Palette /></el-icon>
+              <el-icon><Grid /></el-icon>
               <span>颜色选择</span>
             </div>
           </template>
@@ -320,11 +320,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   Brush,
-  Palette,
   Grid,
   Refresh,
   Plus,
@@ -664,9 +663,11 @@ const clearHistory = () => {
 }
 
 // 初始化
-onColorChange(currentColor.value)
-updateBlend()
-updateContrast()
+onMounted(() => {
+  onColorChange(currentColor.value)
+  updateBlend()
+  updateContrast()
+})
 </script>
 
 <style scoped>

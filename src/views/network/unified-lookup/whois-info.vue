@@ -188,7 +188,7 @@
           <el-button type="success" @click="copyAllData" :icon="CopyDocument">
             复制全部
           </el-button>
-          <el-button type="info" @click="checkDomainSecurity" :icon="Shield">
+          <el-button type="info" @click="checkDomainSecurity" :icon="Lock">
             安全检查
           </el-button>
           <el-button type="warning" @click="showDomainHistory" :icon="Clock">
@@ -200,7 +200,7 @@
       <!-- 安全信息 -->
       <div class="whois-section" v-if="securityInfo">
         <div class="section-head">
-          <el-icon class="section-icon"><Shield /></el-icon>
+          <el-icon class="section-icon"><Lock /></el-icon>
           安全信息
         </div>
         <div class="security-grid">
@@ -256,7 +256,7 @@ import {
   DataAnalysis,
   Tools,
   Download,
-  Shield,
+  Lock,
   Clock
 } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'

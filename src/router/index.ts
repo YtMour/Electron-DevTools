@@ -263,6 +263,14 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '端口扫描器'
         }
+      },
+      {
+        path: 'network-diagnostics',
+        name: 'network-diagnostics',
+        component: () => import('../views/network/network-diagnostics.vue'),
+        meta: {
+          title: '网络诊断工具'
+        }
       }
     ]
   },

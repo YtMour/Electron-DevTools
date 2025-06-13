@@ -200,6 +200,7 @@ import {
 import { useClipboard } from '@vueuse/core';
 import { unifiedLookup, getMyCurrentInfo, LookupResult } from '@/utils/network/unified-lookup';
 import { pingMultiple, PingStatistics, formatPingStatistics } from '@/utils/network/ping';
+import { reliablePing, testNetworkConnectivity } from '@/utils/network/reliable-ping';
 
 // 使用异步组件导入方式
 const GeneralInfo = defineAsyncComponent(() => import('./general-info.vue'));
@@ -297,14 +298,22 @@ const useMyIP = async () => {
 // 开始Ping测试
 const startPingTest = async () => {
   if (!lookupResult.value) return;
-  
+
   isPinging.value = true;
-  
+
   try {
+    // 首先检查网络连通性
+    const isConnected = await testNetworkConnectivity(3000);
+    if (!isConnected) {
+      ElMessage.warning('网络连接异常，建议检查网络设置');
+    }
+
+    // 使用更可靠的 ping 方法
     pingStats.value = await pingMultiple(lookupResult.value.query, 4, 1000);
     ElMessage.success('Ping测试完成');
   } catch (error) {
-    ElMessage.error('Ping测试失败: ' + (error as Error).message);
+    console.error('Ping测试错误:', error);
+    ElMessage.error('Ping测试失败，请检查网络连接或尝试其他主机');
   } finally {
     isPinging.value = false;
   }

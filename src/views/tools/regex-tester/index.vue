@@ -84,7 +84,7 @@
                   清空
                 </el-button>
                 <el-button type="text" size="small" @click="loadSampleText">
-                  <el-icon><Magic /></el-icon>
+                  <el-icon><Star /></el-icon>
                   示例
                 </el-button>
               </div>
@@ -238,7 +238,7 @@ import {
   Edit,
   Document,
   Delete,
-  Magic,
+  Star,
   DataAnalysis,
   Refresh,
   CopyDocument,

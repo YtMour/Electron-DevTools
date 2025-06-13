@@ -120,6 +120,10 @@ const menuConfig: MenuItem[] = [
         name: '端口扫描器'
       },
       {
+        path: '/network/network-diagnostics',
+        name: '网络诊断工具'
+      },
+      {
         path: '/network/mac-lookup',
         name: 'MAC地址查找'
       },
