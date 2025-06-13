@@ -231,6 +231,25 @@
       </div>
     </div>
 
+    <!-- 域名不存在或未注册的情况 -->
+    <div v-else-if="isDomainNotFound" class="domain-not-found">
+      <el-result
+        icon="warning"
+        title="域名未注册"
+        :sub-title="`域名 ${props.whois?.domainName || '未知'} 尚未被注册，您可以考虑注册此域名。`"
+      >
+        <template #extra>
+          <el-button type="primary" @click="checkDomainAvailability">
+            检查注册商
+          </el-button>
+          <el-button @click="copyDomainName">
+            复制域名
+          </el-button>
+        </template>
+      </el-result>
+    </div>
+
+    <!-- 完全没有数据的情况 -->
     <el-empty
       v-else
       description="未找到 Whois 信息"
@@ -279,8 +298,44 @@ const securityInfo = ref<Record<string, { value: string; type: string }> | null>
 
 // 计算属性
 const hasWhoisData = computed(() => {
-  if (!props.whois) return false
-  return Object.keys(props.whois).length > 0
+  console.log('WhoisInfo 组件接收到的数据:', props.whois);
+  if (!props.whois) {
+    console.log('没有 Whois 数据');
+    return false;
+  }
+
+  // 检查是否为域名不存在的情况
+  if (isDomainNotFound.value) {
+    console.log('域名不存在或未注册');
+    return false;
+  }
+
+  // 检查是否有有效的 Whois 数据
+  const hasValidData = !!(
+    props.whois.registrar ||
+    props.whois.creationDate ||
+    props.whois.expirationDate ||
+    (props.whois.nameServers && props.whois.nameServers.length > 0)
+  );
+
+  console.log('Whois 数据是否有效:', hasValidData, '数据内容:', props.whois);
+  return hasValidData;
+})
+
+const isDomainNotFound = computed(() => {
+  if (!props.whois) return false;
+
+  // 检查注册商是否为"域名未注册"
+  if (props.whois.registrar === '域名未注册') {
+    return true;
+  }
+
+  // 检查状态是否包含"域名可注册"
+  if (props.whois.status && props.whois.status.includes('域名可注册')) {
+    return true;
+  }
+
+  return false;
 })
 
 const hasRegistrantInfo = computed(() => {
@@ -495,6 +550,45 @@ const exportWhoisData = () => {
 
   ElMessage.success('Whois 数据导出成功')
 }
+
+// 检查域名可用性
+const checkDomainAvailability = () => {
+  if (!props.whois?.domainName) return;
+
+  const registrars = [
+    { name: 'GoDaddy', url: `https://www.godaddy.com/domainsearch/find?domainToCheck=${props.whois.domainName}` },
+    { name: 'Namecheap', url: `https://www.namecheap.com/domains/registration/results/?domain=${props.whois.domainName}` },
+    { name: 'Google Domains', url: `https://domains.google.com/registrar/search?searchTerm=${props.whois.domainName}` }
+  ];
+
+  ElMessageBox.confirm(
+    '选择一个注册商来检查域名可用性：',
+    '域名注册商',
+    {
+      confirmButtonText: 'GoDaddy',
+      cancelButtonText: '取消',
+      distinguishCancelAndClose: true,
+      type: 'info'
+    }
+  ).then(() => {
+    window.open(registrars[0].url, '_blank');
+  }).catch(() => {
+    // 用户取消
+  });
+};
+
+// 复制域名
+const copyDomainName = async () => {
+  if (!props.whois?.domainName) return;
+
+  try {
+    await copy(props.whois.domainName);
+    ElMessage.success('域名已复制到剪贴板');
+  } catch (error) {
+    console.error('Copy failed:', error);
+    ElMessage.error('复制失败');
+  }
+};
 
 const copyAllData = async () => {
   if (!props.whois) return
