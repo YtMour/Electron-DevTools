@@ -305,7 +305,10 @@ export async function lookupIPInfo(ip: string): Promise<IPInfo> {
         }
       }
     } catch (error) {
-      console.warn(`${provider.name} 查询失败:`, error);
+      // 静默处理常见的API错误
+      if (import.meta.env.DEV) {
+        console.debug(`${provider.name} 查询失败:`, error);
+      }
       continue;
     }
   }

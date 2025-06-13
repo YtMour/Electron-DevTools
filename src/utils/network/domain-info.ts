@@ -125,7 +125,10 @@ export async function lookupDNS(domain: string): Promise<Record<string, DNSRecor
           }
         }
       } catch (error) {
-        console.warn(`${provider.name} DNS查询失败 (${type}):`, error);
+        // 静默处理常见的网络错误
+        if (import.meta.env.DEV) {
+          console.debug(`${provider.name} DNS查询失败 (${type}):`, error);
+        }
         continue;
       }
     }
@@ -327,7 +330,10 @@ export async function lookupWhois(domain: string): Promise<WhoisInfo> {
         }
       }
     } catch (error) {
-      console.warn(`${provider.name} Whois查询失败:`, error);
+      // 静默处理常见的API错误
+      if (import.meta.env.DEV) {
+        console.debug(`${provider.name} Whois查询失败:`, error);
+      }
       continue;
     }
   }
