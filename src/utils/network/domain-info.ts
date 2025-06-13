@@ -1,10 +1,53 @@
 /**
  * 域名信息查询工具
  * 提供DNS、Whois等域名相关信息查询功能
+ * 支持智能缓存、多API故障转移、DNS验证等高级功能
  */
 
 import { lookupIPInfo, type IPInfo } from './ip-info'
-import { silentLog, safeNetworkOperation } from './error-handler'
+
+/**
+ * 缓存管理器
+ */
+class CacheManager {
+  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+
+  set(key: string, data: any, ttlMinutes: number = 30): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl: ttlMinutes * 60 * 1000
+    });
+  }
+
+  get(key: string): any | null {
+    const item = this.cache.get(key);
+    if (!item) return null;
+
+    if (Date.now() - item.timestamp > item.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return item.data;
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  getStats(): { size: number; keys: string[] } {
+    return {
+      size: this.cache.size,
+      keys: Array.from(this.cache.keys())
+    };
+  }
+}
+
+// 全局缓存实例
+const whoisCache = new CacheManager();
+const dnsCache = new CacheManager();
+import { silentLog, safeNetworkOperation, logUserFriendlyError, isIgnorableError } from './error-handler'
 
 /**
  * 简单哈希函数，用于生成一致的随机数
@@ -66,6 +109,14 @@ export interface DomainInfo {
  * @returns DNS记录
  */
 export async function lookupDNS(domain: string): Promise<Record<string, DNSRecord[]>> {
+  // 检查缓存
+  const cacheKey = `dns:${domain.toLowerCase()}`;
+  const cachedResult = dnsCache.get(cacheKey);
+  if (cachedResult) {
+    console.log(`从缓存获取域名 ${domain} 的 DNS 记录`);
+    return cachedResult;
+  }
+
   // 多个DNS-over-HTTPS服务提供商
   const dnsProviders = [
     {
@@ -144,6 +195,10 @@ export async function lookupDNS(domain: string): Promise<Record<string, DNSRecor
   }
 
   console.log(`域名 ${domain} 的 DNS 记录查询完成`);
+
+  // 缓存 DNS 查询结果（缓存15分钟）
+  dnsCache.set(cacheKey, results, 15);
+
   return results;
 }
 
@@ -281,6 +336,16 @@ function generateSmartDNSData(domain: string): Record<string, DNSRecord[]> {
  * @returns Whois信息
  */
 export async function lookupWhois(domain: string): Promise<WhoisInfo> {
+  // 检查缓存
+  const cacheKey = `whois:${domain.toLowerCase()}`;
+  const cachedResult = whoisCache.get(cacheKey);
+  if (cachedResult) {
+    console.log(`从缓存获取域名 ${domain} 的 Whois 信息`);
+    return cachedResult;
+  }
+
+  console.log(`正在查询域名 ${domain} 的 Whois 信息...`);
+
   // CORS 友好的 Whois API 服务提供商
   const whoisProviders = [
     // 1. 使用公共 CORS 代理 + 可靠的 Whois API
@@ -384,6 +449,10 @@ export async function lookupWhois(domain: string): Promise<WhoisInfo> {
         // 检查是否有有效的 Whois 数据
         if (whoisInfo && whoisInfo.domainName && hasValidWhoisData(whoisInfo)) {
           console.log(`域名 ${domain} Whois信息查询成功 (使用 ${provider.name})`);
+
+          // 缓存成功的结果（缓存30分钟）
+          whoisCache.set(cacheKey, whoisInfo, 30);
+
           return whoisInfo;
         } else {
           console.log(`${provider.name} 返回的数据无效，尝试下一个服务商`);
