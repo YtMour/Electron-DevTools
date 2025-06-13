@@ -130,6 +130,91 @@
         </div>
       </div>
 
+      <!-- 域名分析 -->
+      <div class="whois-section">
+        <div class="section-head">
+          <el-icon class="section-icon"><DataAnalysis /></el-icon>
+          域名分析
+        </div>
+        <div class="analysis-grid">
+          <div class="analysis-item">
+            <div class="analysis-label">域名年龄</div>
+            <div class="analysis-value">
+              <el-tag :type="getDomainAgeType(domainAge)" effect="light">
+                {{ domainAge }}
+              </el-tag>
+            </div>
+          </div>
+
+          <div class="analysis-item">
+            <div class="analysis-label">到期状态</div>
+            <div class="analysis-value">
+              <el-tag :type="getExpirationStatusType()" effect="light">
+                {{ getExpirationStatus() }}
+              </el-tag>
+            </div>
+          </div>
+
+          <div class="analysis-item">
+            <div class="analysis-label">DNS 服务器数量</div>
+            <div class="analysis-value">
+              <el-tag type="info" effect="light">
+                {{ whois.nameServers?.length || 0 }} 个
+              </el-tag>
+            </div>
+          </div>
+
+          <div class="analysis-item">
+            <div class="analysis-label">域名状态数量</div>
+            <div class="analysis-value">
+              <el-tag type="info" effect="light">
+                {{ whois.status?.length || 0 }} 个
+              </el-tag>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作工具 -->
+      <div class="whois-section">
+        <div class="section-head">
+          <el-icon class="section-icon"><Tools /></el-icon>
+          操作工具
+        </div>
+        <div class="action-buttons">
+          <el-button type="primary" @click="exportWhoisData" :icon="Download">
+            导出数据
+          </el-button>
+          <el-button type="success" @click="copyAllData" :icon="CopyDocument">
+            复制全部
+          </el-button>
+          <el-button type="info" @click="checkDomainSecurity" :icon="Shield">
+            安全检查
+          </el-button>
+          <el-button type="warning" @click="showDomainHistory" :icon="Clock">
+            历史记录
+          </el-button>
+        </div>
+      </div>
+
+      <!-- 安全信息 -->
+      <div class="whois-section" v-if="securityInfo">
+        <div class="section-head">
+          <el-icon class="section-icon"><Shield /></el-icon>
+          安全信息
+        </div>
+        <div class="security-grid">
+          <div class="security-item" v-for="(item, key) in securityInfo" :key="key">
+            <div class="security-label">{{ getSecurityLabel(key) }}</div>
+            <div class="security-value">
+              <el-tag :type="item.type" effect="light">
+                {{ item.value }}
+              </el-tag>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 隐私提示 -->
       <div class="privacy-notice" v-if="hasMaskedInfo">
         <el-alert
@@ -160,14 +245,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { ElMessage } from 'element-plus'
+import { computed, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Connection,
   InfoFilled,
   Flag,
   User,
-  CopyDocument
+  CopyDocument,
+  DataAnalysis,
+  Tools,
+  Download,
+  Shield,
+  Clock
 } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
 import type { WhoisInfo } from '@/utils/network/domain-info'
@@ -183,6 +273,9 @@ const props = withDefaults(defineProps<Props>(), {
 
 // 使用 VueUse 的剪贴板功能
 const { copy } = useClipboard()
+
+// 响应式数据
+const securityInfo = ref<Record<string, { value: string; type: string }> | null>(null)
 
 // 计算属性
 const hasWhoisData = computed(() => {
@@ -233,6 +326,30 @@ const isExpiringSoon = computed(() => {
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30)
 
   return expDate <= thirtyDaysFromNow
+})
+
+// 域名年龄计算
+const domainAge = computed(() => {
+  if (!props.whois?.creationDate) return '未知'
+
+  try {
+    const creationDate = new Date(props.whois.creationDate)
+    const now = new Date()
+    const diffTime = now.getTime() - creationDate.getTime()
+    const diffYears = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365))
+    const diffMonths = Math.floor((diffTime % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30))
+
+    if (diffYears > 0) {
+      return `${diffYears}年${diffMonths > 0 ? diffMonths + '个月' : ''}`
+    } else if (diffMonths > 0) {
+      return `${diffMonths}个月`
+    } else {
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+      return `${diffDays}天`
+    }
+  } catch (error) {
+    return '未知'
+  }
 })
 
 // 工具方法
@@ -317,6 +434,162 @@ const copyToClipboard = async (text: string): Promise<void> => {
     console.error('Copy failed:', error)
     ElMessage.error('复制失败')
   }
+}
+
+// 新增方法
+const getDomainAgeType = (age: string): 'success' | 'warning' | 'danger' | 'info' => {
+  if (age === '未知') return 'info'
+
+  const years = parseInt(age.match(/(\d+)年/)?.[1] || '0')
+  if (years >= 5) return 'success'
+  if (years >= 2) return 'warning'
+  return 'danger'
+}
+
+const getExpirationStatusType = (): 'success' | 'warning' | 'danger' | 'info' => {
+  if (isExpired.value) return 'danger'
+  if (isExpiringSoon.value) return 'warning'
+  return 'success'
+}
+
+const getExpirationStatus = (): string => {
+  if (isExpired.value) return '已过期'
+  if (isExpiringSoon.value) return '即将过期'
+  return '正常'
+}
+
+const exportWhoisData = () => {
+  if (!props.whois) return
+
+  const data = {
+    domain: props.whois.domainName,
+    registrar: props.whois.registrar,
+    creationDate: props.whois.creationDate,
+    expirationDate: props.whois.expirationDate,
+    updatedDate: props.whois.updatedDate,
+    status: props.whois.status,
+    nameServers: props.whois.nameServers,
+    registrant: {
+      name: props.whois.registrantName,
+      organization: props.whois.registrantOrganization,
+      email: props.whois.registrantEmail
+    },
+    analysis: {
+      domainAge: domainAge.value,
+      expirationStatus: getExpirationStatus(),
+      nameServerCount: props.whois.nameServers?.length || 0,
+      statusCount: props.whois.status?.length || 0
+    },
+    exportTime: new Date().toISOString()
+  }
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `whois-${props.whois.domainName || 'domain'}-${new Date().toISOString().slice(0, 10)}.json`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+
+  ElMessage.success('Whois 数据导出成功')
+}
+
+const copyAllData = async () => {
+  if (!props.whois) return
+
+  const text = `域名信息 - ${props.whois.domainName}
+
+基本信息:
+- 域名: ${props.whois.domainName || '未知'}
+- 注册商: ${props.whois.registrar || '未知'}
+- 创建日期: ${formatDate(props.whois.creationDate)}
+- 到期日期: ${formatDate(props.whois.expirationDate)}
+- 更新日期: ${formatDate(props.whois.updatedDate)}
+- Whois服务器: ${props.whois.whoisServer || '未知'}
+
+域名状态:
+${props.whois.status?.map(s => `- ${formatStatus(s)}`).join('\n') || '无'}
+
+域名服务器:
+${props.whois.nameServers?.map(ns => `- ${ns}`).join('\n') || '无'}
+
+注册人信息:
+- 名称: ${props.whois.registrantName || '未知'}
+- 组织: ${props.whois.registrantOrganization || '未知'}
+- 邮箱: ${props.whois.registrantEmail || '未知'}
+
+域名分析:
+- 域名年龄: ${domainAge.value}
+- 到期状态: ${getExpirationStatus()}
+- DNS服务器数量: ${props.whois.nameServers?.length || 0}个
+- 域名状态数量: ${props.whois.status?.length || 0}个
+
+导出时间: ${new Date().toLocaleString('zh-CN')}`
+
+  try {
+    await copy(text)
+    ElMessage.success('所有数据已复制到剪贴板')
+  } catch (error) {
+    ElMessage.error('复制失败')
+  }
+}
+
+const checkDomainSecurity = () => {
+  if (!props.whois) return
+
+  const security: Record<string, { value: string; type: string }> = {}
+
+  // 检查域名年龄
+  const years = parseInt(domainAge.value.match(/(\d+)年/)?.[1] || '0')
+  security.domainAge = {
+    value: years >= 2 ? '安全' : '风险',
+    type: years >= 2 ? 'success' : 'warning'
+  }
+
+  // 检查到期状态
+  security.expiration = {
+    value: isExpired.value ? '已过期' : isExpiringSoon.value ? '即将过期' : '正常',
+    type: isExpired.value ? 'danger' : isExpiringSoon.value ? 'warning' : 'success'
+  }
+
+  // 检查隐私保护
+  security.privacy = {
+    value: hasMaskedInfo.value ? '已启用' : '未启用',
+    type: hasMaskedInfo.value ? 'success' : 'info'
+  }
+
+  // 检查DNS配置
+  const nsCount = props.whois.nameServers?.length || 0
+  security.dns = {
+    value: nsCount >= 2 ? '正常' : '配置不足',
+    type: nsCount >= 2 ? 'success' : 'warning'
+  }
+
+  securityInfo.value = security
+  ElMessage.success('安全检查完成')
+}
+
+const showDomainHistory = () => {
+  ElMessageBox.alert(
+    '域名历史记录功能需要连接到外部API服务。此功能将在后续版本中提供。',
+    '功能提示',
+    {
+      confirmButtonText: '确定',
+      type: 'info'
+    }
+  )
+}
+
+const getSecurityLabel = (key: string): string => {
+  const labels: Record<string, string> = {
+    domainAge: '域名年龄',
+    expiration: '到期状态',
+    privacy: '隐私保护',
+    dns: 'DNS配置'
+  }
+  return labels[key] || key
 }
 </script>
 
@@ -525,6 +798,104 @@ const copyToClipboard = async (text: string): Promise<void> => {
   font-size: 16px;
 }
 
+/* 新增样式 */
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.analysis-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: var(--el-bg-color);
+  border-radius: 8px;
+  border: 1px solid var(--el-border-color-lighter);
+  transition: all 0.2s ease;
+}
+
+.analysis-item:hover {
+  border-color: var(--el-border-color-light);
+  transform: translateY(-2px);
+}
+
+.analysis-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--el-text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.analysis-value {
+  display: flex;
+  align-items: center;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.action-buttons .el-button {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.security-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: var(--el-bg-color);
+  border-radius: 8px;
+  border: 1px solid var(--el-border-color-lighter);
+  transition: all 0.2s ease;
+}
+
+.security-item:hover {
+  border-color: var(--el-border-color-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.security-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--el-text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.security-value {
+  display: flex;
+  align-items: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .analysis-grid,
+  .security-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons .el-button {
+    width: 100%;
+  }
+}
+
 /* 暗色主题适配 */
 @media (prefers-color-scheme: dark) {
   .whois-section {
@@ -532,7 +903,9 @@ const copyToClipboard = async (text: string): Promise<void> => {
     border-color: var(--el-border-color-dark);
   }
 
-  .detail-item {
+  .detail-item,
+  .analysis-item,
+  .security-item {
     background: var(--el-bg-color);
     border-color: var(--el-border-color-dark);
   }

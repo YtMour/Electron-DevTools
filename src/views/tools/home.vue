@@ -11,13 +11,13 @@
     </div>
 
     <div class="tools-grid">
-      <el-card 
-        shadow="hover" 
+      <el-card
+        shadow="hover"
         class="tool-card"
         @click="$router.push('/tools/performance-monitor')"
       >
         <div class="tool-content">
-          <div class="tool-icon">
+          <div class="tool-icon performance">
             <el-icon><Monitor /></el-icon>
           </div>
           <div class="tool-info">
@@ -26,12 +26,60 @@
           </div>
         </div>
       </el-card>
+
+      <el-card
+        shadow="hover"
+        class="tool-card"
+        @click="$router.push('/tools/api-tester')"
+      >
+        <div class="tool-content">
+          <div class="tool-icon api">
+            <el-icon><Connection /></el-icon>
+          </div>
+          <div class="tool-info">
+            <h3 class="tool-title">API 测试工具</h3>
+            <p class="tool-description">强大的 RESTful API 测试工具</p>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card
+        shadow="hover"
+        class="tool-card"
+        @click="$router.push('/tools/regex-tester')"
+      >
+        <div class="tool-content">
+          <div class="tool-icon regex">
+            <el-icon><Search /></el-icon>
+          </div>
+          <div class="tool-info">
+            <h3 class="tool-title">正则表达式测试器</h3>
+            <p class="tool-description">正则表达式测试和学习工具</p>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card
+        shadow="hover"
+        class="tool-card"
+        @click="$router.push('/tools/color-picker')"
+      >
+        <div class="tool-content">
+          <div class="tool-icon color">
+            <el-icon><Brush /></el-icon>
+          </div>
+          <div class="tool-info">
+            <h3 class="tool-title">颜色选择器</h3>
+            <p class="tool-description">专业的颜色选择和转换工具</p>
+          </div>
+        </div>
+      </el-card>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Tools, Monitor } from '@element-plus/icons-vue'
+import { Tools, Monitor, Connection, Search, Brush } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>
@@ -98,10 +146,29 @@ import { Tools, Monitor } from '@element-plus/icons-vue'
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--el-color-primary-light-9);
   border-radius: 12px;
-  color: var(--el-color-primary);
   font-size: 24px;
+  transition: all 0.3s ease;
+}
+
+.tool-icon.performance {
+  background: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+}
+
+.tool-icon.api {
+  background: var(--el-color-success-light-9);
+  color: var(--el-color-success);
+}
+
+.tool-icon.regex {
+  background: var(--el-color-warning-light-9);
+  color: var(--el-color-warning);
+}
+
+.tool-icon.color {
+  background: var(--el-color-danger-light-9);
+  color: var(--el-color-danger);
 }
 
 .tool-info {

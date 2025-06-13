@@ -141,6 +141,18 @@ const menuConfig: MenuItem[] = [
       {
         path: '/tools/performance-monitor',
         name: '性能监控'
+      },
+      {
+        path: '/tools/api-tester',
+        name: 'API 测试工具'
+      },
+      {
+        path: '/tools/regex-tester',
+        name: '正则表达式测试器'
+      },
+      {
+        path: '/tools/color-picker',
+        name: '颜色选择器'
       }
     ]
   }

@@ -4,10 +4,10 @@ import type { RouteRecordRaw } from 'vue-router'
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'Home',
-    component: () => import('../views/Home.vue'),
+    name: 'Dashboard',
+    component: () => import('../views/dashboard/index.vue'),
     meta: {
-      title: '首页'
+      title: '项目仪表板'
     }
   },
   {
@@ -288,6 +288,30 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../views/tools/performance-monitor/index.vue'),
         meta: {
           title: '性能监控'
+        }
+      },
+      {
+        path: 'api-tester',
+        name: 'api-tester',
+        component: () => import('../views/tools/api-tester/index.vue'),
+        meta: {
+          title: 'API 测试工具'
+        }
+      },
+      {
+        path: 'regex-tester',
+        name: 'regex-tester',
+        component: () => import('../views/tools/regex-tester/index.vue'),
+        meta: {
+          title: '正则表达式测试器'
+        }
+      },
+      {
+        path: 'color-picker',
+        name: 'color-picker',
+        component: () => import('../views/tools/color-picker/index.vue'),
+        meta: {
+          title: '颜色选择器'
         }
       }
     ]
