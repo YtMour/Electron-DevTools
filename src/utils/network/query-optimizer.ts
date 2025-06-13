@@ -335,7 +335,7 @@ export async function optimizedQuery<T>(
     queryOptimizer.recordQueryResult('optimized', true, responseTime);
     
     return result;
-  } catch (error) {
+  } catch (error: any) {
     const responseTime = performance.now() - startTime;
     const errorType = error?.name || error?.constructor?.name || 'Unknown';
     

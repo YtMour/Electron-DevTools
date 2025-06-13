@@ -143,8 +143,8 @@ export class PerformanceMonitor {
     })
 
     return {
-      loadTime: navigation ? navigation.loadEventEnd - navigation.navigationStart : 0,
-      domContentLoaded: navigation ? navigation.domContentLoadedEventEnd - navigation.navigationStart : 0,
+      loadTime: navigation ? navigation.loadEventEnd - navigation.fetchStart : 0,
+      domContentLoaded: navigation ? navigation.domContentLoadedEventEnd - navigation.fetchStart : 0,
       firstPaint,
       firstContentfulPaint
     }

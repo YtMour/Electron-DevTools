@@ -127,7 +127,7 @@
               >
                 <div class="match-header">
                   <span class="match-index">匹配 {{ index + 1 }}</span>
-                  <span class="match-position">位置: {{ match.index }}-{{ match.index + match[0].length }}</span>
+                  <span class="match-position">位置: {{ match.index ?? 0 }}-{{ (match.index ?? 0) + match[0].length }}</span>
                 </div>
                 
                 <div class="match-content">
@@ -241,8 +241,7 @@ import {
   Star,
   DataAnalysis,
   Refresh,
-  CopyDocument,
-  Collection
+  CopyDocument
 } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
 
@@ -337,17 +336,6 @@ const regexLibrary: LibraryItem[] = [
     description: '匹配 HTML 标签'
   }
 ]
-
-// 计算属性
-const currentRegex = computed(() => {
-  if (!regexPattern.value) return null
-  
-  try {
-    return new RegExp(regexPattern.value, regexFlags.value)
-  } catch (error) {
-    return null
-  }
-})
 
 // 方法
 const updateFlags = () => {

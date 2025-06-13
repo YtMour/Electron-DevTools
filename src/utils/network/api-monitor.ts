@@ -240,7 +240,7 @@ export function monitorAPICall(monitor: APIMonitor, provider: string) {
         const result = await method.apply(this, args);
         monitor.endCall(call, true);
         return result;
-      } catch (error) {
+      } catch (error: any) {
         const errorType = error?.name || error?.constructor?.name || 'Unknown';
         monitor.endCall(call, false, errorType);
         throw error;
