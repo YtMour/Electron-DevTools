@@ -117,6 +117,14 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'code-formatter',
+        name: 'code-formatter',
+        component: () => import('../views/format/code-formatter/index.vue'),
+        meta: {
+          title: '代码格式化'
+        }
+      },
+      {
         path: 'csv',
         name: 'CSV',
         component: () => import('../views/format/csv/index.vue'),
@@ -254,6 +262,32 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../views/network/port-scanner/index.vue'),
         meta: {
           title: '端口扫描器'
+        }
+      }
+    ]
+  },
+  {
+    path: '/tools',
+    name: 'tools',
+    component: () => import('../views/tools/index.vue'),
+    meta: {
+      title: '系统工具'
+    },
+    children: [
+      {
+        path: '',
+        name: 'tools-home',
+        component: () => import('../views/tools/home.vue'),
+        meta: {
+          title: '系统工具'
+        }
+      },
+      {
+        path: 'performance-monitor',
+        name: 'performance-monitor',
+        component: () => import('../views/tools/performance-monitor/index.vue'),
+        meta: {
+          title: '性能监控'
         }
       }
     ]

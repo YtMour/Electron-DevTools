@@ -1,5 +1,6 @@
 <template>
-  <el-container class="app-container">
+  <AppLoading v-if="isLoading" />
+  <el-container v-else class="app-container">
     <el-aside :width="isCollapse ? '64px' : '240px'" class="app-aside">
       <div class="logo-container" :class="{ 'collapsed': isCollapse }">
         <img src="./assets/logo.svg" alt="Yt Tools" class="logo" />
@@ -104,14 +105,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import AppLoading from '@/components/AppLoading.vue'
 import menuConfig from '@/config/menu'
 import {
   HomeFilled,
-  Lock,
-  Document,
-  Folder,
   Moon,
   Sunny,
   Minus,
@@ -131,6 +130,7 @@ declare global {
 }
 
 const route = useRoute()
+const isLoading = ref(true)
 const isCollapse = ref(false)
 const isDark = ref(false)
 const isMaximized = ref(false)
@@ -194,8 +194,13 @@ const toggleTheme = (val: string | number | boolean) => {
   themeManager.setTheme(isDarkMode)
 }
 
-// 初始化主题
+// 初始化主题和应用
 onMounted(() => {
+  // 模拟加载过程
+  setTimeout(() => {
+    isLoading.value = false
+  }, 2000)
+
   const shouldUseDark = themeManager.getCurrentTheme()
   isDark.value = shouldUseDark
   themeManager.setTheme(shouldUseDark)

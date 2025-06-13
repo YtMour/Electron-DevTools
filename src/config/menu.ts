@@ -68,6 +68,10 @@ const menuConfig: MenuItem[] = [
       {
         path: '/format/markdown',
         name: 'Markdown'
+      },
+      {
+        path: '/format/code-formatter',
+        name: '代码格式化'
       }
     ]
   },
@@ -128,7 +132,18 @@ const menuConfig: MenuItem[] = [
         name: 'IPv6 ULA生成器'
       }
     ]
+  },
+  {
+    path: '/tools',
+    name: '系统工具',
+    icon: 'Tools',
+    children: [
+      {
+        path: '/tools/performance-monitor',
+        name: '性能监控'
+      }
+    ]
   }
 ]
 
-export default menuConfig 
+export default menuConfig

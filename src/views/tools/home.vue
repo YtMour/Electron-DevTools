@@ -1,0 +1,134 @@
+<template>
+  <div class="tools-home">
+    <div class="page-header">
+      <h1 class="page-title">
+        <el-icon class="title-icon"><Tools /></el-icon>
+        系统工具
+      </h1>
+      <p class="page-description">
+        提供系统性能监控、错误诊断等实用工具
+      </p>
+    </div>
+
+    <div class="tools-grid">
+      <el-card 
+        shadow="hover" 
+        class="tool-card"
+        @click="$router.push('/tools/performance-monitor')"
+      >
+        <div class="tool-content">
+          <div class="tool-icon">
+            <el-icon><Monitor /></el-icon>
+          </div>
+          <div class="tool-info">
+            <h3 class="tool-title">性能监控</h3>
+            <p class="tool-description">实时监控应用性能指标</p>
+          </div>
+        </div>
+      </el-card>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { Tools, Monitor } from '@element-plus/icons-vue'
+</script>
+
+<style scoped>
+.tools-home {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  margin: 0 0 12px 0;
+}
+
+.title-icon {
+  color: var(--el-color-primary);
+  font-size: 32px;
+}
+
+.page-description {
+  color: var(--el-text-color-secondary);
+  font-size: 16px;
+  margin: 0;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.tool-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.tool-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.tool-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px;
+}
+
+.tool-icon {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--el-color-primary-light-9);
+  border-radius: 12px;
+  color: var(--el-color-primary);
+  font-size: 24px;
+}
+
+.tool-info {
+  flex: 1;
+}
+
+.tool-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  margin: 0 0 8px 0;
+}
+
+.tool-description {
+  color: var(--el-text-color-secondary);
+  font-size: 14px;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .tools-home {
+    padding: 16px;
+  }
+  
+  .tools-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+</style>
